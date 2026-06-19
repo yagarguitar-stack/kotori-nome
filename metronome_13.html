@@ -1,42 +1,2138 @@
-ことりノーム
-ことりノーム
-体感テンポトレーナー
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>ことりノーム</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:#f5f5f0;color:#1a1a1a;font-family:'Helvetica Neue',sans-serif;display:flex;flex-direction:column;align-items:center;padding:12px 12px 24px}
+h1{font-size:1.1rem;color:#EF9F27;letter-spacing:.2em;margin-bottom:12px}
+#va{width:min(260px,90vw);height:min(174px,60vw);border-radius:12px;overflow:hidden;margin-bottom:12px;position:relative;background:#ddd}
+#va img{width:100%;height:100%;object-fit:cover;display:block}
+#va video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none}
+.row{width:100%;max-width:400px}
+.brow{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.bdisp{font-size:2.2rem;font-weight:bold;color:#EF9F27;min-width:66px;text-align:center}
+input[type=range]{-webkit-appearance:none;flex:1;height:6px;border-radius:3px;background:#ccc;outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;border-radius:50%;background:#EF9F27;cursor:pointer}#tr-bpm-slider::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;border-radius:50%;background:#EF9F27;cursor:pointer}
+.tap{background:#fff;border:2px solid #EF9F27;color:#EF9F27;border-radius:8px;padding:0 14px;font-size:.85rem;cursor:pointer;height:44px}
+.sl{font-size:.72rem;color:#999;letter-spacing:.1em;margin-bottom:4px}
+.mr{display:flex;gap:5px;margin-bottom:10px}
+.mb{flex:1;background:#fff;border:1px solid #ccc;color:#555;border-radius:6px;padding:6px 2px;font-size:.72rem;cursor:pointer;text-align:center;line-height:1.4;min-height:46px}
+.mb.on{background:#EF9F27;border-color:#EF9F27;color:#1a1a1a;font-weight:bold}
+.tr{display:flex;gap:5px;margin-bottom:10px}
+.tb,.ed-tb{flex:1;background:#fff;border:1px solid #ccc;color:#555;border-radius:6px;font-size:.75rem;cursor:pointer;text-align:center;min-height:44px;padding:0}
+.tb.on,.ed-tb.on{background:#fff7e6;border-color:#EF9F27;color:#BA7517;font-weight:bold}
+.atog{width:100%;margin-bottom:6px;background:#fff;border:1px solid #ccc;border-radius:8px;padding:0 12px;text-align:left;font-size:.75rem;color:#888;cursor:pointer;display:flex;justify-content:space-between;align-items:center;min-height:44px;gap:6px}
+.atog.on{color:#EF9F27;border-color:#EF9F27}
+.apan{display:none;background:#fafaf7;border:1px solid #ddd;border-radius:8px;padding:10px;margin-bottom:10px}
+.apan.on{display:block}
+.agrid{display:flex;gap:5px;flex-wrap:wrap}
+.ac{width:40px;height:40px;border-radius:6px;background:#e8e8e4;border:1px solid #ccc;color:#888;font-size:.72rem;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.ac.hi{background:#EF9F27;border-color:#BA7517;color:#1a1a1a;font-weight:bold}
+.ac.lo{background:#f5d48a;border-color:#EF9F27;color:#7a5000}
+.ac.bt{border-color:#888}
+.dg{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px}
+.db{background:#fff;border:1px solid #ccc;color:#555;border-radius:8px;font-size:.78rem;cursor:pointer;text-align:center;min-height:48px;padding:0 6px}
+.db.on{background:#fff7e6;border-color:#EF9F27;color:#BA7517}
+.dn{grid-column:span 2}
+#etog{width:100%;margin-bottom:6px;background:#fff;border:1px solid #ccc;border-radius:8px;padding:0 12px;text-align:left;font-size:.8rem;color:#888;cursor:pointer;display:flex;justify-content:space-between;align-items:center;min-height:44px}
+#etog.on{color:#EF9F27;border-color:#EF9F27}
+#epan{display:none;background:#fafaf7;border:1px solid #ddd;border-radius:8px;padding:10px;margin-bottom:10px}
+#epan.on{display:block}
+.etip{font-size:.7rem;color:#999;margin-bottom:8px}
+.egw{overflow-x:auto;margin-bottom:8px;-webkit-overflow-scrolling:touch}
+.etbl{border-collapse:separate;border-spacing:3px 3px}
+.etbl th{color:#888;font-size:.65rem;font-weight:400;width:28px;height:20px;text-align:center;padding-bottom:2px}
+.erl{width:32px;text-align:left;font-size:.7rem;color:#888;padding-right:4px;white-space:nowrap}
+.ec{width:28px;height:28px;border-radius:3px;background:#e8e8e4;border:1px solid #ccc;cursor:pointer}
+.ec.b1{border-left:2px solid #666!important}
+.ec.hh{background:#1D9E75;border-color:#0F6E56}
+.ec.sn{background:#185FA5;border-color:#0C447C}
+.ec.bd{background:#BA7517;border-color:#854F0B}
+.ec.cur{outline:2px solid #E24B4A;outline-offset:1px}
+.eleg{display:flex;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+.eli{display:flex;align-items:center;gap:4px;font-size:.65rem;color:#888}
+.edot{width:10px;height:10px;border-radius:2px}
+.ebr{display:flex;gap:6px;flex-wrap:wrap}
+.erst{background:#fff;border:1px solid #ccc;color:#888;border-radius:6px;padding:8px 12px;font-size:.72rem;cursor:pointer;min-height:40px}
+.eapp{background:#EF9F27;border:none;color:#1a1a1a;border-radius:6px;padding:8px 14px;font-size:.72rem;font-weight:bold;cursor:pointer;min-height:40px}
+#pb{width:100%;padding:16px;border-radius:10px;font-size:1.1rem;font-weight:bold;cursor:pointer;border:none;background:#EF9F27;color:#1a1a1a;letter-spacing:.1em;margin-top:8px}
+#pb.on{background:#c07a10}
+.tr-mode-bar{display:flex;gap:6px;margin-bottom:14px}
+.tr-mode-btn{flex:1;background:#fff;border:1px solid #ccc;color:#888;border-radius:8px;padding:8px 4px;font-size:.75rem;cursor:pointer;text-align:center;min-height:40px}
+.tr-mode-btn.on{background:#fff7e6;border-color:#EF9F27;color:#BA7517;font-weight:bold}
+.tr-panel{display:none}
+.tr-panel.on{display:block}
+.rtg-grid-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-bottom:10px}
+.rtg-table{border-collapse:separate;border-spacing:3px 3px}
+.rtg-table th{color:#888;font-size:.65rem;font-weight:400;width:28px;height:20px;text-align:center}
+.rtg-rl{width:36px;text-align:left;font-size:.7rem;color:#888;padding-right:4px;white-space:nowrap}
+.rtg-cell{width:28px;height:28px;border-radius:3px;background:#e8e8e4;border:1px solid #ccc;cursor:pointer}
+.rtg-cell.b1{border-left:2px solid #888!important}
+.rtg-cell.met-on{background:#EF9F27;border-color:#BA7517}
+.rtg-cell.tap-on{background:#185FA5;border-color:#0C447C}
+.rtg-cell.cur{outline:2px solid #E24B4A;outline-offset:1px}
+.rtg-legend{display:flex;gap:10px;margin-bottom:8px}
+.rtg-leg{display:flex;align-items:center;gap:4px;font-size:.65rem;color:#888}
+.rtg-dot{width:10px;height:10px;border-radius:2px}
+.rtg-div-row{display:flex;gap:5px;margin-bottom:8px}
+.rtg-div-btn{flex:1;background:#fff;border:1px solid #ccc;color:#555;border-radius:6px;font-size:.72rem;cursor:pointer;min-height:36px;text-align:center}
+.rtg-div-btn.on{background:#EF9F27;border-color:#EF9F27;color:#1a1a1a;font-weight:bold}
+.rtg-status{font-size:.85rem;color:#999;text-align:center;margin-bottom:10px;min-height:1.4em;font-weight:500}
+.rtg-tap-btn{width:100%;padding:28px;border-radius:16px;font-size:1.2rem;font-weight:bold;cursor:pointer;border:2px solid #EF9F27;background:#fff;color:#EF9F27;margin-bottom:12px}
+.rtg-tap-btn.inactive{border-color:#ccc;color:#ccc}
+.rtg-start-btn{width:100%;padding:14px;border-radius:10px;font-size:1rem;font-weight:bold;cursor:pointer;border:none;background:#EF9F27;color:#1a1a1a;margin-bottom:10px}
+.rtg-result{background:#fafaf7;border:1px solid #ddd;border-radius:12px;padding:14px;margin-bottom:12px;display:none}
+.rtg-result.on{display:block}
+.rtg-retry-btn{width:100%;padding:12px;border-radius:10px;font-size:.95rem;font-weight:bold;cursor:pointer;border:1px solid #EF9F27;background:#fff;color:#EF9F27}
+.ts-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:100;align-items:center;justify-content:center}
+.ts-modal-overlay.on{display:flex}
+.ts-modal{background:#fff;border-radius:16px;padding:20px;width:min(300px,85vw)}
+.ts-modal h3{font-size:.85rem;color:#999;letter-spacing:.1em;margin-bottom:12px;text-align:center}
+.ts-modal-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.ts-modal-btn{background:#f5f5f0;border:1px solid #ccc;color:#555;border-radius:8px;font-size:.9rem;cursor:pointer;min-height:44px;text-align:center}
+.ts-modal-btn.on{background:#fff7e6;border-color:#EF9F27;color:#BA7517;font-weight:bold}
+.ts-sel-btn{background:#fff;border:1px solid #ccc;color:#555;border-radius:8px;padding:0 12px;font-size:.85rem;cursor:pointer;height:44px;white-space:nowrap;min-width:70px}
+.ts-sel-btn.on{background:#fff7e6;border-color:#EF9F27;color:#BA7517;font-weight:bold}
+.tab-bar{display:flex;width:100%;max-width:400px;margin-bottom:16px;border-bottom:2px solid #e8e8e4}
+.tab-btn{flex:1;background:none;border:none;padding:10px 0;font-size:.85rem;color:#999;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px}
+.tab-btn.on{color:#EF9F27;border-bottom-color:#EF9F27;font-weight:bold}
+.trainer{width:100%;max-width:400px;display:none}
+.trainer.on{display:block}
+.tr-status{font-size:.8rem;color:#999;text-align:center;margin-bottom:12px;min-height:1.2em}
+.tr-tap-btn{width:100%;padding:28px;border-radius:16px;font-size:1.2rem;font-weight:bold;cursor:pointer;border:2px solid #EF9F27;background:#fff;color:#EF9F27;letter-spacing:.1em;margin-bottom:16px}
+.tr-tap-btn:active{background:#FFF0D0}
+.tr-tap-btn.inactive{border-color:#ccc;color:#ccc}
+.tr-start-btn{width:100%;padding:14px;border-radius:10px;font-size:1rem;font-weight:bold;cursor:pointer;border:none;background:#EF9F27;color:#1a1a1a;letter-spacing:.1em;margin-bottom:16px}
+.tr-result{background:#fafaf7;border:1px solid #ddd;border-radius:12px;padding:16px;margin-bottom:12px;display:none}
+.tr-result.on{display:block}
+.tr-result-title{font-size:.75rem;color:#999;margin-bottom:8px;letter-spacing:.05em}
+.tr-bpm-diff{font-size:1.4rem;font-weight:bold;text-align:center;margin-bottom:4px}
+.tr-bpm-diff.good{color:#1D9E75}
+.tr-bpm-diff.ok{color:#185FA5}
+.tr-bpm-diff.fair{color:#EF9F27}
+.tr-bpm-diff.bad{color:#E24B4A}
+.tr-graph{display:flex;align-items:flex-end;justify-content:center;gap:8px;height:80px;margin-bottom:8px}
+.tr-bar-wrap{display:flex;flex-direction:column;align-items:center;gap:3px}
+.tr-bar-label{font-size:.6rem;color:#999}
+.tr-bar{width:28px;border-radius:4px;min-height:4px;position:relative}
+.tr-bar.early{background:#185FA5;transform-origin:bottom}
+.tr-bar.late{background:#E24B4A;transform-origin:top}
+.tr-bar.perfect{background:#1D9E75}
+.tr-graph-legend{display:flex;gap:12px;justify-content:center;font-size:.65rem;color:#999}
+.tr-graph-legend span{display:flex;align-items:center;gap:3px}
+.tr-graph-legend span::before{content:'';display:inline-block;width:8px;height:8px;border-radius:2px}
+.early-leg::before{background:#185FA5}
+.late-leg::before{background:#E24B4A}
+.perfect-leg::before{background:#1D9E75}
+.tr-retry-btn{width:100%;padding:12px;border-radius:10px;font-size:.95rem;font-weight:bold;cursor:pointer;border:1px solid #EF9F27;background:#fff;color:#EF9F27;letter-spacing:.1em}
+</style>
+</head>
+<body>
+<h1>ことりノーム</h1>
+<div class="tab-bar">
+  <button class="tab-btn on" id="tab-metro">ことりノーム</button>
+  <button class="tab-btn" id="tab-trainer">体感テンポトレーナー</button>
+</div>
+<div id="va">
+  <img id="img" src="" alt="" style="display:none">
+  <video id="vid" loop muted playsinline></video>
+</div>
+<div class="row" id="metro-screen">
+  <div class="brow">
+    <span class="bdisp" id="bd">120</span>
+    <input type="range" id="bs" min="30" max="240" value="120">
+    <button class="ts-sel-btn on" id="ts-sel-btn">4/4</button>
+    <button class="tap" id="tap">TAP</button>
+  </div>
+  <div class="sl">クリック音</div>
+  <div class="mr" style="margin-bottom:10px">
+    <button class="mb on" data-click="wood">木製</button>
+    <button class="mb" data-click="stick">スティック</button>
+    <button class="mb" data-click="pendulum">振り子</button>
+    <button class="mb" data-click="cowbell">カウベル</button>
+  </div>
+  <div class="sl">カウントイン</div>
+  <div class="mr" style="margin-bottom:6px">
+    <button class="mb on" data-ci="0">なし</button>
+    <button class="mb" data-ci="1">1小節</button>
+    <button class="mb" data-ci="2">2小節</button>
+  </div>
+  <button id="pb" style="margin-bottom:12px">&#9654; スタート</button>
+  <div class="sl">音符モード</div>
+  <div class="mr">
+    <button class="mb on" data-mode="q">&#9833;<br>4分</button>
+    <button class="mb" data-mode="e">&#9834;<br>8分</button>
+    <button class="mb" data-mode="et">&#9834;<br>3連</button>
+    <button class="mb" data-mode="s">&#9835;<br>16分</button>
+    <button class="mb" data-mode="st">&#9835;<br>6連</button>
+    <button class="mb" data-mode="sh">&#9834;<br>シャッフル</button>
+  </div>
+  <button class="atog" id="atog"><span>アクセント変更（ON=高音 / 薄=低音 / 消=無音）</span><span id="aarr">&#9655;</span></button>
+  <div class="apan" id="apan"><div class="agrid" id="agrid"></div></div>
+  <div class="sl">ドラムパターン</div>
+  <div class="dg">
+    <button class="db" data-drum="beat8">8ビート</button>
+    <button class="db" data-drum="beat16">16ビート</button>
+    <button class="db" data-drum="shuffle8">8シャッフル</button>
+    <button class="db" data-drum="shuffle16">16シャッフル</button>
+    <button class="db" data-drum="triplet8">トリプレット</button>
+    <button class="db on dn" data-drum="none">ドラムなし</button>
+  </div>
+  <button id="etog">パターン作成モード <span id="earr">&#9655;</span></button>
+  <div id="epan">
+    <p class="etip">セルをタップしてON/OFF。適用で反映。</p>
+    <div class="eleg">
+      <div class="eli"><div class="edot" style="background:#1D9E75"></div>HH</div>
+      <div class="eli"><div class="edot" style="background:#185FA5"></div>SN</div>
+      <div class="eli"><div class="edot" style="background:#BA7517"></div>BD</div>
+    </div>
+    <div class="egw"><table class="etbl" id="etbl"></table></div>
+    <div class="sl" style="margin-top:8px;margin-bottom:4px;">拍子</div>
+    <div class="tr" id="ed-ts-row" style="margin-bottom:8px;">
+      <button class="ed-tb on" data-edts="2/4">2/4</button>
+      <button class="ed-tb" data-edts="3/4">3/4</button>
+      <button class="ed-tb" data-edts="4/4">4/4</button>
+      <button class="ed-tb" data-edts="5/4">5/4</button>
+      <button class="ed-tb" data-edts="6/8">6/8</button>
+      <button class="ed-tb" data-edts="7/8">7/8</button>
+    </div>
+    <div class="ebr">
+      <button class="erst" id="erst">リセット</button>
+      <button class="eapp" id="eapp">&#10003; このパターンで再生</button>
+    </div>
+  </div>
+</div>
+<div class="trainer" id="trainer-screen">
+  <div class="tr-mode-bar">
+    <button class="tr-mode-btn on" id="tr-mode-tempo">体感テンポ</button>
+    <button class="tr-mode-btn" id="tr-mode-game">ゲーム</button>
+    <button class="tr-mode-btn" id="tr-mode-rhythm">アドバンス</button>
+  </div>
+  <div style="border:1px solid #ddd;border-radius:8px;padding:10px;margin-bottom:14px;background:#fafaf7;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+      <div class="sl" style="margin-bottom:0;color:#aaa;">入力遅延キャリブレーション</div>
+      <div id="calib-info" style="font-size:.65rem;color:#bbb;">未測定</div>
+    </div>
+    <div style="font-size:.65rem;color:#bbb;margin-bottom:8px;line-height:1.7;">メトロノームに合わせて8回TAPして入力遅延を測定。全モードに自動補正されます。</div>
+    <div id="calib-status" style="font-size:.75rem;color:#999;text-align:center;margin-bottom:6px;min-height:1.2em;"></div>
+    <div style="display:flex;gap:6px;">
+      <button id="calib-start-btn" style="flex:1;padding:8px;border-radius:8px;border:none;background:#EF9F27;color:#1a1a1a;font-size:.78rem;font-weight:bold;cursor:pointer;">▶ 測定開始</button>
+      <button id="calib-tap-btn" class="rtg-tap-btn inactive" style="flex:1;padding:8px;border-radius:8px;font-size:.78rem;min-height:0;margin-bottom:0;">TAP</button>
+    </div>
+  </div>
+  <!-- 体感テンポ -->
+  <div class="tr-panel on" id="tr-panel-tempo">
+  <div class="tr-settings" style="width:100%;margin-bottom:12px;">
+    <div class="sl" style="margin-bottom:4px;">テンポ</div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+      <span class="bdisp" id="tr-bpm-disp" style="font-size:2rem;font-weight:bold;color:#EF9F27;min-width:60px;text-align:center;">120</span>
+      <input type="range" id="tr-bpm-slider" min="30" max="240" value="120" style="-webkit-appearance:none;flex:1;height:6px;border-radius:3px;background:#ccc;outline:none;">
+    </div>
+    <div class="sl" style="margin-bottom:4px;">拍子</div>
+    <div style="display:flex;gap:5px;margin-bottom:12px;">
+      <button class="tb" data-tts="2/4" style="flex:1;min-height:40px;">2/4</button>
+      <button class="tb" data-tts="3/4" style="flex:1;min-height:40px;">3/4</button>
+      <button class="tb on" data-tts="4/4" style="flex:1;min-height:40px;">4/4</button>
+      <button class="tb" data-tts="5/4" style="flex:1;min-height:40px;">5/4</button>
+      <button class="tb" data-tts="6/8" style="flex:1;min-height:40px;">6/8</button>
+      <button class="tb" data-tts="7/8" style="flex:1;min-height:40px;">7/8</button>
+    </div>
+  </div>
+  <div style="background:#fafaf7;border:1px solid #ddd;border-radius:10px;padding:12px;margin-bottom:12px;font-size:.75rem;color:#888;line-height:1.8;">
+    <div style="font-weight:bold;color:#aaa;margin-bottom:4px;letter-spacing:.05em;">遊び方 <span style="font-weight:normal;font-size:.7rem;">カウントインから曲に入る時にテンポがズレないように練習できるモードです</span></div>
+    1. テンポと拍子を設定<br>
+    2. スタートを押す<br>
+    3. 振り子音が2小節鳴る<br>
+    4. 続けてメトロノームが1小節鳴るので合わせてタップ<br>
+    5. 結果でズレを確認
+  </div>
+  <div class="tr-status" id="tr-status">スタートを押してください</div>
+  <button class="tr-start-btn" id="tr-start-btn">▶ スタート</button>
+  <button class="tr-tap-btn inactive" id="tr-tap-btn">TAP</button>
+  <button class="tr-retry-btn" id="tr-retry-btn" style="display:none">もう一度</button>
+  <div class="tr-result" id="tr-result">
+    <div class="tr-result-title">結果</div>
+    <div style="display:flex;gap:8px;margin-bottom:4px;">
+      <div style="flex:1;background:#f5f5f0;border-radius:8px;padding:8px 6px;text-align:center;">
+        <div style="font-size:.6rem;color:#aaa;margin-bottom:2px;">1拍目（飛び込み）</div>
+        <div class="tr-bpm-diff" id="tr-bpm-diff-1st" style="font-size:1.2rem;margin-bottom:0;"></div>
+        <div style="font-size:.65rem;color:#bbb;" id="tr-bpm-ms-1st"></div>
+      </div>
+      <div style="flex:1;background:#f5f5f0;border-radius:8px;padding:8px 6px;text-align:center;">
+        <div style="font-size:.6rem;color:#aaa;margin-bottom:2px;">2拍目以降（安定感）</div>
+        <div class="tr-bpm-diff" id="tr-bpm-diff" style="font-size:1.2rem;margin-bottom:0;"></div>
+        <div style="font-size:.65rem;color:#bbb;" id="tr-bpm-info"></div>
+      </div>
+    </div>
+    <div class="tr-graph" id="tr-graph"></div>
+    <div style="margin-top:10px;padding-top:8px;border-top:1px solid #e8e8e4;font-size:.65rem;color:#bbb;line-height:1.8;">
+      <span style="color:#1D9E75;">PERFECT</span> ±41ms　
+      <span style="color:#185FA5;">GREAT</span> ±83ms　
+      <span style="color:#EF9F27;">GOOD</span> ±108ms　
+      <span style="color:#E24B4A;">BAD</span> それ以上
+    </div>
+    <!-- 体感テンポ: MET+TAPのみ -->
+    <div style="display:flex;gap:6px;margin-top:10px;">
+      <button id="tr-replay-both" style="width:100%;padding:8px;border-radius:8px;border:1px solid #185FA5;background:#fff;color:#185FA5;font-size:.75rem;font-weight:bold;cursor:pointer;">リプレイ</button>
+    </div>
+  </div>
+  </div>
 
-120
+  <!-- アドバンス -->
+  <div class="tr-panel" id="tr-panel-rhythm">
+    <div style="background:#fafaf7;border:1px solid #ddd;border-radius:10px;padding:12px;margin-bottom:12px;font-size:.75rem;color:#888;line-height:1.8;">
+      <div style="font-weight:bold;color:#aaa;margin-bottom:4px;letter-spacing:.05em;">遊び方 <span style="font-weight:normal;font-size:.7rem;">自分でリズムパターンを作り、正確にタップできるか練習するモードです</span></div>
+      1. テンポ・拍子・分割単位を設定<br>
+      2. MET行でメトロノーム音を、TAP行で自分がタップする位置をON<br>
+      3. スタートを押す（2小節カウントイン後に開始）<br>
+      4. メトロノームに合わせてTAP行の位置でタップ<br>
+      5. 結果で各タップのズレを確認
+    </div>
+    <div class="sl" style="margin-bottom:4px;">テンポ</div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+      <span class="bdisp" id="rtg-bpm-disp" style="font-size:2rem;font-weight:bold;color:#EF9F27;min-width:60px;text-align:center;">120</span>
+      <input type="range" id="rtg-bpm-slider" min="30" max="240" value="120" style="-webkit-appearance:none;flex:1;height:6px;border-radius:3px;background:#ccc;outline:none;">
+    </div>
+    <div class="sl" style="margin-bottom:4px;">拍子</div>
+    <div style="display:flex;gap:5px;margin-bottom:8px;">
+      <button class="tb" data-rtgts="2/4" style="flex:1;min-height:36px;">2/4</button>
+      <button class="tb" data-rtgts="3/4" style="flex:1;min-height:36px;">3/4</button>
+      <button class="tb on" data-rtgts="4/4" style="flex:1;min-height:36px;">4/4</button>
+      <button class="tb" data-rtgts="5/4" style="flex:1;min-height:36px;">5/4</button>
+      <button class="tb" data-rtgts="6/8" style="flex:1;min-height:36px;">6/8</button>
+      <button class="tb" data-rtgts="7/8" style="flex:1;min-height:36px;">7/8</button>
+    </div>
+    <div class="sl" style="margin-bottom:4px;">分割単位</div>
+    <div class="rtg-div-row">
+      <button class="rtg-div-btn on" data-div="2">8分</button>
+      <button class="rtg-div-btn" data-div="4">16分</button>
+      <button class="rtg-div-btn" data-div="3">3連</button>
+    </div>
+    <div class="sl" style="margin-bottom:4px;">パターン長</div>
+    <div class="rtg-div-row" style="margin-bottom:8px;">
+      <button class="rtg-div-btn on" data-measures="1">1小節（繰り返し）</button>
+      <button class="rtg-div-btn" data-measures="2">2小節</button>
+    </div>
+    <div class="rtg-legend">
+      <div class="rtg-leg"><div class="rtg-dot" style="background:#EF9F27"></div>MET（メトロノーム）</div>
+      <div class="rtg-leg"><div class="rtg-dot" style="background:#185FA5"></div>TAP（自分）</div>
+    </div>
+    <div class="rtg-grid-wrap"><table class="rtg-table" id="rtg-table"></table></div>
+    <div class="rtg-status" id="rtg-status">パターンを作ってスタート</div>
+    <div style="display:flex;gap:8px;">
+      <button class="rtg-start-btn" id="rtg-start-btn" style="flex:1;">▶ スタート</button>
+      <button class="rtg-start-btn" id="rtg-stop-btn" style="flex:1;background:#c07a10;display:none;">■ ストップ</button>
+    </div>
+    <button class="rtg-tap-btn inactive" id="rtg-tap-btn">TAP</button>
+    <button class="rtg-retry-btn" id="rtg-retry-btn" style="display:none">もう一度</button>
+    <div class="rtg-result" id="rtg-result">
+      <div style="font-size:.75rem;color:#999;margin-bottom:8px;">結果</div>
+      <div class="tr-graph" id="rtg-graph"></div>
+      <div style="font-size:.75rem;color:#999;margin-top:8px;" id="rtg-summary"></div>
+      <div style="margin-top:10px;padding-top:8px;border-top:1px solid #e8e8e4;font-size:.65rem;color:#bbb;line-height:1.8;">
+        <span style="color:#1D9E75;">PERFECT</span> ±41ms　
+        <span style="color:#185FA5;">GREAT</span> ±83ms　
+        <span style="color:#EF9F27;">GOOD</span> ±108ms　
+        <span style="color:#E24B4A;">BAD</span> それ以上
+      </div>
+      <!-- アドバンス: 正解とTAP(左)・リプレイ(右) -->
+      <div style="display:flex;gap:6px;margin-top:10px;">
+        <button id="rtg-replay-met-tap" style="flex:1;padding:8px;border-radius:8px;border:1px solid #1D9E75;background:#fff;color:#1D9E75;font-size:.75rem;font-weight:bold;cursor:pointer;">正解とTAP</button>
+        <button id="rtg-replay-both" style="flex:1;padding:8px;border-radius:8px;border:1px solid #185FA5;background:#fff;color:#185FA5;font-size:.75rem;font-weight:bold;cursor:pointer;">リプレイ</button>
+      </div>
+    </div>
+  </div>
 
-4/4
-TAP
-クリック音
-木製
-スティック
-振り子
-カウベル
-カウントイン
-なし
-1小節
-2小節
-▶ スタート
-音符モード
-♩
-4分
-♪
-8分
-♪
-3連
-♫
-16分
-♫
-6連
-♪
-シャッフル
-アクセント変更（ON=高音 / 薄=低音 / 消=無音）
-▷
-ドラムパターン
-8ビート
-16ビート
-8シャッフル
-16シャッフル
-トリプレット
-ドラムなし
-パターン作成モード
-▷
+  <!-- ゲームモード -->
+  <div class="tr-panel" id="tr-panel-game">
+    <div style="background:#fafaf7;border:1px solid #ddd;border-radius:10px;padding:12px;margin-bottom:12px;font-size:.75rem;color:#888;line-height:1.8;">
+      <div style="font-weight:bold;color:#aaa;margin-bottom:4px;letter-spacing:.05em;">遊び方 <span style="font-weight:normal;font-size:.7rem;">レベルを選んでリズムパターンを正確にタップしよう</span></div>
+      1. テンポと判定モードを設定<br>
+      2. レベルを選ぶ<br>
+      3. スタート（2小節カウントイン後に開始）<br>
+      4. Lv1-14は1小節×2回、Lv15-20は2小節×1回<br>
+      5. ミスなし・全タップGOOD以内でCLEAR、PERFECT揃いでFULL PERFECT
+    </div>
+    <div class="sl" style="margin-bottom:4px;">テンポ</div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+      <span class="bdisp" id="gm-bpm-disp" style="font-size:2rem;font-weight:bold;color:#EF9F27;min-width:60px;text-align:center;">120</span>
+      <input type="range" id="gm-bpm-slider" min="30" max="240" value="120" style="-webkit-appearance:none;flex:1;height:6px;border-radius:3px;background:#ccc;outline:none;">
+    </div>
+    <div style="margin-bottom:4px;font-size:.65rem;color:#aaa;">通常判定</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-bottom:10px;">
+      <div style="background:#e8fff5;border:1px solid #1D9E75;border-radius:8px;padding:7px 4px;text-align:center;">
+        <div style="font-size:.7rem;font-weight:bold;color:#1D9E75;margin-bottom:2px;">PERFECT</div>
+        <div style="font-size:.65rem;color:#0F6E56;">±41ms以内</div>
+      </div>
+      <div style="background:#e6f0ff;border:1px solid #185FA5;border-radius:8px;padding:7px 4px;text-align:center;">
+        <div style="font-size:.7rem;font-weight:bold;color:#185FA5;margin-bottom:2px;">GREAT</div>
+        <div style="font-size:.65rem;color:#0C447C;">±83ms以内</div>
+      </div>
+      <div style="background:#fff7e6;border:1px solid #EF9F27;border-radius:8px;padding:7px 4px;text-align:center;">
+        <div style="font-size:.7rem;font-weight:bold;color:#EF9F27;margin-bottom:2px;">GOOD</div>
+        <div style="font-size:.65rem;color:#BA7517;">±108ms以内</div>
+      </div>
+    </div>
+    <div style="margin-bottom:4px;font-size:.65rem;color:#E24B4A;">👹 鬼判定</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-bottom:12px;">
+      <div style="background:#2a0000;border:1px solid #E24B4A;border-radius:8px;padding:7px 4px;text-align:center;">
+        <div style="font-size:.7rem;font-weight:bold;color:#E24B4A;margin-bottom:2px;">PERFECT</div>
+        <div style="font-size:.65rem;color:#ff6b6b;">±20ms以内</div>
+      </div>
+      <div style="background:#2a0000;border:1px solid #E24B4A;border-radius:8px;padding:7px 4px;text-align:center;">
+        <div style="font-size:.7rem;font-weight:bold;color:#ff6b6b;margin-bottom:2px;">GREAT</div>
+        <div style="font-size:.65rem;color:#ff6b6b;">±40ms以内</div>
+      </div>
+      <div style="background:#2a0000;border:1px solid #E24B4A;border-radius:8px;padding:7px 4px;text-align:center;">
+        <div style="font-size:.7rem;font-weight:bold;color:#ff6b6b;margin-bottom:2px;">GOOD</div>
+        <div style="font-size:.65rem;color:#ff6b6b;">±60ms以内</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+      <div class="sl" style="margin-bottom:0;">レベルを選択</div>
+      <button id="gm-reset-btn" style="font-size:.65rem;color:#bbb;background:none;border:1px solid #ddd;border-radius:4px;padding:2px 8px;cursor:pointer;">クリアリセット</button>
+    </div>
+    <div id="gm-level-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-bottom:14px;"></div>
+    <div id="gm-level-desc" style="background:#fff7e6;border:1px solid #EF9F27;border-radius:8px;padding:10px;margin-bottom:12px;font-size:.75rem;color:#BA7517;display:none;"></div>
+    <div class="rtg-legend" style="margin-bottom:8px;">
+      <div class="rtg-leg"><div class="rtg-dot" style="background:#EF9F27"></div>MET</div>
+      <div class="rtg-leg"><div class="rtg-dot" style="background:#185FA5"></div>TAP</div>
+    </div>
+    <div class="rtg-grid-wrap"><table class="rtg-table" id="gm-table"></table></div>
+    <div class="rtg-status" id="gm-status">レベルを選択してスタート</div>
+    <div style="display:flex;gap:8px;">
+      <button class="rtg-start-btn" id="gm-start-btn" style="flex:1;">▶ スタート</button>
+      <button class="rtg-start-btn" id="gm-stop-btn" style="flex:1;background:#c07a10;display:none;">■ ストップ</button>
+    </div>
+    <button class="rtg-tap-btn inactive" id="gm-tap-btn">TAP</button>
+    <button class="rtg-retry-btn" id="gm-retry-btn" style="display:none;">もう一度</button>
+    <div class="rtg-result" id="gm-result">
+      <div id="gm-clear-banner" style="font-size:1.5rem;font-weight:bold;text-align:center;margin-bottom:8px;padding:12px;border-radius:10px;"></div>
+      <div id="gm-score-disp" style="font-size:.95rem;text-align:center;color:#888;margin-bottom:12px;"></div>
+      <div class="tr-graph" id="gm-graph"></div>
+      <div style="font-size:.75rem;color:#999;margin-top:8px;" id="gm-summary"></div>
+
+      <!-- ゲーム: 正解とTAP(左)・リプレイ(右) -->
+      <div style="display:flex;gap:6px;margin-top:10px;">
+        <button id="gm-replay-met-tap" style="flex:1;padding:8px;border-radius:8px;border:1px solid #1D9E75;background:#fff;color:#1D9E75;font-size:.75rem;font-weight:bold;cursor:pointer;">正解とTAP</button>
+        <button id="gm-replay-both" style="flex:1;padding:8px;border-radius:8px;border:1px solid #185FA5;background:#fff;color:#185FA5;font-size:.75rem;font-weight:bold;cursor:pointer;">リプレイ</button>
+      </div>
+    </div>
+  </div>
+</div>
+<style>
+@keyframes gmPop{0%{transform:scale(0.5);opacity:0}60%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+@keyframes gmShine{0%,100%{opacity:.3}50%{opacity:1}}
+@keyframes gmFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes gmParticle{0%{transform:translateY(0) scale(1);opacity:1}100%{transform:translateY(-80px) scale(0);opacity:0}}
+</style>
+<div class="ts-modal-overlay" id="gm-clear-overlay" style="z-index:200;backdrop-filter:blur(4px);">
+  <canvas id="gm-confetti-canvas" style="position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:201;"></canvas>
+  <div id="gm-clear-modal" style="position:relative;z-index:202;border-radius:24px;padding:32px 24px 24px;width:min(340px,88vw);text-align:center;animation:gmPop .4s cubic-bezier(.34,1.56,.64,1) both;">
+    <div id="gm-clear-stars" style="font-size:2rem;letter-spacing:.2em;margin-bottom:10px;animation:gmFloat 2s ease-in-out infinite;"></div>
+    <div id="gm-clear-icon" style="font-size:3.6rem;margin-bottom:6px;"></div>
+    <div id="gm-clear-title" style="font-size:1.9rem;font-weight:bold;margin-bottom:4px;letter-spacing:.05em;"></div>
+    <div id="gm-clear-sub" style="font-size:.85rem;margin-bottom:8px;font-weight:bold;"></div>
+    <div id="gm-clear-score" style="font-size:.85rem;color:#aaa;margin-bottom:24px;"></div>
+    <button id="gm-clear-close" style="width:100%;padding:14px;border-radius:12px;border:none;font-size:1rem;font-weight:bold;cursor:pointer;letter-spacing:.1em;">閉じる</button>
+  </div>
+</div>
+<div class="ts-modal-overlay" id="gm-reset-overlay" style="z-index:300;">
+  <div style="background:#fff;border-radius:16px;padding:24px;width:min(280px,85vw);text-align:center;">
+    <div style="font-size:.9rem;color:#555;margin-bottom:16px;">クリアデータをすべてリセットしますか？</div>
+    <div style="display:flex;gap:8px;">
+      <button id="gm-reset-yes" style="flex:1;padding:12px;border:none;background:#E24B4A;color:#fff;border-radius:8px;font-size:.85rem;font-weight:bold;cursor:pointer;">リセット</button>
+      <button id="gm-reset-no" style="flex:1;padding:12px;border:1px solid #ccc;background:#fff;color:#888;border-radius:8px;font-size:.85rem;cursor:pointer;">キャンセル</button>
+    </div>
+  </div>
+</div>
+<div class="ts-modal-overlay" id="ts-modal-overlay">
+  <div class="ts-modal">
+    <h3>拍子を選択</h3>
+    <div class="ts-modal-grid">
+      <button class="ts-modal-btn" data-ts="2/4">2/4</button>
+      <button class="ts-modal-btn" data-ts="3/4">3/4</button>
+      <button class="ts-modal-btn on" data-ts="4/4">4/4</button>
+      <button class="ts-modal-btn" data-ts="5/4">5/4</button>
+      <button class="ts-modal-btn" data-ts="6/8">6/8</button>
+      <button class="ts-modal-btn" data-ts="7/8">7/8</button>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+var AC=window.AudioContext||window.webkitAudioContext;
+var ctx=null,playing=false,ctmr=null,dtmr=null,nct=0,ndt=0,cb=0,ds=0;
+var bpm=120,mode='q',ts='4/4',dpat='none',aopen=false,eopen=false,uacc=null,taps=[];
+var useCustom=false,ecs=-1,countIn=0,countInPlaying=false,editorTs='2/4';
+var clickType='wood';
+
+var vid=document.getElementById('vid');
+
+var TS={'2/4':{b:2,d:4},'3/4':{b:3,d:4},'4/4':{b:4,d:4},'5/4':{b:5,d:4},'6/8':{b:6,d:8},'7/8':{b:7,d:8}};
+var M={q:{s:1},e:{s:2},et:{s:3},s:{s:4},st:{s:6},sh:{s:3}};
+
+var DD={
+  beat8:    {steps:8, div:2,HH:[1,1,1,1,1,1,1,1],SN:[0,0,1,0,0,0,1,0],BD:[1,0,0,0,1,0,0,0]},
+  beat16:   {steps:16,div:4,HH:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],SN:[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],BD:[1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0]},
+  shuffle8: {steps:12,div:3,HH:[1,0,1,1,0,1,1,0,1,1,0,1],SN:[0,0,0,1,0,0,0,0,0,1,0,0],BD:[1,0,0,0,0,0,1,0,0,0,0,0]},
+  shuffle16:{steps:24,div:6,HH:[1,0,1,1,0,1,1,0,1,1,0,1,1,0,1,1,0,1,1,0,1,1,0,1],SN:[0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0],BD:[1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0]},
+  triplet8: {steps:12,div:3,HH:[1,1,1,1,1,1,1,1,1,1,1,1],SN:[0,0,0,1,0,0,0,0,0,1,0,0],BD:[1,0,0,0,0,0,1,0,0,0,0,0]}
+};
+function dc(o){return JSON.parse(JSON.stringify(o));}
+var CP={};Object.keys(DD).forEach(function(k){CP[k]=dc(DD[k]);});
+
+function beats(){return TS[ts].b;}
+function bint(){return (60/bpm)*(4/TS[ts].d);}
+function sint(){return bint()/M[mode].s;}
+function tc(){return beats()*M[mode].s;}
+function dacc(){
+  var b=beats(),s=M[mode].s,a=[];
+  for(var i=0;i<b;i++) for(var j=0;j<s;j++) a.push(i===0&&j===0?2:(j===0?1:0));
+  return a;
+}
+function gacc(){if(!uacc||uacc.length!==tc()) uacc=dacc(); return uacc;}
+
+function mclk(t,hi){
+  if(clickType==='wood') clkWood(t,hi);
+  else if(clickType==='stick') clkStick(t,hi);
+  else if(clickType==='pendulum') clkPendulum(t,hi);
+  else if(clickType==='cowbell') clkCowbell(t,hi);
+}
+
+// 共通：ノイズバーストでアタックの鋭さを出すヘルパー
+function _clkBurst(t,hi){
+  var sr=ctx.sampleRate;
+  var len=Math.floor(sr*0.004); // 4ms の超短バースト
+  var buf=ctx.createBuffer(1,len,sr);
+  var d=buf.getChannelData(0);
+  for(var i=0;i<len;i++) d[i]=(Math.random()*2-1)*Math.exp(-i/(sr*0.001));
+  var src=ctx.createBufferSource();
+  var hpf=ctx.createBiquadFilter();hpf.type='highpass';hpf.frequency.value=hi?4000:2000;
+  var g=ctx.createGain();g.gain.value=hi?0.6:0.4;
+  src.buffer=buf;src.connect(hpf);hpf.connect(g);g.connect(ctx.destination);
+  src.start(t);src.stop(t+0.005);
+}
+
+function clkWood(t,hi){
+  // ノイズバーストで鋭いアタック
+  _clkBurst(t,hi);
+  // オシレーターで音程感・余韻
+  var o=ctx.createOscillator(),g=ctx.createGain();
+  o.type='sine';o.connect(g);g.connect(ctx.destination);
+  o.frequency.setValueAtTime(hi?1400:900,t);
+  o.frequency.exponentialRampToValueAtTime(hi?700:450,t+0.04);
+  g.gain.setValueAtTime(hi?1.0:0.75,t);
+  g.gain.exponentialRampToValueAtTime(0.001,t+0.05);
+  o.start(t);o.stop(t+0.06);
+}
+
+function clkStick(t,hi){
+  // ノイズバーストで鋭いアタック
+  _clkBurst(t,hi);
+  var sr=ctx.sampleRate;
+  var len=Math.floor(sr*0.04);
+  var buf=ctx.createBuffer(1,len,sr);
+  var d=buf.getChannelData(0);
+  for(var i=0;i<len;i++) d[i]=(Math.random()*2-1)*Math.exp(-i/(sr*0.006));
+  var src=ctx.createBufferSource();
+  var hpf=ctx.createBiquadFilter();hpf.type='highpass';hpf.frequency.value=hi?3000:1500;
+  var g=ctx.createGain();
+  src.buffer=buf;src.connect(hpf);hpf.connect(g);g.connect(ctx.destination);
+  g.gain.setValueAtTime(hi?1.8:1.5,t);
+  src.start(t);src.stop(t+0.04);
+}
+
+function clkPendulum(t,hi){
+  // ノイズバーストで鋭いアタック
+  _clkBurst(t,hi);
+  var o=ctx.createOscillator(),g=ctx.createGain();
+  o.type='triangle';o.connect(g);g.connect(ctx.destination);
+  o.frequency.setValueAtTime(hi?2800:1800,t);
+  o.frequency.exponentialRampToValueAtTime(hi?1400:900,t+0.025);
+  g.gain.setValueAtTime(hi?1.5:1.2,t);
+  g.gain.exponentialRampToValueAtTime(0.001,t+0.03);
+  o.start(t);o.stop(t+0.035);
+}
+
+// フィンガースナップ音（3レイヤー）
+function clkClap(t){
+  if(!ctx) return;
+  var sr=ctx.sampleRate;
+  var master=ctx.createGain();
+  master.connect(ctx.destination);
+  master.gain.setValueAtTime(0.8,t);
+  master.gain.exponentialRampToValueAtTime(0.001,t+0.12);
+
+  // Layer1: アタック（爪が指に当たる瞬間の高域インパルス）
+  var len1=Math.floor(sr*0.008);
+  var buf1=ctx.createBuffer(1,len1,sr);
+  var d1=buf1.getChannelData(0);
+  for(var i=0;i<len1;i++){
+    d1[i]=(Math.random()*2-1)*Math.exp(-i/(sr*0.002));
+  }
+  var src1=ctx.createBufferSource();
+  var hpf1=ctx.createBiquadFilter();hpf1.type='highpass';hpf1.frequency.value=5000;
+  var g1=ctx.createGain();g1.gain.value=1.2;
+  src1.buffer=buf1;src1.connect(hpf1);hpf1.connect(g1);g1.connect(master);
+  src1.start(t);src1.stop(t+0.01);
+
+  // Layer2: ボディ（指の腹が当たる中域の鈍い音）
+  var len2=Math.floor(sr*0.05);
+  var buf2=ctx.createBuffer(1,len2,sr);
+  var d2=buf2.getChannelData(0);
+  for(var i=0;i<len2;i++){
+    d2[i]=(Math.random()*2-1)*Math.exp(-i/(sr*0.01));
+  }
+  var src2=ctx.createBufferSource();
+  var bp2=ctx.createBiquadFilter();bp2.type='bandpass';bp2.frequency.value=1800;bp2.Q.value=1.5;
+  var g2=ctx.createGain();g2.gain.value=0.9;
+  src2.buffer=buf2;src2.connect(bp2);bp2.connect(g2);g2.connect(master);
+  src2.start(t);src2.stop(t+0.06);
+
+  // Layer3: 共鳴（指の空洞感・残響）
+  var o3=ctx.createOscillator();
+  var g3=ctx.createGain();
+  o3.type='sine';o3.frequency.value=900;
+  o3.connect(g3);g3.connect(master);
+  g3.gain.setValueAtTime(0.15,t);
+  g3.gain.exponentialRampToValueAtTime(0.001,t+0.06);
+  o3.start(t);o3.stop(t+0.07);
+}
+
+// パン先を指定できるスナップ（リプレイ用）
+function clkClapPanned(t,dest){
+  if(!ctx) return;
+  var sr=ctx.sampleRate;
+  var len1=Math.floor(sr*0.008);
+  var buf1=ctx.createBuffer(1,len1,sr);
+  var d1=buf1.getChannelData(0);
+  for(var i=0;i<len1;i++) d1[i]=(Math.random()*2-1)*Math.exp(-i/(sr*0.002));
+  var src1=ctx.createBufferSource();
+  var hpf1=ctx.createBiquadFilter();hpf1.type='highpass';hpf1.frequency.value=5000;
+  var g1=ctx.createGain();g1.gain.value=1.0;
+  src1.buffer=buf1;src1.connect(hpf1);hpf1.connect(g1);g1.connect(dest);
+  src1.start(t);src1.stop(t+0.01);
+
+  var len2=Math.floor(sr*0.05);
+  var buf2=ctx.createBuffer(1,len2,sr);
+  var d2=buf2.getChannelData(0);
+  for(var i=0;i<len2;i++) d2[i]=(Math.random()*2-1)*Math.exp(-i/(sr*0.01));
+  var src2=ctx.createBufferSource();
+  var bp2=ctx.createBiquadFilter();bp2.type='bandpass';bp2.frequency.value=1800;bp2.Q.value=1.5;
+  var g2=ctx.createGain();g2.gain.value=0.9;
+  src2.buffer=buf2;src2.connect(bp2);bp2.connect(g2);g2.connect(dest);
+  src2.start(t);src2.stop(t+0.06);
+
+  var o3=ctx.createOscillator();
+  var g3=ctx.createGain();
+  o3.type='sine';o3.frequency.value=900;
+  o3.connect(g3);g3.connect(dest);
+  g3.gain.setValueAtTime(0.12,t);
+  g3.gain.exponentialRampToValueAtTime(0.001,t+0.06);
+  o3.start(t);o3.stop(t+0.07);
+}
+
+var CB_HI_B64='data:audio/mp3;base64,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';
+var CB_LO_B64='data:audio/mp3;base64,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F////9SP/8RG/+odb//oHn6gT/kYOjiCBIJplG1CeLRg3AimIuLMfbHKBpXg+GGYAgQAgGAkFmYcAmpgmQkmQiH+IAXDBYFBNC2A0yNAizKqw5PqMkWVNgQCvMuUdAlnzSlRaJYZm0ZdWbmXJICI1K6MjDE0h0GWawRs90n////l/3f///+n/WBASBC8Ri+dZU9W0fLy4KA0XFYPxmhKmSb0+oiS1XQeBgPC//KAF+f////6g9bj43f/+JwfP88ij///////QHzf////9Kg9b/EoOiEBWGYtDrA1pDwVP6pgMegH+cUmCkQFLMe11ypnnJL4tJgkLWBn//uSZBMI9CYewZOY2ZI3bTfgKAfSErSjF01hhsjFF58AkB9IXviFLL5RZlkrrXqep9vDJ4AwWaBepZVnP0+uZ6xzwxsV7nLdTFJIWRkU8hacxHIknY3SknLKkUmi2yOrJJyKciknIq0pKkE5FJOGTkdeknZkIpLs7IrXd7OqkE7OrpAWwQAUiKGIhW0BQoF5xorBdCYHg+M557/0OBEI4Z0av6CKf/8QhT///////////////////CEWg/HqyAAylmTc2OFlgYxOtbBW0yiTuUKLktYZM+qdxtgESHofhBLgbgFGofwpDkmDsII4DICImB+B4FQG4cpFRimHQBwFRwCICImC8DoSmA/CCXEESSETycOJwbLYH1qajy1iNa0+6CJZQYeSSykpSSWyGUlqlLKxoolsxMS1Zi7GrK2Y1TqzGm9Wd7WrfdjX/d3/v/9uPEIAWHsrT1C5bfZCKUVockmhg1W5XyV0yWBI1/eS+3////2q4QgEln//////////FgUWnJQsHyA2ZJhSIhCCoeI0CNgML0qq1UiVSVcMSrVTb//7kmQQj/KqB7kZKUiSJsXV6QgD4UAAAaQAAAAgAAA0gAAABKaL/2mr1m//6qqdq1V2////pouslpqv///1VUiVSVdv//0tTRUs+mr/qrlVBqqZVXf/9pqCZEIGIAMrOJMUMDCgjkdn/9VS30X//VEVnZyoqouORqyhgYME4lVMQU1FMy4xMDCqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqo=';
+var cbBufs={};
+function loadCowbell(cb){
+  var pending=2;
+  function done(){ pending--; if(pending<=0&&cb) cb(); }
+  ['hi','lo'].forEach(function(k){
+    var b64=(k==='hi'?CB_HI_B64:CB_LO_B64).split(',')[1];
+    var bin=atob(b64),ab=new ArrayBuffer(bin.length),v=new Uint8Array(ab);
+    for(var i=0;i<bin.length;i++) v[i]=bin.charCodeAt(i);
+    ctx.decodeAudioData(ab,function(buf){cbBufs[k]=buf;done();},function(){done();});
+  });
+}
+function clkCowbell(t,hi){
+  var buf=cbBufs[hi?'hi':'lo'];
+  if(!buf)return;
+  var src=ctx.createBufferSource(),g=ctx.createGain();
+  src.buffer=buf;src.connect(g);g.connect(ctx.destination);
+  g.gain.setValueAtTime(hi?1.5:1.2,t);
+  src.start(t);
+}
+function mdrm(t,type){
+  if(type==='bd'){
+    var o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);
+    o.frequency.setValueAtTime(150,t);o.frequency.exponentialRampToValueAtTime(40,t+0.1);
+    g.gain.setValueAtTime(0.8,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.15);
+    o.start(t);o.stop(t+0.2);
+  } else if(type==='sn'){
+    var buf=ctx.createBuffer(1,Math.floor(ctx.sampleRate*0.1),ctx.sampleRate),d=buf.getChannelData(0);
+    for(var i=0;i<d.length;i++) d[i]=Math.random()*2-1;
+    var s=ctx.createBufferSource(),g=ctx.createGain();s.buffer=buf;s.connect(g);g.connect(ctx.destination);
+    g.gain.setValueAtTime(0.4,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.1);
+    s.start(t);s.stop(t+0.15);
+  } else if(type==='hh'){
+    var buf=ctx.createBuffer(1,Math.floor(ctx.sampleRate*0.05),ctx.sampleRate),d=buf.getChannelData(0);
+    for(var i=0;i<d.length;i++) d[i]=(Math.random()*2-1)*0.3;
+    var s=ctx.createBufferSource(),f=ctx.createBiquadFilter(),g=ctx.createGain();
+    f.type='highpass';f.frequency.value=7000;s.buffer=buf;s.connect(f);f.connect(g);g.connect(ctx.destination);
+    g.gain.setValueAtTime(0.25,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.05);
+    s.start(t);s.stop(t+0.08);
+  }
+}
+
+var LA=0.1,SI=25;
+function sclk(){
+  var now=ctx.currentTime;
+  while(nct<now+LA){
+    var acc=gacc(),v=acc[cb%tc()];
+    var stepInBeat=cb%M[mode].s;
+    if(mode==='sh'&&stepInBeat===1){cb++;nct+=sint();continue;}
+    if(aopen){if(v===2)mclk(nct,true);else if(v===1)mclk(nct,false);}
+    else mclk(nct,v===2);
+    cb++;nct+=sint();
+  }
+  ctmr=setTimeout(sclk,SI);
+}
+function sdrm(){
+  if(dpat==='none') return;
+  var now=ctx.currentTime;
+  if(useCustom){
+    var p=CP[dpat];
+    while(ndt<now+LA){
+      var st=ds%p.steps;
+      if(p.HH[st]) mdrm(ndt,'hh');
+      if(p.SN[st]) mdrm(ndt,'sn');
+      if(p.BD[st]) mdrm(ndt,'bd');
+      (function(t0,si){setTimeout(function(){if(playing&&eopen)hlstep(si);},Math.max(0,(t0-ctx.currentTime)*1000));})(ndt,st);
+      ds++;ndt+=bint()/p.div;
+    }
+  } else {
+    var bi=bint(),b=beats();
+    while(ndt<now+LA){
+      if(dpat==='beat8'){
+        var p8=DD['beat8'],s8=ds%p8.steps;
+        if(p8.HH[s8]) mdrm(ndt,'hh');
+        if(p8.SN[s8]) mdrm(ndt,'sn');
+        if(p8.BD[s8]) mdrm(ndt,'bd');
+        ds++;ndt+=bint()/p8.div;
+      } else if(dpat==='beat16'){
+        var sub=ds%(b*4);
+        mdrm(ndt,'hh');
+        if(sub===0||sub===8)  mdrm(ndt,'bd');
+        if(sub===4||sub===12) mdrm(ndt,'sn');
+        ds++;ndt+=bi/4;
+      } else if(dpat==='shuffle8'){
+        var tri=ds%(b*3),it=tri%3;
+        if(it===0||it===2){mdrm(ndt,'hh');var bx=Math.floor(tri/3);if(bx===0)mdrm(ndt,'bd');if(bx===1)mdrm(ndt,'sn');}
+        ds++;ndt+=bi/3;
+      } else if(dpat==='shuffle16'){
+        var six=ds%(b*6),is=six%6;
+        if(is===0||is===2||is===3||is===5){
+          mdrm(ndt,'hh');var bx=Math.floor(six/6);
+          if(bx===0&&is===0)mdrm(ndt,'bd');if(bx===1&&is===0)mdrm(ndt,'sn');
+        }
+        ds++;ndt+=bi/6;
+      } else if(dpat==='triplet8'){
+        var p=DD['triplet8'],s=ds%p.steps;
+        if(p.HH[s]) mdrm(ndt,'hh');
+        if(p.SN[s]) mdrm(ndt,'sn');
+        if(p.BD[s]) mdrm(ndt,'bd');
+        ds++;ndt+=bint()/p.div;
+      }
+    }
+  }
+  dtmr=setTimeout(sdrm,SI);
+}
+
+function getCountInBeats(){
+  var bi=bint();
+  var b=beats();
+  var arr=[];
+  if(countIn===1){
+    for(var i=0;i<b;i++) arr.push(bi);
+  } else if(countIn===2){
+    if(b===3){
+      for(var i=0;i<6;i++) arr.push(bi);
+    } else if(b===6){
+      for(var i=0;i<12;i++) arr.push(bi);
+    } else {
+      arr.push(bi*2);arr.push(bi*2);
+      for(var i=0;i<b;i++) arr.push(bi);
+    }
+  }
+  return arr;
+}
+
+function startCountIn(startTime){
+  var intervals=getCountInBeats();
+  var t=startTime;
+  for(var i=0;i<intervals.length;i++){
+    mdrm(t,'hh');
+    t+=intervals[i];
+  }
+  return t;
+}
+
+function doStart(startTime){
+  if(!ctx) return;
+  playing=true;cb=0;ds=0;
+  nct=startTime;ndt=startTime;
+  sclk();sdrm();
+  document.getElementById('pb').textContent='■ ストップ';
+  document.getElementById('pb').classList.add('on');
+}
+
+function startM(){
+  if(!ctx) ctx=new AC();
+  if(ctx.state==='suspended') ctx.resume();
+  if(clickType==='cowbell'&&!cbBufs['hi']) loadCowbell(null);
+  function beginPlay(){
+    var t0=ctx.currentTime+0.05;
+    if(countIn===0){
+      doStart(t0);
+    } else {
+      document.getElementById('pb').textContent='♪ カウントイン...';
+      countInPlaying=true;
+      var playStart=startCountIn(t0);
+      var waitMs=(playStart-ctx.currentTime)*1000;
+      setTimeout(function(){
+        if(!ctx) return;
+        countInPlaying=false;
+        doStart(playStart);
+      }, Math.max(0,waitMs-30));
+    }
+  }
+  beginPlay();
+}
+
+function stopM(){
+  playing=false;countInPlaying=false;
+  clearTimeout(ctmr);clearTimeout(dtmr);
+  if(ctx){ctx.close();ctx=null;}
+  ecs=-1;upcur();
+  document.getElementById('pb').textContent='▶ スタート';
+  document.getElementById('pb').classList.remove('on');
+}
+
+function acls(v){return v>=2?' hi':v===1?' lo':'';}
+function racg(){
+  var g=document.getElementById('agrid');g.innerHTML='';
+  var b=beats(),s=M[mode].s,acc=gacc();
+  var l6=['表','・','・','裏','・','・'];
+  var wrap=(mode==='et'||mode==='st');
+  if(wrap){
+    g.style.flexDirection='column';g.style.alignItems='flex-start';
+    for(var i=0;i<b;i++){
+      var row=document.createElement('div');
+      row.style.cssText='display:flex;gap:5px;align-items:center;margin-bottom:4px;';
+      var bl=document.createElement('span');
+      bl.textContent=String(i+1);
+      bl.style.cssText='font-size:.65rem;color:#999;min-width:14px;text-align:right;margin-right:2px;';
+      row.appendChild(bl);
+      for(var j=0;j<s;j++){
+        (function(idx,jj){
+          var c=document.createElement('div');
+          c.className='ac'+(jj===0?' bt':'')+acls(acc[idx]);
+          c.textContent=mode==='st'?l6[jj]:(jj===0?String(i+1):'·');
+          c.addEventListener('click',function(){acc[idx]=(acc[idx]+1)%3;uacc=acc;racg();});
+          row.appendChild(c);
+        })(i*s+j,j);
+      }
+      g.appendChild(row);
+    }
+  } else {
+    g.style.flexDirection='row';g.style.alignItems='';
+    for(var i=0;i<b*s;i++){
+      (function(idx){
+        var c=document.createElement('div');
+        c.className='ac'+(idx%s===0?' bt':'')+acls(acc[idx]);
+        var lbl=s===1?String(idx+1):(idx%s===0?String(Math.floor(idx/s)+1):'·');
+        c.textContent=lbl;
+        c.addEventListener('click',function(){acc[idx]=(acc[idx]+1)%3;uacc=acc;racg();});
+        g.appendChild(c);
+      })(i);
+    }
+  }
+}
+
+function getEditorPattern(){
+  var tsInfo=TS[editorTs];
+  var b=tsInfo.b;
+  var basePat=DD[dpat];
+  var baseBeat=4;
+  var ratio=b/baseBeat;
+  var newSteps=Math.round(basePat.steps*ratio);
+  var newDiv=basePat.div;
+  var src=CP[dpat];
+  var p={steps:newSteps, div:newDiv, HH:[], SN:[], BD:[]};
+  ['HH','SN','BD'].forEach(function(row){
+    for(var i=0;i<newSteps;i++) p[row].push(src[row][i]||0);
+  });
+  return p;
+}
+
+function redg(){
+  if(dpat==='none'){document.getElementById('etbl').innerHTML='<tr><td style="color:#888;font-size:.75rem;padding:8px">ドラムパターンを選択してください</td></tr>';return;}
+  var p=getEditorPattern();
+  var steps=p.steps, div=p.div;
+  var tbl=document.getElementById('etbl');
+  tbl.innerHTML='';
+  var hdr=document.createElement('tr');
+  var th0=document.createElement('th');th0.className='erl';hdr.appendChild(th0);
+  for(var i=0;i<steps;i++){
+    var th=document.createElement('th');
+    if(i%div===0) th.textContent=String(Math.floor(i/div)+1);
+    hdr.appendChild(th);
+  }
+  tbl.appendChild(hdr);
+  ['HH','SN','BD'].forEach(function(row){
+    var tr=document.createElement('tr');
+    var td0=document.createElement('td');td0.className='erl';td0.textContent=row;tr.appendChild(td0);
+    for(var i=0;i<steps;i++){
+      (function(si,r){
+        var td=document.createElement('td');
+        var cls=['ec'];
+        if(p[r][si]) cls.push(r.toLowerCase());
+        if(si%div===0) cls.push('b1');
+        if(si===ecs) cls.push('cur');
+        td.className=cls.join(' ');
+        td.setAttribute('data-s',si);
+        td.addEventListener('click',function(){
+          p[r][si]=p[r][si]?0:1;
+          td.classList.toggle(r.toLowerCase(),!!p[r][si]);
+        });
+        tr.appendChild(td);
+      })(i,row);
+    }
+    tbl.appendChild(tr);
+  });
+  CP[dpat]=p;
+}
+function hlstep(s){ecs=s;upcur();}
+function upcur(){
+  document.querySelectorAll('.ec').forEach(function(td){
+    td.classList.toggle('cur',parseInt(td.getAttribute('data-s')||'-1')===ecs);
+  });
+}
+
+document.querySelectorAll('[data-click]').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    document.querySelectorAll('[data-click]').forEach(function(b){b.classList.remove('on');});
+    btn.classList.add('on');clickType=btn.dataset.click;
+  });
+});
+document.getElementById('bs').addEventListener('input',function(){bpm=parseInt(this.value);document.getElementById('bd').textContent=bpm;});
+document.querySelectorAll('.mb[data-mode]').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    document.querySelectorAll('.mb[data-mode]').forEach(function(b){b.classList.remove('on');});
+    btn.classList.add('on');mode=btn.dataset.mode;uacc=null;racg();
+  });
+});
+document.getElementById('ts-sel-btn').addEventListener('click',function(){
+  document.getElementById('ts-modal-overlay').classList.add('on');
+});
+document.querySelectorAll('.ts-modal-btn').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    document.querySelectorAll('.ts-modal-btn').forEach(function(b){b.classList.remove('on');});
+    btn.classList.add('on');ts=btn.dataset.ts;uacc=null;racg();
+    var selBtn=document.getElementById('ts-sel-btn');
+    selBtn.textContent=ts;selBtn.classList.add('on');
+    document.querySelectorAll('.ed-tb').forEach(function(b){b.classList.toggle('on',b.dataset.edts===ts);});
+    document.getElementById('ts-modal-overlay').classList.remove('on');
+  });
+});
+document.getElementById('ts-modal-overlay').addEventListener('click',function(e){
+  if(e.target===this) this.classList.remove('on');
+});
+document.querySelectorAll('.db').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    var was=playing;if(was)stopM();
+    document.querySelectorAll('.db').forEach(function(b){b.classList.remove('on');});
+    btn.classList.add('on');dpat=btn.dataset.drum;useCustom=false;
+    if(eopen)redg();if(was)startM();
+  });
+});
+document.getElementById('atog').addEventListener('click',function(){
+  aopen=!aopen;
+  document.getElementById('apan').classList.toggle('on',aopen);
+  this.classList.toggle('on',aopen);
+  document.getElementById('aarr').textContent=aopen?'▼':'▷';
+  if(aopen)racg();
+});
+document.getElementById('etog').addEventListener('click',function(){
+  eopen=!eopen;
+  document.getElementById('epan').classList.toggle('on',eopen);
+  this.classList.toggle('on',eopen);
+  document.getElementById('earr').textContent=eopen?'▼':'▷';
+  if(eopen){
+    document.querySelectorAll('.ed-tb').forEach(function(b){b.classList.toggle('on',b.dataset.edts===ts);});
+    redg();
+  }
+});
+document.getElementById('erst').addEventListener('click',function(){
+  if(dpat==='none')return;CP[dpat]=dc(DD[dpat]);useCustom=false;redg();
+});
+document.querySelectorAll('[data-edts]').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    document.querySelectorAll('.ed-tb').forEach(function(b){b.classList.remove('on');});
+    btn.classList.add('on');
+    document.querySelectorAll('.ts-modal-btn').forEach(function(b){b.classList.toggle('on',b.dataset.ts===btn.dataset.edts);});
+    document.getElementById('ts-sel-btn').textContent=btn.dataset.edts;
+    ts=btn.dataset.edts;editorTs=btn.dataset.edts;uacc=null;
+    if(dpat!=='none'){CP[dpat]=dc(DD[dpat]);useCustom=false;redg();}
+  });
+});
+document.getElementById('eapp').addEventListener('click',function(){
+  if(dpat==='none')return;
+  var was=playing;if(was)stopM();
+  ts=editorTs;
+  document.querySelectorAll('.ts-modal-btn').forEach(function(b){b.classList.toggle('on',b.dataset.ts===ts);});
+  document.getElementById('ts-sel-btn').textContent=ts;
+  uacc=null;useCustom=true;if(was)startM();
+  this.textContent='✓ 適用しました';
+  var self=this;setTimeout(function(){self.textContent='✓ このパターンで再生';},1500);
+});
+document.getElementById('pb').addEventListener('click',function(){if(playing||countInPlaying)stopM();else startM();});
+document.querySelectorAll('[data-ci]').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    document.querySelectorAll('[data-ci]').forEach(function(b){b.classList.remove('on');});
+    btn.classList.add('on');countIn=parseInt(btn.dataset.ci);
+  });
+});
+document.getElementById('tap').addEventListener('click',function(){
+  var now=Date.now();
+  taps=taps.filter(function(t){return now-t<3000;});taps.push(now);
+  if(taps.length>=2){
+    var diffs=[];for(var i=1;i<taps.length;i++)diffs.push(taps[i]-taps[i-1]);
+    var avg=diffs.reduce(function(a,b){return a+b;},0)/diffs.length;
+    bpm=Math.max(30,Math.min(240,Math.round(60000/avg)));
+    document.getElementById('bs').value=bpm;document.getElementById('bd').textContent=bpm;
+  }
+});
+
+racg();
+// ===== リズムタップゲーム（アドバンス） =====
+var rtgBpm=120, rtgTs='4/4', rtgDiv=2, rtgGridMeasures=1;
+var rtgPattern={MET:[], TAP:[]};
+var rtgState='idle', rtgPlayStart=0, rtgEndTimer=null;
+var rtgTaps=[], rtgExpected=[], rtgMetExpected=[];
+var rtgTotalMeasures=2;
+
+function rtgStepsPerMeasure(){return TS[rtgTs].b*rtgDiv;}
+function rtgSteps(){return rtgStepsPerMeasure()*rtgGridMeasures;}
+function rtgBeatInterval(){return (60/rtgBpm)*(4/TS[rtgTs].d);}
+function rtgStepInterval(){return rtgBeatInterval()/rtgDiv;}
+
+function rtgInitPattern(){
+  var steps=rtgSteps();
+  rtgPattern.MET=[];rtgPattern.TAP=[];
+  for(var i=0;i<steps;i++){
+    rtgPattern.MET.push(i%rtgDiv===0?1:0);
+    rtgPattern.TAP.push(0);
+  }
+}
+
+function rtgRenderGrid(){
+  var steps=rtgSteps(), div=rtgDiv;
+  var tbl=document.getElementById('rtg-table');
+  tbl.innerHTML='';
+  var hdr=document.createElement('tr');
+  var th0=document.createElement('th');th0.className='rtg-rl';hdr.appendChild(th0);
+  for(var i=0;i<steps;i++){
+    var th=document.createElement('th');
+    if(i%div===0) th.textContent=String(Math.floor(i/div)+1);
+    hdr.appendChild(th);
+  }
+  tbl.appendChild(hdr);
+  ['MET','TAP'].forEach(function(row){
+    var tr=document.createElement('tr');
+    var td0=document.createElement('td');td0.className='rtg-rl';td0.textContent=row;tr.appendChild(td0);
+    for(var i=0;i<steps;i++){
+      (function(si,r){
+        var td=document.createElement('td');
+        var cls=['rtg-cell'];
+        if(si%div===0) cls.push('b1');
+        if(rtgPattern[r][si]) cls.push(r.toLowerCase()+'-on');
+        td.className=cls.join(' ');
+        td.addEventListener('click',function(){
+          rtgPattern[r][si]=rtgPattern[r][si]?0:1;
+          td.classList.toggle(r.toLowerCase()+'-on',!!rtgPattern[r][si]);
+        });
+        tr.appendChild(td);
+      })(i,row);
+    }
+    tbl.appendChild(tr);
+  });
+}
+
+function rtgMakeClick(t,hi){
+  if(!ctx) return;
+  var o=ctx.createOscillator(),g=ctx.createGain();
+  o.connect(g);g.connect(ctx.destination);
+  o.frequency.value=hi?1200:800;
+  g.gain.setValueAtTime(hi?0.5:0.3,t);
+  g.gain.exponentialRampToValueAtTime(0.001,t+0.04);
+  o.start(t);o.stop(t+0.05);
+}
+
+function rtgStart(){
+  if(!ctx) ctx=new(window.AudioContext||window.webkitAudioContext)();
+  if(ctx.state==='suspended') ctx.resume();
+  rtgDoStart();
+}
+
+function rtgDoStart(){
+  rtgState='countin';
+  rtgTaps=[];rtgExpected=[];rtgMetExpected=[];
+  document.getElementById('rtg-result').classList.remove('on');
+  document.getElementById('rtg-tap-btn').classList.add('inactive');
+  document.getElementById('rtg-retry-btn').style.display='none';
+  document.getElementById('rtg-start-btn').style.display='none';
+  document.getElementById('rtg-stop-btn').style.display='block';
+
+  var bi=rtgBeatInterval(), si=rtgStepInterval();
+  var b=TS[rtgTs].b;
+  var t=ctx.currentTime+0.1;
+
+  for(var i=0;i<b*2;i++){
+    (function(tt){
+      var o=ctx.createOscillator(),g=ctx.createGain();
+      o.type='triangle';o.connect(g);g.connect(ctx.destination);
+      o.frequency.value=1800;
+      g.gain.setValueAtTime(0.6,tt);
+      g.gain.exponentialRampToValueAtTime(0.001,tt+0.025);
+      o.start(tt);o.stop(tt+0.03);
+    })(t);
+    (function(idx2,b2,delay){
+      setTimeout(function(){
+        if(rtgState==='countin'){
+          document.getElementById('rtg-status').textContent=idx2<b2?'あと2小節...':''+((b2-(idx2-b2)));
+        }
+      },Math.max(0,delay));
+    })(i,b,(t-ctx.currentTime)*1000);
+    t+=bi;
+  }
+
+  var playStart=t;
+  var gridSteps=rtgSteps();
+  var spm=rtgStepsPerMeasure();
+
+  // MET期待値も記録
+  var metExpRaw=[];
+  for(var m=0;m<rtgTotalMeasures;m++){
+    var patMeasure=rtgGridMeasures===1?0:m;
+    for(var s=0;s<spm;s++){
+      var patIdx=patMeasure*spm+s;
+      var st=playStart+(m*spm+s)*si;
+      if(rtgPattern.MET[patIdx]){ rtgMakeClick(st,s%rtgDiv===0); metExpRaw.push(st); }
+      if(rtgPattern.TAP[patIdx]) rtgExpected.push(st);
+    }
+  }
+
+  var waitMs=(playStart-ctx.currentTime)*1000;
+  rtgPlayStart=playStart;
+  setTimeout(function(){
+    if(rtgState!=='countin') return;
+    var rtgOffset=Date.now()-ctx.currentTime*1000;
+    var calibDelay=calibGetDelay();
+    rtgExpected=rtgExpected.map(function(s){return rtgOffset+s*1000+calibDelay;});
+    rtgMetExpected=metExpRaw.map(function(s){return rtgOffset+s*1000+calibDelay;});
+    rtgState='tapping';
+    document.getElementById('rtg-tap-btn').classList.remove('inactive');
+    document.getElementById('rtg-status').textContent='TAP！';
+  },Math.max(0,waitMs-30));
+
+  var totalDur=spm*rtgTotalMeasures*si;
+  var endMs=(playStart-ctx.currentTime+totalDur)*1000;
+  rtgEndTimer=setTimeout(function(){
+    if(rtgState==='tapping') rtgShowResult();
+  },Math.max(0,endMs+50));
+}
+
+function rtgTap(){
+  if(rtgState!=='tapping') return;
+  rtgTaps.push(Date.now());
+}
+
+function rtgShowResult(){
+  rtgState='done';
+  document.getElementById('rtg-tap-btn').classList.add('inactive');
+  document.getElementById('rtg-status').textContent='完了';
+
+  var WINDOW=500;
+  var tapUsed=new Array(rtgTaps.length).fill(false);
+  var results=[];
+
+  for(var j=0;j<rtgExpected.length;j++){
+    var best=null, bestDist=9999;
+    for(var i=0;i<rtgTaps.length;i++){
+      if(tapUsed[i]) continue;
+      var d=Math.abs(rtgTaps[i]-rtgExpected[j]);
+      if(d<WINDOW&&d<bestDist){bestDist=d;best=i;}
+    }
+    if(best!==null){
+      tapUsed[best]=true;
+      results.push({miss:false, diff:rtgTaps[best]-rtgExpected[j]});
+    } else {
+      results.push({miss:true, diff:null});
+    }
+  }
+
+  var hitDiffs=results.filter(function(r){return !r.miss;}).map(function(r){return r.diff;});
+  var avgOffset=hitDiffs.length?hitDiffs.reduce(function(a,b){return a+b;},0)/hitDiffs.length:0;
+  results.forEach(function(r){if(!r.miss) r.diffAdj=r.diff-avgOffset;});
+
+  var graph=document.getElementById('rtg-graph');
+  graph.innerHTML='';
+  graph.style.cssText='display:flex;flex-direction:column;gap:6px;height:auto;margin-bottom:8px;align-items:stretch;';
+
+  for(var i=0;i<results.length;i++){
+    var r=results[i];
+    var row=document.createElement('div');
+    row.style.cssText='display:flex;align-items:center;gap:10px;padding:8px 12px;background:transparent;';
+    var beatEl=document.createElement('div');
+    beatEl.style.cssText='font-size:.7rem;color:#aaa;min-width:28px;text-align:center;';
+    beatEl.textContent=String(i+1)+'拍';
+    var judgeEl=document.createElement('div');
+    judgeEl.style.cssText='font-size:.95rem;font-weight:bold;min-width:70px;';
+    var dirEl=document.createElement('div');
+    dirEl.style.cssText='font-size:.75rem;color:#999;flex:1;';
+    var msEl=document.createElement('div');
+    msEl.style.cssText='font-size:.7rem;color:#aaa;white-space:nowrap;';
+
+    if(r.miss){
+      judgeEl.textContent='ミス';judgeEl.style.color='#ccc';dirEl.textContent='';
+      row.appendChild(beatEl);row.appendChild(judgeEl);row.appendChild(dirEl);
+    } else {
+      var ms=r.diffAdj,absMs=Math.abs(ms);
+      var judgement,color;
+      if(absMs<=41.7){judgement='PERFECT';color='#1D9E75';}
+      else if(absMs<=83.3){judgement='GREAT';color='#185FA5';}
+      else if(absMs<=108.3){judgement='GOOD';color='#EF9F27';}
+      else{judgement='BAD';color='#E24B4A';}
+      var direction=absMs>10?(ms<0?'早い':'遅い'):'';
+      judgeEl.textContent=judgement;judgeEl.style.color=color;
+      dirEl.textContent=direction;
+      msEl.textContent=(ms>0?'+':'')+Math.round(ms)+'ms';
+      row.appendChild(beatEl);row.appendChild(judgeEl);row.appendChild(dirEl);row.appendChild(msEl);
+    }
+
+    var wrap=document.createElement('div');
+    wrap.style.cssText='background:#f0f0ec;border-radius:8px;overflow:hidden;';
+    wrap.appendChild(row);
+    graph.appendChild(wrap);
+  }
+
+  var diffs=results.filter(function(r){return !r.miss;}).map(function(r){return r.diffAdj;});
+  var perfect=diffs.filter(function(d){return Math.abs(d)<=41.7;}).length;
+  var great=diffs.filter(function(d){return Math.abs(d)>41.7&&Math.abs(d)<=83.3;}).length;
+  var good=diffs.filter(function(d){return Math.abs(d)>83.3&&Math.abs(d)<=108.3;}).length;
+  var bad=diffs.filter(function(d){return Math.abs(d)>108.3;}).length;
+  var missCount=results.filter(function(r){return r.miss;}).length;
+  document.getElementById('rtg-summary').textContent=
+    'PERFECT: '+perfect+'　GREAT: '+great+'　GOOD: '+good+'　BAD: '+bad+'　ミス: '+missCount;
+
+  document.getElementById('rtg-result').classList.add('on');
+  document.getElementById('rtg-retry-btn').style.display='block';
+  document.getElementById('rtg-stop-btn').style.display='none';
+
+  replayData={
+    bpm: rtgBpm,
+    expectedMs: rtgExpected,
+    metExpectedMs: rtgMetExpected,
+    diffAdjs: results.map(function(r){return r.miss?null:r.diffAdj;}),
+    misses: results.map(function(r){return r.miss;})
+  };
+}
+
+document.getElementById('rtg-bpm-slider').addEventListener('input',function(){
+  rtgBpm=parseInt(this.value);document.getElementById('rtg-bpm-disp').textContent=rtgBpm;
+});
+document.querySelectorAll('[data-rtgts]').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    document.querySelectorAll('[data-rtgts]').forEach(function(b){b.classList.remove('on');});
+    btn.classList.add('on');rtgTs=btn.dataset.rtgts;rtgInitPattern();rtgRenderGrid();
+  });
+});
+document.querySelectorAll('[data-div]').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    document.querySelectorAll('[data-div]').forEach(function(b){b.classList.remove('on');});
+    btn.classList.add('on');rtgDiv=parseInt(btn.dataset.div);rtgInitPattern();rtgRenderGrid();
+  });
+});
+document.querySelectorAll('[data-measures]').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    document.querySelectorAll('[data-measures]').forEach(function(b){b.classList.remove('on');});
+    btn.classList.add('on');rtgGridMeasures=parseInt(btn.dataset.measures);rtgInitPattern();rtgRenderGrid();
+  });
+});
+document.getElementById('rtg-start-btn').addEventListener('click',function(){rtgStart();});
+document.getElementById('rtg-stop-btn').addEventListener('click',function(){
+  rtgState='idle';clearTimeout(rtgEndTimer);
+  document.getElementById('rtg-tap-btn').classList.add('inactive');
+  document.getElementById('rtg-stop-btn').style.display='none';
+  document.getElementById('rtg-start-btn').style.display='block';
+  document.getElementById('rtg-status').textContent='パターンを作ってスタート';
+  document.getElementById('rtg-result').classList.remove('on');
+});
+document.getElementById('rtg-tap-btn').addEventListener('click',function(){rtgTap();});
+document.getElementById('rtg-retry-btn').addEventListener('click',function(){
+  document.getElementById('rtg-result').classList.remove('on');
+  document.getElementById('rtg-retry-btn').style.display='none';
+  document.getElementById('rtg-start-btn').style.display='block';
+  document.getElementById('rtg-status').textContent='パターンを作ってスタート';
+});
+document.getElementById('tr-mode-tempo').addEventListener('click',function(){
+  this.classList.add('on');document.getElementById('tr-mode-rhythm').classList.remove('on');document.getElementById('tr-mode-game').classList.remove('on');
+  document.getElementById('tr-panel-tempo').classList.add('on');document.getElementById('tr-panel-rhythm').classList.remove('on');document.getElementById('tr-panel-game').classList.remove('on');
+});
+document.getElementById('tr-mode-rhythm').addEventListener('click',function(){
+  this.classList.add('on');document.getElementById('tr-mode-tempo').classList.remove('on');document.getElementById('tr-mode-game').classList.remove('on');
+  document.getElementById('tr-panel-rhythm').classList.add('on');document.getElementById('tr-panel-tempo').classList.remove('on');document.getElementById('tr-panel-game').classList.remove('on');
+});
+document.getElementById('tr-mode-game').addEventListener('click',function(){
+  this.classList.add('on');document.getElementById('tr-mode-tempo').classList.remove('on');document.getElementById('tr-mode-rhythm').classList.remove('on');
+  document.getElementById('tr-panel-game').classList.add('on');document.getElementById('tr-panel-tempo').classList.remove('on');document.getElementById('tr-panel-rhythm').classList.remove('on');
+});
+
+rtgInitPattern();rtgRenderGrid();
+
+document.getElementById('tab-metro').addEventListener('click',function(){
+  document.getElementById('metro-screen').style.display='block';
+  document.getElementById('trainer-screen').classList.remove('on');
+  this.classList.add('on');document.getElementById('tab-trainer').classList.remove('on');
+});
+document.getElementById('tab-trainer').addEventListener('click',function(){
+  document.getElementById('metro-screen').style.display='none';
+  document.getElementById('trainer-screen').classList.add('on');
+  this.classList.add('on');document.getElementById('tab-metro').classList.remove('on');
+});
+
+// ===== 体感テンポトレーナー（判定修正版） =====
+var trState='idle',trTaps=[],trBpm=120,trTs='4/4';
+var trTapOriginMs=0,trTapDiffs=[],trTapTotal=4,trTapBi=500;
+
+function trMakePendulum(t){
+  if(!ctx) return;
+  var o=ctx.createOscillator(),g=ctx.createGain();
+  o.type='triangle';o.connect(g);g.connect(ctx.destination);
+  o.frequency.value=1800;
+  g.gain.setValueAtTime(0.6,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.025);
+  o.start(t);o.stop(t+0.03);
+}
+
+function trStart(){
+  if(!ctx) ctx=new(window.AudioContext||window.webkitAudioContext)();
+  if(ctx.state==='suspended') ctx.resume();
+  trDoStart();
+}
+
+function trDoStart(){
+  trState='countin';trTaps=[];trTapDiffs=[];
+  document.getElementById('tr-result').classList.remove('on');
+  document.getElementById('tr-tap-btn').classList.add('inactive');
+  document.getElementById('tr-retry-btn').style.display='none';
+  document.getElementById('tr-start-btn').style.display='none';
+
+  var bi=(60/trBpm)*(4/TS[trTs].d);
+  var b=TS[trTs].b;
+  var t=ctx.currentTime+0.1;
+
+  // カウントイン2小節
+  for(var i=0;i<b*2;i++){
+    trMakePendulum(t);
+    (function(idx2,b2,delay){
+      setTimeout(function(){
+        if(trState==='countin'){
+          if(idx2<b2) document.getElementById('tr-status').textContent='あと2小節...';
+          else document.getElementById('tr-status').textContent=String(b2-(idx2-b2));
+        }
+      },Math.max(0,delay));
+    })(i,b,(t-ctx.currentTime)*1000);
+    t+=bi;
+  }
+
+  // TAPフェーズ開始時刻（メトロノームは鳴らさない）
+  var tapPhaseStart=t;
+
+  trTapTotal=b;
+  trTapBi=bi*1000; // ms単位
+
+  // tapPhaseStartのDate.ms換算をスケジュール時点で確定
+  // outputLatency補正: ブラウザのオーディオ出力遅延を加算
+  var scheduleNowMs=Date.now();
+  var scheduleAcNow=ctx.currentTime;
+  var outputLatencyMs=(ctx.outputLatency||0.01)*1000;
+  trTapOriginMs=scheduleNowMs+(tapPhaseStart-scheduleAcNow)*1000+outputLatencyMs;
+
+  var waitMs=(tapPhaseStart-ctx.currentTime)*1000;
+  setTimeout(function(){
+    if(trState!=='countin') return;
+    trState='tapping';
+    document.getElementById('tr-tap-btn').classList.remove('inactive');
+    document.getElementById('tr-status').textContent='TAP！（'+b+'拍）';
+  },Math.max(0,waitMs-30));
+}
+
+function trTap(){
+  if(trState!=='tapping'||!ctx) return;
+  var nowMs=Date.now();
+  var tapIndex=trTapDiffs.length;
+  // calibDelayは「入力が音より遅れるms」なので期待値に足して補正
+  var expectedMs=trTapOriginMs+tapIndex*trTapBi+calibGetDelay();
+  var diff=nowMs-expectedMs;
+  trTapDiffs.push(diff);
+
+  var remaining=trTapTotal-trTapDiffs.length;
+  document.getElementById('tr-status').textContent=remaining>0?'TAP！（あと'+remaining+'拍）':'集計中...';
+  if(trTapDiffs.length>=trTapTotal){trState='done';trShowResult();}
+}
+
+function trShowResult(){
+  var diffs=trTapDiffs;
+  var diff1st=diffs.length>0?diffs[0]:null;
+  var diffsRest=diffs.length>1?diffs.slice(1):[];
+
+  function judgeLabel(absMs){
+    if(absMs<=41.7) return {label:'PERFECT',grade:'good',color:'#1D9E75'};
+    if(absMs<=83.3) return {label:'GREAT',  grade:'ok',  color:'#185FA5'};
+    if(absMs<=108.3)return {label:'GOOD',   grade:'fair',color:'#EF9F27'};
+    return              {label:'BAD',    grade:'bad', color:'#E24B4A'};
+  }
+
+  var diff1El=document.getElementById('tr-bpm-diff-1st');
+  var ms1El=document.getElementById('tr-bpm-ms-1st');
+  if(diff1st!==null){
+    var j1=judgeLabel(Math.abs(diff1st));
+    diff1El.textContent=j1.label;
+    diff1El.className='tr-bpm-diff '+j1.grade;
+    ms1El.textContent=(diff1st>0?'+':'')+Math.round(diff1st)+'ms';
+  }
+
+  var diffEl=document.getElementById('tr-bpm-diff');
+  var infoEl=document.getElementById('tr-bpm-info');
+  if(diffsRest.length>0){
+    var avgAbsMs=diffsRest.reduce(function(a,b){return a+Math.abs(b);},0)/diffsRest.length;
+    var avgMs=diffsRest.reduce(function(a,b){return a+b;},0)/diffsRest.length;
+    var jr=judgeLabel(avgAbsMs);
+    diffEl.textContent=jr.label;
+    diffEl.className='tr-bpm-diff '+jr.grade;
+    infoEl.textContent=(avgMs>0?'+':'')+Math.round(avgMs)+'ms 平均';
+  } else {
+    diffEl.textContent='—';
+    diffEl.className='tr-bpm-diff';
+    infoEl.textContent='';
+  }
+
+  var graph=document.getElementById('tr-graph');
+  graph.innerHTML='';
+  graph.style.cssText='display:flex;flex-direction:column;gap:6px;height:auto;margin-bottom:8px;align-items:stretch;';
+
+  for(var i=0;i<diffs.length;i++){
+    var ms=diffs[i];
+    var absMs=Math.abs(ms);
+    var jd=judgeLabel(absMs);
+    var direction=absMs<=10?'':(ms<0?'早い':'遅い');
+    var is1st=(i===0);
+
+    var row=document.createElement('div');
+    row.style.cssText='display:flex;align-items:center;gap:10px;padding:8px 12px;background:transparent;';
+
+    var beatEl=document.createElement('div');
+    beatEl.style.cssText='font-size:.7rem;color:'+(is1st?'#BA7517':'#aaa')+';min-width:28px;text-align:center;font-weight:'+(is1st?'bold':'normal')+';';
+    beatEl.textContent=String(i+1)+(is1st?'拍★':'拍');
+
+    var judgeEl=document.createElement('div');
+    judgeEl.style.cssText='font-size:.9rem;font-weight:bold;color:'+jd.color+';min-width:70px;';
+    judgeEl.textContent=jd.label;
+
+    var dirEl=document.createElement('div');
+    dirEl.style.cssText='font-size:.75rem;color:#999;flex:1;';
+    dirEl.textContent=direction;
+
+    var msEl=document.createElement('div');
+    msEl.style.cssText='font-size:.7rem;color:#aaa;white-space:nowrap;';
+    msEl.textContent=(ms>0?'+':'')+Math.round(ms)+'ms';
+
+    row.appendChild(beatEl);row.appendChild(judgeEl);row.appendChild(dirEl);row.appendChild(msEl);
+    var wrap=document.createElement('div');
+    wrap.style.cssText='background:#f0f0ec;border-radius:8px;overflow:hidden;'+(is1st?'border-left:3px solid #EF9F27;':'');
+    wrap.appendChild(row);
+    graph.appendChild(wrap);
+  }
+
+  document.getElementById('tr-result').classList.add('on');
+  document.getElementById('tr-tap-btn').classList.add('inactive');
+  document.getElementById('tr-status').textContent='完了';
+  document.getElementById('tr-retry-btn').style.display='block';
+
+  // 体感テンポ用リプレイデータ（MET+TAPのみ）
+  var trExpectedMs=[];
+  for(var i=0;i<diffs.length;i++) trExpectedMs.push(trTapOriginMs+i*trTapBi);
+  replayData={
+    bpm: trBpm,
+    expectedMs: trExpectedMs,
+    metExpectedMs: trExpectedMs, // 体感テンポはMET=TAP期待値と同じ
+    diffAdjs: diffs,
+    misses: diffs.map(function(){return false;})
+  };
+}
+
+document.getElementById('tr-bpm-slider').addEventListener('input',function(){
+  trBpm=parseInt(this.value);document.getElementById('tr-bpm-disp').textContent=trBpm;
+});
+document.querySelectorAll('[data-tts]').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    document.querySelectorAll('[data-tts]').forEach(function(b){b.classList.remove('on');});
+    btn.classList.add('on');trTs=btn.dataset.tts;
+  });
+});
+document.getElementById('tr-start-btn').addEventListener('click',function(){trStart();});
+document.getElementById('tr-tap-btn').addEventListener('click',function(){trTap();});
+document.getElementById('tr-retry-btn').addEventListener('click',function(){
+  document.getElementById('tr-start-btn').style.display='block';
+  document.getElementById('tr-retry-btn').style.display='none';
+  document.getElementById('tr-result').classList.remove('on');
+  document.getElementById('tr-status').textContent='スタートを押してください';
+});
+// ===== キャリブレーション =====
+var CALIB_KEY='kotori_calib';
+function calibLoad(){try{return JSON.parse(localStorage.getItem(CALIB_KEY)||'null');}catch(e){return null;}}
+function calibSave(val,dateStr){localStorage.setItem(CALIB_KEY,JSON.stringify({delay:val,date:dateStr}));}
+function calibGetDelay(){var d=calibLoad();return d?d.delay:0;}
+
+var calibState='idle',calibTaps=[],calibCtx=null,calibTotal=8,calibFirstTapMs=0;
+var calibBeatStart=0,calibBeatInterval=0.5,calibLoopTimer=null;
+
+function calibUpdateUI(){
+  var d=calibLoad();
+  var infoEl=document.getElementById('calib-info');
+  if(d){infoEl.textContent=d.date+'　入力遅延: '+(d.delay>0?'+':'')+Math.round(d.delay)+'ms';}
+  else{infoEl.textContent='未測定';}
+}
+
+function calibScheduleLoop(){
+  if(calibState!=='running') return;
+  var now=calibCtx.currentTime;
+  var LA=0.1;
+  while(calibBeatStart<now+LA){
+    if(calibBeatStart>=now-0.01){
+      (function(tt){
+        var o=calibCtx.createOscillator(),g=calibCtx.createGain();
+        o.type='sine';o.frequency.value=1000;
+        o.connect(g);g.connect(calibCtx.destination);
+        g.gain.setValueAtTime(0.5,tt);g.gain.exponentialRampToValueAtTime(0.001,tt+0.04);
+        o.start(tt);o.stop(tt+0.05);
+      })(calibBeatStart);
+    }
+    calibBeatStart+=calibBeatInterval;
+  }
+  calibLoopTimer=setTimeout(calibScheduleLoop,25);
+}
+
+function calibStart(){
+  if(calibState!=='idle') return;
+  if(!calibCtx) calibCtx=new(window.AudioContext||window.webkitAudioContext)();
+  if(calibCtx.state==='suspended') calibCtx.resume();
+  calibState='running';calibTaps=[];calibFirstTapMs=0;
+  calibBeatStart=calibCtx.currentTime+0.3;
+  document.getElementById('calib-tap-btn').classList.remove('inactive');
+  document.getElementById('calib-start-btn').style.display='none';
+  document.getElementById('calib-status').textContent='音に合わせてTAP（'+calibTotal+'回）';
+  calibScheduleLoop();
+}
+
+function calibTap(){
+  if(calibState!=='running') return;
+  var nowMs=Date.now();
+  if(calibFirstTapMs===0){
+    calibFirstTapMs=nowMs;
+    document.getElementById('calib-status').textContent='TAP（あと'+(calibTotal-1)+'回）';
+    return;
+  }
+  var tapIndex=calibTaps.length+1;
+  var expectedMs=calibFirstTapMs+tapIndex*calibBeatInterval*1000;
+  calibTaps.push(nowMs-expectedMs);
+  var remaining=calibTotal-1-calibTaps.length;
+  if(remaining>0){document.getElementById('calib-status').textContent='TAP（あと'+remaining+'回）';}
+  else{document.getElementById('calib-status').textContent='集計中...';calibFinish();}
+}
+
+function calibFinish(){
+  calibState='idle';clearTimeout(calibLoopTimer);
+  document.getElementById('calib-tap-btn').classList.add('inactive');
+  document.getElementById('calib-start-btn').style.display='block';
+  var diffs=calibTaps;
+  if(diffs.length<3){document.getElementById('calib-status').textContent='測定失敗（音に合わせてTAPしてください）';return;}
+  var avg=diffs.reduce(function(a,b){return a+b;},0)/diffs.length;
+  var now=new Date();
+  var dateStr=(now.getMonth()+1)+'/'+now.getDate()+' '+now.getHours()+':'+String(now.getMinutes()).padStart(2,'0');
+  calibSave(avg,dateStr);calibUpdateUI();
+  document.getElementById('calib-status').textContent='測定完了　入力遅延: '+(avg>0?'+':'')+Math.round(avg)+'ms（'+diffs.length+'回測定）';
+}
+
+// ===== リプレイエンジン（全モード共通） =====
+var replayData=null;
+
+// MET音再生
+// StereoPannerヘルパー
+function _makePanner(pan){
+  if(ctx.createStereoPanner){
+    var p=ctx.createStereoPanner();p.pan.value=pan;return p;
+  }
+  var p=ctx.createPanner();p.panningModel='equalpower';
+  p.setPosition(pan,0,1-Math.abs(pan));return p;
+}
+
+function replayPlayMET(expectedMs){
+  if(!ctx) ctx=new(window.AudioContext||window.webkitAudioContext)();
+  if(ctx.state==='suspended') ctx.resume();
+  var now=Date.now(),acNow=ctx.currentTime;
+  var firstExpMs=expectedMs[0];
+  var offsetMs=now+300-firstExpMs;
+  var panner=_makePanner(-0.7); // MET → 左
+  panner.connect(ctx.destination);
+  expectedMs.forEach(function(expMs,i){
+    var tAC=acNow+((expMs+offsetMs)-now)/1000;
+    if(tAC<acNow+0.01) return;
+    var isDownbeat=(i%4===0);
+    (function(t,db){
+      var o=ctx.createOscillator(),g=ctx.createGain();
+      o.type='triangle';o.connect(g);g.connect(panner);
+      o.frequency.value=db?1800:1200;
+      g.gain.setValueAtTime(0.5,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.025);
+      o.start(t);o.stop(t+0.03);
+    })(tAC,isDownbeat);
+  });
+  return offsetMs;
+}
+
+// TAP手拍子音再生（右パン）
+function replayPlayTAP(expectedMs,diffAdjs,misses,offsetMs){
+  if(!ctx) return;
+  var now=Date.now(),acNow=ctx.currentTime;
+  var panner=_makePanner(0.7); // TAP → 右
+  panner.connect(ctx.destination);
+  expectedMs.forEach(function(expMs,i){
+    if(misses[i]||diffAdjs[i]===null) return;
+    var tAC=acNow+((expMs+offsetMs+diffAdjs[i])-now)/1000;
+    if(tAC<acNow+0.01) return;
+    (function(tt){
+      var master=ctx.createGain();
+      master.connect(panner);
+      clkClapPanned(tt,master);
+    })(tAC);
+  });
+}
+
+// MET行のONセルでTAP（右パン）
+function replayPlayMetTap(metExpectedMs,offsetMs){
+  if(!ctx) return;
+  var now=Date.now(),acNow=ctx.currentTime;
+  var panner=_makePanner(0.7); // TAP → 右
+  panner.connect(ctx.destination);
+  metExpectedMs.forEach(function(expMs){
+    var tAC=acNow+((expMs+offsetMs)-now)/1000;
+    if(tAC<acNow+0.01) return;
+    (function(tt){
+      var master=ctx.createGain();
+      master.connect(panner);
+      clkClapPanned(tt,master);
+    })(tAC);
+  });
+}
+
+function replayPlay(withTap){
+  if(!replayData||!replayData.expectedMs.length) return;
+  if(!ctx) ctx=new(window.AudioContext||window.webkitAudioContext)();
+  if(ctx.state==='suspended') ctx.resume();
+  var offsetMs=replayPlayMET(replayData.expectedMs);
+  if(withTap) replayPlayTAP(replayData.expectedMs,replayData.diffAdjs,replayData.misses,offsetMs);
+}
+
+function replayPlayMetOnTap(){
+  if(!replayData||!replayData.metExpectedMs||!replayData.metExpectedMs.length) return;
+  if(!ctx) ctx=new(window.AudioContext||window.webkitAudioContext)();
+  if(ctx.state==='suspended') ctx.resume();
+  var offsetMs=replayPlayMET(replayData.expectedMs.length?replayData.expectedMs:replayData.metExpectedMs);
+  replayPlayMetTap(replayData.metExpectedMs,offsetMs);
+}
+
+// 体感テンポ
+document.getElementById('tr-replay-both').addEventListener('click',function(){replayPlay(true);});
+
+// アドバンス
+document.getElementById('rtg-replay-both').addEventListener('click',function(){replayPlay(true);});
+document.getElementById('rtg-replay-met-tap').addEventListener('click',function(){replayPlayMetOnTap();});
+
+// ゲームモード
+document.getElementById('gm-replay-both').addEventListener('click',function(){replayPlay(true);});
+document.getElementById('gm-replay-met-tap').addEventListener('click',function(){replayPlayMetOnTap();});
+// ===== ゲームモード =====
+var GM_LEVELS=[
+  {lv:1, div:2,repeat:true,label:'8分',desc:'裏拍のみ',MET:[1,0,1,0,1,0,1,0],TAP:[0,0,1,0,0,0,1,0]},
+  {lv:2, div:2,repeat:true,label:'8分',desc:'表裏交互',MET:[1,0,1,0,1,0,1,0],TAP:[1,1,0,1,0,1,0,0]},
+  {lv:3, div:2,repeat:true,label:'8分',desc:'後半の裏拍強調',MET:[1,0,1,0,1,0,1,0],TAP:[1,0,1,0,0,1,0,1]},
+  {lv:4, div:2,repeat:true,label:'8分',desc:'休符混じりシンコペ①',MET:[1,0,1,0,1,0,1,0],TAP:[0,1,1,0,0,1,1,0]},
+  {lv:5, div:2,repeat:true,label:'8分',desc:'休符混じりシンコペ②',MET:[1,0,1,0,1,0,1,0],TAP:[1,1,0,0,1,1,0,1]},
+  {lv:6, div:2,repeat:true,label:'8分',desc:'変則シンコペ',MET:[1,0,1,0,1,0,1,0],TAP:[0,1,0,1,1,0,1,0]},
+  {lv:7, div:2,repeat:true,label:'8分',desc:'裏拍強調パターン',MET:[1,0,1,0,1,0,1,0],TAP:[0,1,0,0,1,1,0,1]},
+  {lv:8, div:3,repeat:true,label:'3連符',desc:'2・3番目のみ',MET:[1,0,0,1,0,0,1,0,0,1,0,0],TAP:[0,1,1,0,1,1,0,1,1,0,1,1]},
+  {lv:9, div:3,repeat:true,label:'3連符',desc:'1・3番目',MET:[1,0,0,1,0,0,1,0,0,1,0,0],TAP:[1,0,1,1,0,1,1,0,1,1,0,1]},
+  {lv:10,div:3,repeat:true,label:'3連符',desc:'シンコペ①',MET:[1,0,0,1,0,0,1,0,0,1,0,0],TAP:[0,1,0,1,0,1,0,1,0,1,0,1]},
+  {lv:11,div:3,repeat:true,label:'3連符',desc:'シンコペ②',MET:[1,0,0,1,0,0,1,0,0,1,0,0],TAP:[1,1,0,0,1,0,1,1,0,0,1,0]},
+  {lv:12,div:4,repeat:true,label:'16分',desc:'シンコペ①',MET:[1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],TAP:[0,1,0,1,0,0,1,0,0,1,0,1,0,0,1,0]},
+  {lv:13,div:4,repeat:true,label:'16分',desc:'シンコペ②',MET:[1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],TAP:[1,0,0,1,0,1,0,0,1,0,0,1,0,1,0,0]},
+  {lv:14,div:4,repeat:true,label:'16分',desc:'高密度シンコペ',MET:[1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],TAP:[1,1,0,1,0,1,0,0,1,0,1,0,0,1,0,1]},
+  {lv:15,div:2,repeat:false,label:'8分',desc:'変則シンコペ 2小節',MET:[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0],TAP:[0,1,1,0,0,1,0,1,1,0,0,1,1,0,1,0]},
+  {lv:16,div:3,repeat:false,label:'3連符',desc:'混合パターン 2小節',MET:[1,0,0,1,0,0,1,0,0,1,0,0,1,0,0,1,0,0,1,0,0,1,0,0],TAP:[1,0,1,0,1,0,1,1,0,0,1,1,0,1,1,1,0,0,1,0,1,0,1,0]},
+  {lv:17,div:4,repeat:false,label:'16分',desc:'シンコペ応用 2小節',MET:[1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],TAP:[0,1,0,1,0,0,1,0,0,1,0,1,0,0,1,0,1,0,1,0,0,1,0,0,1,0,0,1,0,1,0,0]},
+  {lv:18,div:4,repeat:false,label:'16分',desc:'高密度応用 2小節',MET:[1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],TAP:[1,1,0,1,0,1,1,0,1,0,0,1,0,1,0,0,0,1,1,0,1,1,0,1,0,0,1,0,1,0,1,0]},
+  {lv:19,div:3,repeat:false,label:'3連符',desc:'高難度 2小節',MET:[1,0,0,1,0,0,1,0,0,1,0,0,1,0,0,1,0,0,1,0,0,1,0,0],TAP:[1,1,0,0,1,1,1,0,1,1,1,0,0,1,1,1,0,1,0,1,1,0,1,0]},
+  {lv:20,div:4,repeat:false,label:'16分',desc:'最高難度 2小節',MET:[1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],TAP:[1,0,1,1,0,1,0,1,1,0,1,0,1,0,0,1,0,1,1,0,1,0,1,1,0,1,0,1,0,1,0,0]},
+  {lv:21,divs:[3,2],repeat:false,label:'3連符+8分',desc:'3連符→8分 切替①',MET:[1,0,0,1,0,0,1,0,0,1,0,0,1,0,1,0,1,0,1,0],TAP:[0,1,1,0,1,0,1,0,1,0,0,1,0,1,0,1,1,0,0,1]},
+  {lv:22,divs:[2,3],repeat:false,label:'8分+3連符',desc:'8分→3連符 切替',MET:[1,0,1,0,1,0,1,0,1,0,0,1,0,0,1,0,0,1,0,0],TAP:[1,1,0,1,0,0,1,0,0,1,0,1,0,1,1,0,0,0,1,1]},
+  {lv:23,divs:[3,4],repeat:false,label:'3連符+16分',desc:'3連符→16分 切替',MET:[1,0,0,1,0,0,1,0,0,1,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],TAP:[1,0,1,0,1,0,0,1,1,0,0,0,0,1,0,1,0,0,1,0,0,1,0,1,0,0,1,0]},
+  {lv:24,divs:[4,3],repeat:false,label:'16分+3連符',desc:'16分→3連符 切替',MET:[1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,1,0,0,1,0,0,1,0,0],TAP:[0,1,0,1,0,0,1,0,0,1,0,1,0,0,1,0,1,0,1,0,1,0,0,1,1,0,1,0]},
+  {lv:25,divs:[3,2],repeat:false,label:'3連符+8分',desc:'3連符→8分 最終難度',MET:[1,0,0,1,0,0,1,0,0,1,0,0,1,0,1,0,1,0,1,0],TAP:[1,1,0,0,1,0,0,1,1,1,0,0,0,1,1,0,0,1,1,0]},
+];
+
+var GM_THRESHOLDS={normal:{p:41.7,gr:83.3,gd:108.3},oni:{p:20,gr:40,gd:60}};
+var gmOniMode=false; // 常にfalse固定
+function gmGetThresh(){return gmOniMode?GM_THRESHOLDS.oni:GM_THRESHOLDS.normal;}
+function gmScore(absMs){var th=gmGetThresh();if(absMs<=th.p)return 100;if(absMs<=th.gr)return 60;if(absMs<=th.gd)return 20;return 0;}
+function gmJudge(absMs){var th=gmGetThresh();if(absMs<=th.p)return {label:'PERFECT',color:'#1D9E75'};if(absMs<=th.gr)return {label:'GREAT',color:'#185FA5'};if(absMs<=th.gd)return {label:'GOOD',color:'#EF9F27'};return {label:'BAD',color:'#E24B4A'};}
+
+var GM_STORE_KEY='kotori_clears';
+function gmLoadClears(){try{return JSON.parse(localStorage.getItem(GM_STORE_KEY)||'{}');}catch(e){return {};}}
+function gmSaveClear(lv,fullPerfect,oni,oniAlso){
+  var d=gmLoadClears();var cur=d['lv'+lv]||0;
+  // 鬼モードCLEAR=★★★、通常でも鬼判定通過=★★★、通常FULL PERFECT=★★、通常CLEAR=★
+  // ★★★=鬼モードFULL PERFECT時のみ、★★=oniAlso or fullPerfect、★=通常CLEAR
+  var newStars=(oni&&fullPerfect||oniAlso)?3:(fullPerfect?2:1);
+  if(newStars>cur) d['lv'+lv]=newStars;
+  localStorage.setItem(GM_STORE_KEY,JSON.stringify(d));
+}
+function gmResetClears(){localStorage.removeItem(GM_STORE_KEY);gmRenderLevels();}
+
+function gmConfetti(colors){
+  var canvas=document.getElementById('gm-confetti-canvas');
+  canvas.width=window.innerWidth;canvas.height=window.innerHeight;
+  var ctx2=canvas.getContext('2d');
+  var particles=[];
+  for(var i=0;i<120;i++){
+    particles.push({
+      x:Math.random()*canvas.width,y:canvas.height*0.3+Math.random()*canvas.height*0.3,
+      vx:(Math.random()-0.5)*6,vy:-(Math.random()*8+4),
+      size:Math.random()*8+4,color:colors[Math.floor(Math.random()*colors.length)],
+      rot:Math.random()*360,vrot:(Math.random()-0.5)*10,alpha:1
+    });
+  }
+  var frame=0;
+  (function loop(){
+    ctx2.clearRect(0,0,canvas.width,canvas.height);
+    particles.forEach(function(p){
+      p.x+=p.vx;p.y+=p.vy;p.vy+=0.25;p.rot+=p.vrot;p.alpha-=0.012;
+      if(p.alpha<=0)return;
+      ctx2.save();ctx2.translate(p.x,p.y);ctx2.rotate(p.rot*Math.PI/180);
+      ctx2.globalAlpha=p.alpha;ctx2.fillStyle=p.color;
+      ctx2.fillRect(-p.size/2,-p.size/2,p.size,p.size*0.5);
+      ctx2.restore();
+    });
+    frame++;
+    if(frame<120) requestAnimationFrame(loop);
+    else ctx2.clearRect(0,0,canvas.width,canvas.height);
+  })();
+}
+
+function gmShowClearOverlay(cleared,allPerfect,avg,oniAlso){
+  var overlay=document.getElementById('gm-clear-overlay');
+  var icon=document.getElementById('gm-clear-icon');
+  var title=document.getElementById('gm-clear-title');
+  var sub=document.getElementById('gm-clear-sub');
+  var score=document.getElementById('gm-clear-score');
+  var modal=document.getElementById('gm-clear-modal');
+  var stars=document.getElementById('gm-clear-stars');
+  var closeBtn=document.getElementById('gm-clear-close');
+  // アニメーションリセット
+  modal.style.animation='none';
+  void modal.offsetWidth;
+  modal.style.animation='gmPop .4s cubic-bezier(.34,1.56,.64,1) both';
+
+  if((allPerfect&&gmOniMode)||oniAlso){
+    // 鬼モードFULL PERFECT または oniAlso → ★★★（赤）
+    stars.textContent='★★★';
+    icon.textContent='👹';
+    title.textContent='FULL PERFECT';
+    title.style.color='#ff4444';
+    sub.textContent='鬼モード制覇';sub.style.color='#ff6666';
+    modal.style.background='linear-gradient(135deg,#2a0000,#1a0010)';
+    modal.style.border='2px solid #E24B4A';
+    modal.style.boxShadow='0 0 40px rgba(228,75,74,0.6)';
+    closeBtn.style.background='#E24B4A';closeBtn.style.color='#fff';
+    gmConfetti(['#E24B4A','#ff6b6b','#ff0000','#8B0000','#ff4444']);
+  } else if(allPerfect){
+    // 通常FULL PERFECT → ★★（橙）
+    stars.textContent='★★';
+    icon.textContent='🏆';
+    title.textContent='FULL PERFECT';
+    title.style.color='#EF9F27';
+    sub.textContent='さらに上を目指そう！';sub.style.color='#BA7517';
+    modal.style.background='linear-gradient(135deg,#fff8e6,#fff3cc)';
+    modal.style.border='2px solid #EF9F27';
+    modal.style.boxShadow='0 0 40px rgba(239,159,39,0.5)';
+    closeBtn.style.background='#EF9F27';closeBtn.style.color='#1a1a1a';
+    gmConfetti(['#EF9F27','#FFD700','#FFA500','#fff','#ffe066']);
+  } else if(cleared){
+    if(false){
+      // （統合済み）
+    } else {
+      // 通常CLEAR → ★（緑）
+      stars.textContent='★';
+      icon.textContent='✓';
+      title.textContent='CLEAR';
+      title.style.color='#1D9E75';
+      sub.textContent='いい感じ。';sub.style.color='#0F6E56';
+      modal.style.background='linear-gradient(135deg,#e8fff5,#ccf5e7)';
+      modal.style.border='2px solid #1D9E75';
+      modal.style.boxShadow='0 0 30px rgba(29,158,117,0.4)';
+      closeBtn.style.background='#1D9E75';closeBtn.style.color='#fff';
+      gmConfetti(['#1D9E75','#00C896','#66FFD4','#fff','#0F6E56']);
+    }
+  } else {
+    stars.textContent='';
+    icon.textContent='🔥';
+    title.textContent='TRY AGAIN';
+    title.style.color='#888';
+    sub.textContent='もう一息！';sub.style.color='#aaa';
+    modal.style.background='#fff';
+    modal.style.border='1px solid #ddd';
+    modal.style.boxShadow='0 4px 20px rgba(0,0,0,0.15)';
+    closeBtn.style.background='#888';closeBtn.style.color='#fff';
+  }
+  score.textContent='';
+  overlay.classList.add('on');
+}
+document.getElementById('gm-clear-close').addEventListener('click',function(){
+  document.getElementById('gm-clear-overlay').classList.remove('on');
+});
+
+
+var gmBpm=120,gmLevel=null,gmState='idle',gmTaps=[],gmExpected=[],gmMetExpected=[],gmEndTimer=null;
+
+function gmRenderLevels(){
+  var grid=document.getElementById('gm-level-grid');
+  grid.innerHTML='';
+  var clears=gmLoadClears();
+  GM_LEVELS.forEach(function(lv){
+    var btn=document.createElement('button');
+    var stars=clears['lv'+lv.lv]||0;
+    var isSel=gmLevel&&gmLevel.lv===lv.lv;
+    var bg,border,color,fw,badge,starColor;
+    if(stars>=3){bg='#2a0000';border='#E24B4A';color='#ff6b6b';fw='bold';badge='★★★';starColor='#E24B4A';}
+    else if(stars===2){bg='#2a1a00';border='#EF9F27';color='#EF9F27';fw='bold';badge='★★';starColor='#EF9F27';}
+    else if(stars===1){bg='#001a0d';border='#1D9E75';color='#1D9E75';fw='bold';badge='★';starColor='#1D9E75';}
+    else{bg='#fff';border='#ccc';color='#555';fw='normal';badge='';starColor='';}
+    if(isSel){border='#BA7517';bg=stars?bg:'#fff7e6';}
+    btn.innerHTML='<div style="font-size:.8rem;font-weight:'+fw+';color:'+color+';">Lv'+lv.lv+'</div>'+(badge?'<div style="font-size:.55rem;letter-spacing:-.05em;color:'+starColor+';">'+badge+'</div>':'<div style="font-size:.55rem;color:#ccc;">—</div>');
+    btn.style.cssText='background:'+bg+';border:2px solid '+border+';border-radius:8px;padding:4px 2px;cursor:pointer;min-height:48px;line-height:1.3;';
+    btn.title='Lv'+lv.lv+' / '+lv.label+' / '+lv.desc;
+    btn.addEventListener('click',function(){
+      gmLevel=lv;gmRenderLevels();
+      var desc=document.getElementById('gm-level-desc');
+      desc.style.display='block';
+      var starMsg=stars>=3?'完璧なリズム感！':stars===2?'さらに上を目指そう！':stars===1?'いい感じ。':'';
+      desc.innerHTML='<b>Lv'+lv.lv+'</b>　'+lv.label+'　/　'+lv.desc+(lv.repeat?' <span style="color:#EF9F27;font-size:.7rem;">×2繰り返し</span>':' <span style="color:#BA7517;font-size:.7rem;">2小節</span>')+(stars?'　<span style="color:'+starColor+';">'+badge+'</span>　<span style="color:'+starColor+';font-size:.72rem;font-weight:bold;">'+starMsg+'</span>':'');
+      gmRenderGrid();
+      document.getElementById('gm-status').textContent='スタートを押してください';
+      document.getElementById('gm-result').classList.remove('on');
+      document.getElementById('gm-retry-btn').style.display='none';
+      document.getElementById('gm-start-btn').style.display='block';
+      document.getElementById('gm-stop-btn').style.display='none';
+      document.getElementById('gm-tap-btn').classList.add('inactive');
+      if(gmState==='countin'||gmState==='tapping'){
+        gmState='idle';clearTimeout(gmEndTimer);
+      }
+    });
+    grid.appendChild(btn);
+  });
+}
+
+function gmRenderGrid(){
+  if(!gmLevel) return;
+  var lv=gmLevel,tbl=document.getElementById('gm-table');
+  tbl.innerHTML='';
+  var hasDivs=Array.isArray(lv.divs);
+  if(lv.repeat){
+    var div=hasDivs?lv.divs[0]:lv.div,steps=lv.MET.length;
+    var hdr=document.createElement('tr');
+    var th0=document.createElement('th');th0.className='rtg-rl';
+    th0.innerHTML='<span style="font-size:.6rem;color:#EF9F27;font-weight:bold;">×2</span>';
+    hdr.appendChild(th0);
+    for(var i=0;i<steps;i++){var th=document.createElement('th');if(i%div===0)th.textContent=String(Math.floor(i/div)+1);hdr.appendChild(th);}
+    tbl.appendChild(hdr);
+    ['MET','TAP'].forEach(function(row){
+      var tr=document.createElement('tr');
+      var td0=document.createElement('td');td0.className='rtg-rl';td0.textContent=row;tr.appendChild(td0);
+      for(var i=0;i<steps;i++){
+        var td=document.createElement('td');
+        var cls=['rtg-cell'];
+        if(i%div===0)cls.push('b1');
+        if(lv[row][i])cls.push(row.toLowerCase()+'-on');
+        td.className=cls.join(' ');tr.appendChild(td);
+      }
+      tbl.appendChild(tr);
+    });
+  } else if(hasDivs){
+    var offset=0;
+    lv.divs.forEach(function(div,bar){
+      var stepsInBar=4*div;
+      var sep=document.createElement('tr');var sepTd=document.createElement('td');
+      sepTd.colSpan=stepsInBar+1;sepTd.style.cssText='font-size:.6rem;color:#aaa;padding:4px 0 2px;';
+      sepTd.textContent=(bar+1)+'小節目（'+(div===2?'8分':div===3?'3連符':'16分')+'）';
+      sep.appendChild(sepTd);tbl.appendChild(sep);
+      var hdr=document.createElement('tr');var th0=document.createElement('th');th0.className='rtg-rl';hdr.appendChild(th0);
+      for(var i=0;i<stepsInBar;i++){var th=document.createElement('th');if(i%div===0)th.textContent=String(Math.floor(i/div)+1);hdr.appendChild(th);}
+      tbl.appendChild(hdr);
+      ['MET','TAP'].forEach(function(row){
+        var tr=document.createElement('tr');var td0=document.createElement('td');td0.className='rtg-rl';td0.textContent=row;tr.appendChild(td0);
+        for(var i=0;i<stepsInBar;i++){var si=offset+i;var td=document.createElement('td');var cls=['rtg-cell'];if(i%div===0)cls.push('b1');if(lv[row][si])cls.push(row.toLowerCase()+'-on');td.className=cls.join(' ');tr.appendChild(td);}
+        tbl.appendChild(tr);
+      });
+      offset+=stepsInBar;
+    });
+  } else {
+    var div=lv.div,half=lv.MET.length/2;
+    [0,1].forEach(function(bar){
+      var sep=document.createElement('tr');var sepTd=document.createElement('td');
+      sepTd.colSpan=half+1;sepTd.style.cssText='font-size:.6rem;color:#aaa;padding:4px 0 2px;';
+      sepTd.textContent=(bar+1)+'小節目';sep.appendChild(sepTd);tbl.appendChild(sep);
+      var hdr=document.createElement('tr');var th0=document.createElement('th');th0.className='rtg-rl';hdr.appendChild(th0);
+      for(var i=0;i<half;i++){var th=document.createElement('th');if(i%div===0)th.textContent=String(Math.floor(i/div)+1);hdr.appendChild(th);}
+      tbl.appendChild(hdr);
+      ['MET','TAP'].forEach(function(row){
+        var tr=document.createElement('tr');var td0=document.createElement('td');td0.className='rtg-rl';td0.textContent=row;tr.appendChild(td0);
+        for(var i=0;i<half;i++){var si=bar*half+i;var td=document.createElement('td');var cls=['rtg-cell'];if(i%div===0)cls.push('b1');if(lv[row][si])cls.push(row.toLowerCase()+'-on');td.className=cls.join(' ');tr.appendChild(td);}
+        tbl.appendChild(tr);
+      });
+    });
+  }
+}
+
+function gmBeatInterval(){return 60/gmBpm;}
+
+function gmStart(){
+  if(!gmLevel){document.getElementById('gm-status').textContent='レベルを選択してください';return;}
+  if(!ctx) ctx=new(window.AudioContext||window.webkitAudioContext)();
+  if(ctx.state==='suspended') ctx.resume();
+  gmDoStart();
+}
+
+function gmDoStart(){
+  gmState='countin';gmTaps=[];gmExpected=[];gmMetExpected=[];
+  document.getElementById('gm-result').classList.remove('on');
+  document.getElementById('gm-tap-btn').classList.add('inactive');
+  document.getElementById('gm-retry-btn').style.display='none';
+  document.getElementById('gm-start-btn').style.display='none';
+  document.getElementById('gm-stop-btn').style.display='block';
+
+  var bi=gmBeatInterval(),b=4,t=ctx.currentTime+0.1;
+  for(var i=0;i<b*2;i++){
+    (function(tt){var o=ctx.createOscillator(),g=ctx.createGain();o.type='triangle';o.connect(g);g.connect(ctx.destination);o.frequency.value=1800;g.gain.setValueAtTime(0.6,tt);g.gain.exponentialRampToValueAtTime(0.001,tt+0.025);o.start(tt);o.stop(tt+0.03);})(t);
+    (function(idx,delay){setTimeout(function(){if(gmState==='countin')document.getElementById('gm-status').textContent=idx<b?'あと2小節...':String(b-(idx-b));},Math.max(0,delay));})(i,(t-ctx.currentTime)*1000);
+    t+=bi;
+  }
+
+  var playStart=t,lv=gmLevel;
+  var reps=lv.repeat?2:1;
+  var hasDivs=Array.isArray(lv.divs);
+  var totalDurSec=0;
+  var metExpRaw=[];
+
+  if(hasDivs){
+    var t2=playStart,offset=0;
+    for(var rep=0;rep<reps;rep++){
+      offset=0;
+      for(var bar=0;bar<lv.divs.length;bar++){
+        var div=lv.divs[bar],stepsInBar=4*div,bi2=gmBeatInterval()/div;
+        for(var s=0;s<stepsInBar;s++){
+          var st=t2+s*bi2;
+          if(lv.MET[offset+s]){rtgMakeClick(st,s%div===0);metExpRaw.push(st);}
+          if(lv.TAP[offset+s]) gmExpected.push(st);
+        }
+        t2+=gmBeatInterval()*4;offset+=stepsInBar;
+      }
+    }
+    totalDurSec=reps*lv.divs.length*gmBeatInterval()*4;
+  } else {
+    var steps=lv.MET.length,div=lv.div,si2=gmBeatInterval()/div;
+    for(var rep=0;rep<reps;rep++){
+      for(var s=0;s<steps;s++){
+        var st=playStart+(rep*steps+s)*si2;
+        if(lv.MET[s]){rtgMakeClick(st,s%div===0);metExpRaw.push(st);}
+        if(lv.TAP[s]) gmExpected.push(st);
+      }
+    }
+    totalDurSec=steps*reps*si2;
+  }
+
+  var waitMs=(playStart-ctx.currentTime)*1000;
+  setTimeout(function(){
+    if(gmState!=='countin') return;
+    var gmOffset=Date.now()-ctx.currentTime*1000;
+    var calibDelay=calibGetDelay();
+    gmExpected=gmExpected.map(function(st){return gmOffset+st*1000+calibDelay;});
+    gmMetExpected=metExpRaw.map(function(st){return gmOffset+st*1000+calibDelay;});
+    gmState='tapping';
+    document.getElementById('gm-tap-btn').classList.remove('inactive');
+    document.getElementById('gm-status').textContent='TAP！';
+  },Math.max(0,waitMs-30));
+
+  var endMs=(playStart-ctx.currentTime+totalDurSec)*1000;
+  gmEndTimer=setTimeout(function(){if(gmState==='tapping')gmShowResult();},Math.max(0,endMs+100));
+}
+
+function gmTap(){if(gmState!=='tapping') return;gmTaps.push(Date.now());}
+function gmShowResult(){
+  gmState='done';
+  document.getElementById('gm-tap-btn').classList.add('inactive');
+  document.getElementById('gm-stop-btn').style.display='none';
+
+  var WINDOW=500;
+  var tapUsed=new Array(gmTaps.length).fill(false);
+  var results=[];
+
+  for(var j=0;j<gmExpected.length;j++){
+    var best=null,bestDist=9999;
+    for(var i=0;i<gmTaps.length;i++){
+      if(tapUsed[i]) continue;
+      var d=Math.abs(gmTaps[i]-gmExpected[j]);
+      if(d<WINDOW&&d<bestDist){bestDist=d;best=i;}
+    }
+    if(best!==null){
+      tapUsed[best]=true;
+      results.push({miss:false,diff:gmTaps[best]-gmExpected[j]});
+    } else {
+      results.push({miss:true,diff:null});
+    }
+  }
+
+  var hitDiffs=results.filter(function(r){return !r.miss;}).map(function(r){return r.diff;});
+  var avgOffset=hitDiffs.length?hitDiffs.reduce(function(a,b){return a+b;},0)/hitDiffs.length:0;
+  results.forEach(function(r){if(!r.miss) r.diffAdj=r.diff-avgOffset; else r.diffAdj=null;});
+
+  var missCount0=results.filter(function(r){return r.miss;}).length;
+  var allPerfect=missCount0===0&&results.every(function(r){return !r.miss&&Math.abs(r.diffAdj)<=41.7;});
+  var cleared=missCount0===0&&results.every(function(r){return !r.miss&&Math.abs(r.diffAdj)<=108.3;});
+  var avg=0; // 平均点廃止（互換のため変数は残す）
+
+  var banner=document.getElementById('gm-clear-banner');
+  if(allPerfect){banner.textContent='★ FULL PERFECT ★';banner.style.cssText='font-size:1.4rem;font-weight:bold;text-align:center;margin-bottom:8px;padding:12px;border-radius:10px;background:#fff7e6;color:#EF9F27;border:2px solid #EF9F27;';}
+  else if(cleared){banner.textContent='✓ CLEAR';banner.style.cssText='font-size:1.4rem;font-weight:bold;text-align:center;margin-bottom:8px;padding:12px;border-radius:10px;background:#001a0d;color:#1D9E75;border:2px solid #1D9E75;';}
+  else if(missCount0>0){banner.textContent='× やり直し（ミスあり）';banner.style.cssText='font-size:1.4rem;font-weight:bold;text-align:center;margin-bottom:8px;padding:12px;border-radius:10px;background:#f5f5f0;color:#E24B4A;border:1px solid #E24B4A;';}
+  else{banner.textContent='× TRY AGAIN';banner.style.cssText='font-size:1.4rem;font-weight:bold;text-align:center;margin-bottom:8px;padding:12px;border-radius:10px;background:#f5f5f0;color:#888;border:1px solid #ccc;';}
+
+  document.getElementById('gm-score-disp').textContent='';
+
+  var graph=document.getElementById('gm-graph');
+  graph.innerHTML='';
+  graph.style.cssText='display:flex;flex-direction:column;gap:6px;height:auto;margin-bottom:8px;align-items:stretch;';
+
+  for(var i=0;i<results.length;i++){
+    var r=results[i];
+    var row=document.createElement('div');
+    row.style.cssText='display:flex;align-items:center;gap:10px;padding:8px 12px;';
+    var beatEl=document.createElement('div');
+    beatEl.style.cssText='font-size:.7rem;color:#aaa;min-width:28px;text-align:center;';
+    beatEl.textContent=String(i+1)+'打';
+    var judgeEl=document.createElement('div');
+    judgeEl.style.cssText='font-size:.95rem;font-weight:bold;min-width:80px;';
+    var msEl=document.createElement('div');
+    msEl.style.cssText='font-size:.7rem;color:#aaa;flex:1;text-align:right;';
+    if(r.miss){
+      judgeEl.textContent='ミス';judgeEl.style.color='#E24B4A';
+      msEl.textContent='';
+    } else {
+      var jd=gmJudge(Math.abs(r.diffAdj));
+      judgeEl.textContent=jd.label;judgeEl.style.color=jd.color;
+      msEl.textContent=(r.diffAdj>0?'+':'')+Math.round(r.diffAdj)+'ms';
+    }
+    row.appendChild(beatEl);row.appendChild(judgeEl);row.appendChild(msEl);
+    var wrap=document.createElement('div');
+    wrap.style.cssText='background:#f0f0ec;border-radius:8px;overflow:hidden;';
+    wrap.appendChild(row);graph.appendChild(wrap);
+  }
+
+  var perfect=results.filter(function(r){return !r.miss&&Math.abs(r.diffAdj)<=41.7;}).length;
+  var great=results.filter(function(r){return !r.miss&&Math.abs(r.diffAdj)>41.7&&Math.abs(r.diffAdj)<=83.3;}).length;
+  var good=results.filter(function(r){return !r.miss&&Math.abs(r.diffAdj)>83.3&&Math.abs(r.diffAdj)<=108.3;}).length;
+  var bad=results.filter(function(r){return !r.miss&&Math.abs(r.diffAdj)>108.3;}).length;
+  var missCount=missCount0;
+  document.getElementById('gm-summary').textContent='PERFECT: '+perfect+'　GREAT: '+great+'　GOOD: '+good+'　BAD: '+bad+'　ミス: '+missCount;
+
+  // 鬼判定クリアチェック: ミスなし・全タップdiffAdj±20ms以内（補正後で判定）
+  var oniAlsoCleared=!gmOniMode&&results.every(function(r){
+    return !r.miss && r.diffAdj!==null && Math.abs(r.diffAdj)<=20;
+  });
+
+  if(cleared&&gmLevel) gmSaveClear(gmLevel.lv,allPerfect,gmOniMode,oniAlsoCleared);
+  gmRenderLevels();
+  if(cleared) setTimeout(function(){gmShowClearOverlay(cleared,allPerfect,avg,oniAlsoCleared);},400);
+
+  document.getElementById('gm-result').classList.add('on');
+  document.getElementById('gm-retry-btn').style.display='block';
+  document.getElementById('gm-start-btn').style.display='block';
+  document.getElementById('gm-status').textContent=cleared?'CLEAR':'もう一度挑戦しよう';
+
+  replayData={
+    bpm: gmBpm,
+    expectedMs: gmExpected,
+    metExpectedMs: gmMetExpected,
+    diffAdjs: results.map(function(r){return r.diffAdj;}),
+    misses: results.map(function(r){return r.miss;})
+  };
+}
+
+document.getElementById('gm-bpm-slider').addEventListener('input',function(){
+  gmBpm=parseInt(this.value);document.getElementById('gm-bpm-disp').textContent=gmBpm;
+});
+document.getElementById('gm-start-btn').addEventListener('click',function(){gmStart();});
+document.getElementById('gm-stop-btn').addEventListener('click',function(){
+  gmState='idle';
+  clearTimeout(gmEndTimer);
+  // AudioContext即時停止
+  if(ctx){try{ctx.close();}catch(e){}ctx=null;}
+  document.getElementById('gm-tap-btn').classList.add('inactive');
+  document.getElementById('gm-stop-btn').style.display='none';
+  document.getElementById('gm-start-btn').style.display='block';
+  document.getElementById('gm-status').textContent='レベルを選択してスタート';
+  document.getElementById('gm-result').classList.remove('on');
+});
+document.getElementById('gm-tap-btn').addEventListener('click',function(){gmTap();});
+document.getElementById('gm-retry-btn').addEventListener('click',function(){
+  document.getElementById('gm-result').classList.remove('on');
+  document.getElementById('gm-retry-btn').style.display='none';
+  document.getElementById('gm-start-btn').style.display='block';
+  document.getElementById('gm-status').textContent='レベルを選択してスタート';
+});
+
+document.getElementById('gm-reset-btn').addEventListener('click',function(){
+  document.getElementById('gm-reset-overlay').classList.add('on');
+});
+document.getElementById('gm-reset-yes').addEventListener('click',function(){
+  document.getElementById('gm-reset-overlay').classList.remove('on');
+  gmResetClears();
+});
+document.getElementById('gm-reset-no').addEventListener('click',function(){
+  document.getElementById('gm-reset-overlay').classList.remove('on');
+});
+
+document.getElementById('calib-start-btn').addEventListener('click',function(){calibStart();});
+document.getElementById('calib-tap-btn').addEventListener('click',function(){calibTap();});
+
+gmRenderLevels();
+calibUpdateUI();
+
+})();
+</script>
+</body>
+</html>
