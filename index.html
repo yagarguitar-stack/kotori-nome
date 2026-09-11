@@ -307,15 +307,25 @@ body.focus-game #gm-tap-btn{display:block}
     <button class="mb" data-mode="st">&#9835;<br>6連</button>
     <button class="mb" data-mode="sh">&#9834;<br>シャッフル</button>
   </div>
-  <button class="atog" id="atog"><span>アクセント変更（ON=高音 / 薄=低音 / 消=無音）</span><span id="aarr">&#9655;</span></button>
-  <div class="apan" id="apan"><div class="agrid" id="agrid"></div></div>
+  <div class="sl" style="display:flex;align-items:center;gap:8px;">
+    <span>メトロノーム</span>
+    <button id="mmute" class="score-toggle" style="margin-left:auto;">鳴らさない</button>
+  </div>
+  <div class="apan on" id="apan">
+    <p class="etip">升をタップすると 高音 → 低音 → 消音 の順に変わります。</p>
+    <div class="agrid" id="agrid"></div>
+    <div class="ebr" style="margin-top:8px;">
+      <button id="acc-all" class="erst">すべて消す</button>
+      <button id="acc-reset" class="erst">最初の形に戻す</button>
+    </div>
+  </div>
   <div class="sl" style="display:flex;align-items:center;gap:8px;">
     <span>ドラム</span>
     <span id="dname" style="font-size:var(--fs-xs);color:var(--ink-4);font-weight:normal;"></span>
     <button id="dmute" class="score-toggle" style="margin-left:auto;">鳴らさない</button>
   </div>
   <div id="epan" class="on">
-    <p class="etip">音符モードに合わせて切り替わります。セルをタップすると、その場で変えられます。</p>
+    <p class="etip">音符モードに合わせて切り替わります。升をタップすると、その場で変えられます。</p>
     <div class="eleg">
       <div class="eli"><div class="edot" style="background:var(--green)"></div>HH</div>
       <div class="eli"><div class="edot" style="background:var(--blue)"></div>SN</div>
@@ -323,7 +333,7 @@ body.focus-game #gm-tap-btn{display:block}
     </div>
     <div class="egw"><table class="etbl" id="etbl"></table></div>
     <div class="ebr" style="margin-top:8px;">
-      <button class="erst" id="erst">この形に戻す</button>
+      <button class="erst" id="erst">最初の形に戻す</button>
     </div>
   </div>
 </div>
@@ -788,7 +798,8 @@ body.focus-rhythm #rtg-pulse, body.focus-game #gm-pulse{width:90px;height:90px;m
 (function(){
 var AC=window.AudioContext||window.webkitAudioContext;
 var ctx=null,playing=false,ctmr=null,dtmr=null,nct=0,ndt=0,cb=0,ds=0;
-var bpm=120,mode='q',ts='4/4',dpat='none',aopen=false,eopen=false,uacc=null,taps=[];
+var bpm=120,mode='q',ts='4/4',dpat='none',aopen=true,eopen=true,uacc=null,taps=[];
+var metMuted=false; // メトロノームを鳴らさない状態
 var useCustom=false,ecs=-1,countIn=0,countInPlaying=false,editorTs='2/4';
 // カウントインの刻み（1=4分 2=8分 3=3連 4=16分）と、最後の小節だけ刻むかどうか
 var ciDiv=1,ciLastOnly=false;
@@ -1033,18 +1044,6 @@ function drumNoise(){
   _drumNoise=buf;_drumNoiseCtx=ctx;
   return buf;
 }
-// 軽い歪み。輪郭を出すために通す。
-// カーブだけ使い回し、ノード自体は1発ごとに作る（同じノードを毎回つなぐと接続が溜まるため）。
-var _drumCurve=null;
-function drumShaper(){
-  if(!_drumCurve){
-    var n=1024,c=new Float32Array(n),k=8;
-    for(var i=0;i<n;i++){var x=i*2/n-1;c[i]=(1+k)*x/(1+k*Math.abs(x));}
-    _drumCurve=c;
-  }
-  var ws=ctx.createWaveShaper();ws.curve=_drumCurve;ws.oversample='2x';
-  return ws;
-}
 function noiseSource(t,dur){
   var s=ctx.createBufferSource();
   s.buffer=drumNoise();
@@ -1056,25 +1055,43 @@ function noiseSource(t,dur){
 function mdrm(t,type){
   var bus=getClickBus();
   if(type==='bd'){
-    // 胴：ピッチを2段階で落とす（最初の落ち込みが速いほど「ドッ」と締まる）
-    var o=ctx.createOscillator(),g=ctx.createGain(),sh=ctx.createGain();
+    // 生のバスドラムに寄せた作り。
+    // 低音を薄くし、そのぶん胴の「コン」とビーターの「コッ」で輪郭を出す。
+    var bus2=ctx.createGain();bus2.gain.value=0.9;
+    var hpf=ctx.createBiquadFilter();               // 50Hz以下を落として重さを抜く
+    hpf.type='highpass';hpf.frequency.value=52;hpf.Q.value=0.7;
+    hpf.connect(bus2);bus2.connect(bus);
+
+    // 芯：落ち方を速くし、着地を高めに取る（低く長く伸ばすと電子音に寄る）
+    var o=ctx.createOscillator(),g=ctx.createGain();
     o.type='sine';
-    o.frequency.setValueAtTime(165,t);
-    o.frequency.exponentialRampToValueAtTime(62,t+0.035);
-    o.frequency.exponentialRampToValueAtTime(42,t+0.18);
+    o.frequency.setValueAtTime(180,t);
+    o.frequency.exponentialRampToValueAtTime(72,t+0.022);
+    o.frequency.exponentialRampToValueAtTime(57,t+0.10);
     g.gain.setValueAtTime(0.0001,t);
-    g.gain.exponentialRampToValueAtTime(0.95,t+0.004); // 立ち上がりを一瞬だけ持たせる
-    g.gain.exponentialRampToValueAtTime(0.28,t+0.09);
-    g.gain.exponentialRampToValueAtTime(0.001,t+0.34);
-    var ws=drumShaper();
-    o.connect(g);g.connect(ws);ws.connect(sh);
-    sh.gain.value=0.85;sh.connect(bus);
-    o.start(t);o.stop(t+0.4);
-    // アタック：ビーターが当たる「コッ」
-    var ns=noiseSource(t,0.03),nf=ctx.createBiquadFilter(),ng=ctx.createGain();
-    nf.type='bandpass';nf.frequency.value=2200;nf.Q.value=0.9;
-    ng.gain.setValueAtTime(0.5,t);ng.gain.exponentialRampToValueAtTime(0.001,t+0.022);
-    ns.connect(nf);nf.connect(ng);ng.connect(bus);
+    g.gain.exponentialRampToValueAtTime(0.72,t+0.004);
+    g.gain.exponentialRampToValueAtTime(0.20,t+0.055);
+    g.gain.exponentialRampToValueAtTime(0.001,t+0.19); // 余韻は短めに
+    o.connect(g);g.connect(hpf);
+    o.start(t);o.stop(t+0.24);
+
+    // 胴鳴り：300Hz付近の短い成分。これがあると木の胴らしさが出る
+    var ob=ctx.createOscillator(),gb=ctx.createGain();
+    ob.type='triangle';
+    ob.frequency.setValueAtTime(320,t);
+    ob.frequency.exponentialRampToValueAtTime(190,t+0.03);
+    gb.gain.setValueAtTime(0.22,t);
+    gb.gain.exponentialRampToValueAtTime(0.001,t+0.055);
+    ob.connect(gb);gb.connect(bus2);
+    ob.start(t);ob.stop(t+0.07);
+
+    // アタック：ビーターが当たる音。前より高く、少しだけ長く
+    var ns=noiseSource(t,0.03),nf=ctx.createBiquadFilter(),nf2=ctx.createBiquadFilter(),ng=ctx.createGain();
+    nf.type='bandpass';nf.frequency.value=3600;nf.Q.value=0.8;
+    nf2.type='highpass';nf2.frequency.value=1200;
+    ng.gain.setValueAtTime(0.42,t);
+    ng.gain.exponentialRampToValueAtTime(0.001,t+0.026);
+    ns.connect(nf);nf.connect(nf2);nf2.connect(ng);ng.connect(bus2);
 
   } else if(type==='sn'){
     // 胴：2本の三角波。少しだけピッチが落ちる
@@ -1225,7 +1242,7 @@ function sclk(){
     var acc=gacc(),v=acc[cb%tc()];
     var stepInBeat=cb%M[mode].s;
     if(mode==='sh'&&stepInBeat===1){cb++;nct+=sint();continue;}
-    if(aopen){if(v===2)mclk(nct,true);else if(v===1)mclk(nct,false);}
+    if(!metMuted){if(v===2)mclk(nct,true);else if(v===1)mclk(nct,false);}
     else mclk(nct,v===2);
     cb++;nct+=sint();
   }
@@ -1233,65 +1250,22 @@ function sclk(){
 }
 function sdrm(){
   if(dpat==='none'||drumMuted) return;
+  // 鳴らす元はグリッド（CP[dpat]）ひとつだけ。
+  // 以前はパターン名ごとに直書きした別の手順があり、見えている形と鳴る音が食い違っていた。
+  var p=CP[dpat];
+  if(!p||!p.steps) return;
   var now=ctx.currentTime;
-  if(useCustom){
-    var p=CP[dpat];
-    while(ndt<now+LA){
-      var st=ds%p.steps;
-      if(p.HH[st]) mdrm(ndt,'hh');
-      if(p.SN[st]) mdrm(ndt,'sn');
-      if(p.BD[st]) mdrm(ndt,'bd');
-      (function(t0,si){setTimeout(function(){if(playing&&eopen)hlstep(si);},Math.max(0,(t0-ctx.currentTime)*1000));})(ndt,st);
-      ds++;ndt+=bint()/p.div;
-    }
-  } else {
-    var bi=bint(),b=beats();
-    while(ndt<now+LA){
-      if(dpat==='beat8'){
-        var p8=DD['beat8'],s8=ds%p8.steps;
-        if(p8.HH[s8]) mdrm(ndt,'hh');
-        if(p8.SN[s8]) mdrm(ndt,'sn');
-        if(p8.BD[s8]) mdrm(ndt,'bd');
-        ds++;ndt+=bint()/p8.div;
-      } else if(dpat==='beat16'){
-        var sub=ds%(b*4);
-        mdrm(ndt,'hh');
-        if(sub===0||sub===8)  mdrm(ndt,'bd');
-        if(sub===4||sub===12) mdrm(ndt,'sn');
-        ds++;ndt+=bi/4;
-      } else if(dpat==='shuffle8'){
-        var tri=ds%(b*3),it=tri%3;
-        if(it===0||it===2){mdrm(ndt,'hh');var bx=Math.floor(tri/3);if(bx===0)mdrm(ndt,'bd');if(bx===1)mdrm(ndt,'sn');}
-        ds++;ndt+=bi/3;
-      } else if(dpat==='shuffle16'){
-        var six=ds%(b*6),is=six%6;
-        if(is===0||is===2||is===3||is===5){
-          mdrm(ndt,'hh');var bx=Math.floor(six/6);
-          if(bx===0&&is===0)mdrm(ndt,'bd');if(bx===1&&is===0)mdrm(ndt,'sn');
-        }
-        ds++;ndt+=bi/6;
-      } else if(dpat==='triplet8'){
-        var p=DD['triplet8'],s=ds%p.steps;
-        if(p.HH[s]) mdrm(ndt,'hh');
-        if(p.SN[s]) mdrm(ndt,'sn');
-        if(p.BD[s]) mdrm(ndt,'bd');
-        ds++;ndt+=bint()/p.div;
-      } else if(dpat==='beat4'){
-        var p4=DD['beat4'],s4=ds%p4.steps;
-        if(p4.HH[s4]) mdrm(ndt,'hh');
-        if(p4.SN[s4]) mdrm(ndt,'sn');
-        if(p4.BD[s4]) mdrm(ndt,'bd');
-        ds++;ndt+=bint()/p4.div;
-      } else {
-        ds++;ndt+=bi; // 知らないパターンでも必ず時刻を進める（止まらないための保険）
-      }
-    }
+  while(ndt<now+LA){
+    var st=ds%p.steps;
+    if(p.HH[st]) mdrm(ndt,'hh');
+    if(p.SN[st]) mdrm(ndt,'sn');
+    if(p.BD[st]) mdrm(ndt,'bd');
+    (function(t0,si){setTimeout(function(){if(playing)hlstep(si);},Math.max(0,(t0-ctx.currentTime)*1000));})(ndt,st);
+    ds++;ndt+=bint()/p.div;
   }
-  dtmr=setTimeout(sdrm,SI);
+  dtmr=setTimeout(sdrm,SI); // 先読みを繰り返す（これが無いと最初の一瞬しか鳴らない）
 }
 
-// カウントインを小節ごとの「数える拍」の配列にする。
-// 4拍子で2小節の場合、前半は2分音符2つ（「1…2…」とゆっくり数える）という従来の作りを保つ。
 function ciBars(){
   var bi=bint();
   var b=beats();
@@ -1415,6 +1389,12 @@ function stopM(){
 }
 
 function acls(v){return v>=2?' hi':v===1?' lo':'';}
+// 1つでも鳴る升があるか（ボタンの文言を決めるのに使う）
+function accAnyOn(){var a=gacc();for(var i=0;i<a.length;i++){if(a[i])return true;}return false;}
+function accUpdateBtn(){
+  var b=document.getElementById('acc-all');
+  if(b) b.textContent=accAnyOn()?'すべて消す':'すべて鳴らす';
+}
 function racg(){
   var g=document.getElementById('agrid');g.innerHTML='';
   var b=beats(),s=M[mode].s,acc=gacc();
@@ -1453,7 +1433,16 @@ function racg(){
       })(i);
     }
   }
+  accUpdateBtn();
 }
+document.getElementById('acc-all').addEventListener('click',function(){
+  var a=gacc(),on=accAnyOn();
+  for(var i=0;i<a.length;i++) a[i]=on?0:(i===0?2:1); // 鳴らすときは頭だけ高音
+  uacc=a;racg();
+});
+document.getElementById('acc-reset').addEventListener('click',function(){
+  uacc=null;racg(); // 拍の頭だけ鳴る既定の形へ
+});
 
 function getEditorPattern(){
   var tsInfo=TS[ts];
@@ -1473,6 +1462,7 @@ function getEditorPattern(){
 
 function drumApply(){
   dpat=MODE_DRUM[mode]||'beat8';
+  if(!CP[dpat]) CP[dpat]=dc(DD[dpat]);
   var btn=document.getElementById('dmute');
   if(btn){btn.textContent=drumMuted?'鳴らす':'鳴らさない';btn.classList.toggle('off',drumMuted);}
   redg();
@@ -1569,14 +1559,12 @@ document.getElementById('dmute').addEventListener('click',function(){
   drumApply();
   if(was)startM();
 });
-document.getElementById('atog').addEventListener('click',function(){
-  aopen=!aopen;
-  document.getElementById('apan').classList.toggle('on',aopen);
-  this.classList.toggle('on',aopen);
-  document.getElementById('aarr').textContent=aopen?'▼':'▷';
-  if(aopen)racg();
+// メトロノームを鳴らす／鳴らさない（升の設定はそのまま残る）
+document.getElementById('mmute').addEventListener('click',function(){
+  metMuted=!metMuted;
+  this.textContent=metMuted?'鳴らす':'鳴らさない';
+  this.classList.toggle('off',metMuted);
 });
-eopen=true; // グリッドは常に表示
 document.getElementById('erst').addEventListener('click',function(){
   if(!DD[dpat])return;CP[dpat]=dc(DD[dpat]);useCustom=false;redg();
 });
