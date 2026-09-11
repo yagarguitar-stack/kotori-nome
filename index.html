@@ -309,36 +309,21 @@ body.focus-game #gm-tap-btn{display:block}
   </div>
   <button class="atog" id="atog"><span>アクセント変更（ON=高音 / 薄=低音 / 消=無音）</span><span id="aarr">&#9655;</span></button>
   <div class="apan" id="apan"><div class="agrid" id="agrid"></div></div>
-  <div class="sl">ドラムパターン</div>
-  <div class="dg">
-    <button class="db" data-drum="beat8">8ビート</button>
-    <button class="db" data-drum="beat16">16ビート</button>
-    <button class="db" data-drum="shuffle8">8シャッフル</button>
-    <button class="db" data-drum="shuffle16">16シャッフル</button>
-    <button class="db" data-drum="triplet8">トリプレット</button>
-    <button class="db on dn" data-drum="none">ドラムなし</button>
+  <div class="sl" style="display:flex;align-items:center;gap:8px;">
+    <span>ドラム</span>
+    <span id="dname" style="font-size:var(--fs-xs);color:var(--ink-4);font-weight:normal;"></span>
+    <button id="dmute" class="score-toggle" style="margin-left:auto;">鳴らさない</button>
   </div>
-  <button id="etog">パターン作成モード <span id="earr">&#9655;</span></button>
-  <div id="epan">
-    <p class="etip">セルをタップしてON/OFF。適用で反映。</p>
+  <div id="epan" class="on">
+    <p class="etip">音符モードに合わせて切り替わります。セルをタップすると、その場で変えられます。</p>
     <div class="eleg">
       <div class="eli"><div class="edot" style="background:var(--green)"></div>HH</div>
       <div class="eli"><div class="edot" style="background:var(--blue)"></div>SN</div>
       <div class="eli"><div class="edot" style="background:var(--amber-dark)"></div>BD</div>
     </div>
     <div class="egw"><table class="etbl" id="etbl"></table></div>
-    <div class="sl" style="margin-top:8px;margin-bottom:4px;">拍子</div>
-    <div class="tr" id="ed-ts-row" style="margin-bottom:8px;">
-      <button class="ed-tb on" data-edts="2/4">2/4</button>
-      <button class="ed-tb" data-edts="3/4">3/4</button>
-      <button class="ed-tb" data-edts="4/4">4/4</button>
-      <button class="ed-tb" data-edts="5/4">5/4</button>
-      <button class="ed-tb" data-edts="6/8">6/8</button>
-      <button class="ed-tb" data-edts="7/8">7/8</button>
-    </div>
-    <div class="ebr">
-      <button class="erst" id="erst">リセット</button>
-      <button class="eapp" id="eapp">&#10003; このパターンで再生</button>
+    <div class="ebr" style="margin-top:8px;">
+      <button class="erst" id="erst">この形に戻す</button>
     </div>
   </div>
 </div>
@@ -819,8 +804,13 @@ var DD={
   beat16:   {steps:16,div:4,HH:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],SN:[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],BD:[1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0]},
   shuffle8: {steps:12,div:3,HH:[1,0,1,1,0,1,1,0,1,1,0,1],SN:[0,0,0,1,0,0,0,0,0,1,0,0],BD:[1,0,0,0,0,0,1,0,0,0,0,0]},
   shuffle16:{steps:24,div:6,HH:[1,0,1,1,0,1,1,0,1,1,0,1,1,0,1,1,0,1,1,0,1,1,0,1],SN:[0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0],BD:[1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0]},
+  beat4:    {steps:4, div:1,HH:[0,0,0,0],SN:[0,0,1,0],BD:[1,0,0,0]},
   triplet8: {steps:12,div:3,HH:[1,1,1,1,1,1,1,1,1,1,1,1],SN:[0,0,0,1,0,0,0,0,0,1,0,0],BD:[1,0,0,0,0,0,1,0,0,0,0,0]}
 };
+// 音符モードに対応するドラムパターン。音符モードを押すとこちらも切り替わる。
+var MODE_DRUM={q:'beat4',e:'beat8',et:'triplet8',s:'beat16',st:'shuffle16',sh:'shuffle8'};
+var DRUM_NAME={beat4:'4分',beat8:'8ビート',beat16:'16ビート',shuffle8:'8シャッフル',shuffle16:'16シャッフル',triplet8:'トリプレット'};
+var drumMuted=false; // 「鳴らさない」を押している間だけ true
 function dc(o){return JSON.parse(JSON.stringify(o));}
 var CP={};Object.keys(DD).forEach(function(k){CP[k]=dc(DD[k]);});
 
@@ -1032,34 +1022,98 @@ function clkCowbell(t,hi){
   g.gain.setValueAtTime(hi?1.5:1.2,t);
   src.start(t);
 }
+// ═══ ドラムの音作り ═══
+// 生成した音を使い回せるよう、ノイズは毎回作らずキャッシュする。
+var _drumNoise=null,_drumNoiseCtx=null;
+function drumNoise(){
+  if(_drumNoise&&_drumNoiseCtx===ctx) return _drumNoise;
+  var len=Math.floor(ctx.sampleRate*0.5);
+  var buf=ctx.createBuffer(1,len,ctx.sampleRate),d=buf.getChannelData(0);
+  for(var i=0;i<len;i++) d[i]=Math.random()*2-1;
+  _drumNoise=buf;_drumNoiseCtx=ctx;
+  return buf;
+}
+// 軽い歪み。輪郭を出すために通す。
+// カーブだけ使い回し、ノード自体は1発ごとに作る（同じノードを毎回つなぐと接続が溜まるため）。
+var _drumCurve=null;
+function drumShaper(){
+  if(!_drumCurve){
+    var n=1024,c=new Float32Array(n),k=8;
+    for(var i=0;i<n;i++){var x=i*2/n-1;c[i]=(1+k)*x/(1+k*Math.abs(x));}
+    _drumCurve=c;
+  }
+  var ws=ctx.createWaveShaper();ws.curve=_drumCurve;ws.oversample='2x';
+  return ws;
+}
+function noiseSource(t,dur){
+  var s=ctx.createBufferSource();
+  s.buffer=drumNoise();
+  s.loop=true;
+  s.start(t);s.stop(t+dur);
+  return s;
+}
+
 function mdrm(t,type){
+  var bus=getClickBus();
   if(type==='bd'){
-    var o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(getClickBus());
-    o.frequency.setValueAtTime(150,t);o.frequency.exponentialRampToValueAtTime(40,t+0.1);
-    g.gain.setValueAtTime(0.8,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.15);
-    o.start(t);o.stop(t+0.2);
+    // 胴：ピッチを2段階で落とす（最初の落ち込みが速いほど「ドッ」と締まる）
+    var o=ctx.createOscillator(),g=ctx.createGain(),sh=ctx.createGain();
+    o.type='sine';
+    o.frequency.setValueAtTime(165,t);
+    o.frequency.exponentialRampToValueAtTime(62,t+0.035);
+    o.frequency.exponentialRampToValueAtTime(42,t+0.18);
+    g.gain.setValueAtTime(0.0001,t);
+    g.gain.exponentialRampToValueAtTime(0.95,t+0.004); // 立ち上がりを一瞬だけ持たせる
+    g.gain.exponentialRampToValueAtTime(0.28,t+0.09);
+    g.gain.exponentialRampToValueAtTime(0.001,t+0.34);
+    var ws=drumShaper();
+    o.connect(g);g.connect(ws);ws.connect(sh);
+    sh.gain.value=0.85;sh.connect(bus);
+    o.start(t);o.stop(t+0.4);
+    // アタック：ビーターが当たる「コッ」
+    var ns=noiseSource(t,0.03),nf=ctx.createBiquadFilter(),ng=ctx.createGain();
+    nf.type='bandpass';nf.frequency.value=2200;nf.Q.value=0.9;
+    ng.gain.setValueAtTime(0.5,t);ng.gain.exponentialRampToValueAtTime(0.001,t+0.022);
+    ns.connect(nf);nf.connect(ng);ng.connect(bus);
+
   } else if(type==='sn'){
-    var buf=ctx.createBuffer(1,Math.floor(ctx.sampleRate*0.1),ctx.sampleRate),d=buf.getChannelData(0);
-    for(var i=0;i<d.length;i++) d[i]=Math.random()*2-1;
-    var s=ctx.createBufferSource(),g=ctx.createGain();s.buffer=buf;s.connect(g);g.connect(getClickBus());
-    g.gain.setValueAtTime(0.4,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.1);
-    s.start(t);s.stop(t+0.15);
-  } else if(type==='hh'){
-    var buf=ctx.createBuffer(1,Math.floor(ctx.sampleRate*0.05),ctx.sampleRate),d=buf.getChannelData(0);
-    for(var i=0;i<d.length;i++) d[i]=(Math.random()*2-1)*0.3;
-    var s=ctx.createBufferSource(),f=ctx.createBiquadFilter(),g=ctx.createGain();
-    f.type='highpass';f.frequency.value=7000;s.buffer=buf;s.connect(f);f.connect(g);g.connect(getClickBus());
-    g.gain.setValueAtTime(0.25,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.05);
-    s.start(t);s.stop(t+0.08);
-  } else if(type==='hhs'){
-    // カウントインで拍と拍の間を刻む音。hhより短く・高く・小さくして、
-    // 細かく刻んでも拍頭（hh）が埋もれないようにする。
-    var buf=ctx.createBuffer(1,Math.floor(ctx.sampleRate*0.03),ctx.sampleRate),d=buf.getChannelData(0);
-    for(var i=0;i<d.length;i++) d[i]=(Math.random()*2-1)*0.3;
-    var s=ctx.createBufferSource(),f=ctx.createBiquadFilter(),g=ctx.createGain();
-    f.type='highpass';f.frequency.value=10000;s.buffer=buf;s.connect(f);f.connect(g);g.connect(getClickBus());
-    g.gain.setValueAtTime(0.10,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.03);
-    s.start(t);s.stop(t+0.05);
+    // 胴：2本の三角波。少しだけピッチが落ちる
+    [[188,0.30],[336,0.18]].forEach(function(v){
+      var o=ctx.createOscillator(),g=ctx.createGain();
+      o.type='triangle';
+      o.frequency.setValueAtTime(v[0],t);
+      o.frequency.exponentialRampToValueAtTime(v[0]*0.82,t+0.09);
+      g.gain.setValueAtTime(v[1],t);
+      g.gain.exponentialRampToValueAtTime(0.001,t+0.12);
+      o.connect(g);g.connect(bus);
+      o.start(t);o.stop(t+0.14);
+    });
+    // スナッピー：帯域を絞ったノイズ。胴より長く残す
+    var s1=noiseSource(t,0.22),hp=ctx.createBiquadFilter(),bp=ctx.createBiquadFilter(),g1=ctx.createGain();
+    hp.type='highpass';hp.frequency.value=1400;
+    bp.type='bandpass';bp.frequency.value=4200;bp.Q.value=0.55;
+    g1.gain.setValueAtTime(0.0001,t);
+    g1.gain.exponentialRampToValueAtTime(0.62,t+0.002);
+    g1.gain.exponentialRampToValueAtTime(0.12,t+0.06);
+    g1.gain.exponentialRampToValueAtTime(0.001,t+0.20); // 響き線の余韻
+    s1.connect(hp);hp.connect(bp);bp.connect(g1);g1.connect(bus);
+
+  } else if(type==='hh'||type==='hhs'){
+    // 金属の濁り：周波数比の揃わない矩形波6本をバンドパスに通す
+    var open=(type==='hh'),dur=open?0.075:0.045;
+    var ratios=[2,3,4.16,5.43,6.79,8.21],base=open?318:404;
+    var bp2=ctx.createBiquadFilter(),hp2=ctx.createBiquadFilter(),g2=ctx.createGain();
+    bp2.type='bandpass';bp2.frequency.value=open?9200:11000;bp2.Q.value=0.7;
+    hp2.type='highpass';hp2.frequency.value=open?7400:9500;
+    g2.gain.setValueAtTime(0.0001,t);
+    g2.gain.exponentialRampToValueAtTime(open?0.30:0.13,t+0.002);
+    g2.gain.exponentialRampToValueAtTime(0.001,t+dur);
+    ratios.forEach(function(r){
+      var o=ctx.createOscillator();
+      o.type='square';o.frequency.value=base*r;
+      o.connect(bp2);o.start(t);o.stop(t+dur+0.02);
+    });
+    bp2.connect(hp2);hp2.connect(g2);g2.connect(bus);
   }
 }
 
@@ -1121,7 +1175,7 @@ function footStart(startTime){
   e.wrap.style.display='block';   // ボタンは再生中つねに出す
   if(!footOn) return;             // 「表示する」に戻すまで絵は出さない
   e.box.style.display='block';
-  footShow('omote');
+  footShow('ura');
   footNext=startTime;
   footTick();
 }
@@ -1130,9 +1184,9 @@ function footTick(){
   var now=ctx.currentTime,bi=bint(),r=footUraRatio();
   while(footNext<now+LA){
     var t0=footNext;
-    (function(at){setTimeout(function(){if(playing||countInPlaying)footShow('omote');},
-      Math.max(0,(at-ctx.currentTime)*1000));})(t0);
     (function(at){setTimeout(function(){if(playing||countInPlaying)footShow('ura');},
+      Math.max(0,(at-ctx.currentTime)*1000));})(t0);
+    (function(at){setTimeout(function(){if(playing||countInPlaying)footShow('omote');},
       Math.max(0,(at-ctx.currentTime)*1000));})(t0+bi*r);
     footNext+=bi;
   }
@@ -1141,7 +1195,7 @@ function footTick(){
 function footStop(){
   clearTimeout(footTmr);footTmr=null;
   var e=footEls();e.wrap.style.display='none';e.box.style.display='none';
-  footShow('omote');
+  footShow('ura');
 }
 
 function sclk(){
@@ -1157,7 +1211,7 @@ function sclk(){
   ctmr=setTimeout(sclk,SI);
 }
 function sdrm(){
-  if(dpat==='none') return;
+  if(dpat==='none'||drumMuted) return;
   var now=ctx.currentTime;
   if(useCustom){
     var p=CP[dpat];
@@ -1201,6 +1255,14 @@ function sdrm(){
         if(p.SN[s]) mdrm(ndt,'sn');
         if(p.BD[s]) mdrm(ndt,'bd');
         ds++;ndt+=bint()/p.div;
+      } else if(dpat==='beat4'){
+        var p4=DD['beat4'],s4=ds%p4.steps;
+        if(p4.HH[s4]) mdrm(ndt,'hh');
+        if(p4.SN[s4]) mdrm(ndt,'sn');
+        if(p4.BD[s4]) mdrm(ndt,'bd');
+        ds++;ndt+=bint()/p4.div;
+      } else {
+        ds++;ndt+=bi; // 知らないパターンでも必ず時刻を進める（止まらないための保険）
       }
     }
   }
@@ -1373,7 +1435,7 @@ function racg(){
 }
 
 function getEditorPattern(){
-  var tsInfo=TS[editorTs];
+  var tsInfo=TS[ts];
   var b=tsInfo.b;
   var basePat=DD[dpat];
   var baseBeat=4;
@@ -1388,8 +1450,16 @@ function getEditorPattern(){
   return p;
 }
 
+function drumApply(){
+  dpat=MODE_DRUM[mode]||'beat8';
+  var btn=document.getElementById('dmute');
+  if(btn){btn.textContent=drumMuted?'鳴らす':'鳴らさない';btn.classList.toggle('off',drumMuted);}
+  redg();
+}
 function redg(){
-  if(dpat==='none'){document.getElementById('etbl').innerHTML='<tr><td style="color:#8a857a;font-size:.74rem;padding:8px">ドラムパターンを選択してください</td></tr>';return;}
+  var nameEl=document.getElementById('dname');
+  if(nameEl) nameEl.textContent=(DRUM_NAME[MODE_DRUM[mode]]||'')+(drumMuted?'（鳴らしません）':'');
+  if(!DD[dpat]){document.getElementById('etbl').innerHTML='';return;}
   var p=getEditorPattern();
   var steps=p.steps, div=p.div;
   var tbl=document.getElementById('etbl');
@@ -1417,6 +1487,7 @@ function redg(){
         td.addEventListener('click',function(){
           p[r][si]=p[r][si]?0:1;
           td.classList.toggle(r.toLowerCase(),!!p[r][si]);
+          useCustom=true; // 次の小節から鳴り方に反映される
         });
         tr.appendChild(td);
       })(i,row);
@@ -1446,6 +1517,10 @@ document.querySelectorAll('.mb[data-mode]').forEach(function(btn){
   btn.addEventListener('click',function(){
     document.querySelectorAll('.mb[data-mode]').forEach(function(b){b.classList.remove('on');});
     btn.classList.add('on');mode=btn.dataset.mode;uacc=null;racg();
+    var was=playing;if(was)stopM();
+    CP[MODE_DRUM[mode]]=dc(DD[MODE_DRUM[mode]]);useCustom=false;
+    drumApply();
+    if(was)startM();
   });
 });
 document.getElementById('ts-sel-btn').addEventListener('click',function(){
@@ -1457,20 +1532,21 @@ document.querySelectorAll('.ts-modal-btn').forEach(function(btn){
     btn.classList.add('on');ts=btn.dataset.ts;uacc=null;racg();
     var selBtn=document.getElementById('ts-sel-btn');
     selBtn.textContent=ts;selBtn.classList.add('on');
-    document.querySelectorAll('.ed-tb').forEach(function(b){b.classList.toggle('on',b.dataset.edts===ts);});
+    editorTs=ts;
+    if(DD[dpat]){CP[dpat]=dc(DD[dpat]);useCustom=false;}
+    redg();
     document.getElementById('ts-modal-overlay').classList.remove('on');
   });
 });
 document.getElementById('ts-modal-overlay').addEventListener('click',function(e){
   if(e.target===this) this.classList.remove('on');
 });
-document.querySelectorAll('.db').forEach(function(btn){
-  btn.addEventListener('click',function(){
-    var was=playing;if(was)stopM();
-    document.querySelectorAll('.db').forEach(function(b){b.classList.remove('on');});
-    btn.classList.add('on');dpat=btn.dataset.drum;useCustom=false;
-    if(eopen)redg();if(was)startM();
-  });
+// ドラムを鳴らす／鳴らさない（グリッドの形はそのまま残る）
+document.getElementById('dmute').addEventListener('click',function(){
+  var was=playing;if(was)stopM();
+  drumMuted=!drumMuted;
+  drumApply();
+  if(was)startM();
 });
 document.getElementById('atog').addEventListener('click',function(){
   aopen=!aopen;
@@ -1479,38 +1555,9 @@ document.getElementById('atog').addEventListener('click',function(){
   document.getElementById('aarr').textContent=aopen?'▼':'▷';
   if(aopen)racg();
 });
-document.getElementById('etog').addEventListener('click',function(){
-  eopen=!eopen;
-  document.getElementById('epan').classList.toggle('on',eopen);
-  this.classList.toggle('on',eopen);
-  document.getElementById('earr').textContent=eopen?'▼':'▷';
-  if(eopen){
-    document.querySelectorAll('.ed-tb').forEach(function(b){b.classList.toggle('on',b.dataset.edts===ts);});
-    redg();
-  }
-});
+eopen=true; // グリッドは常に表示
 document.getElementById('erst').addEventListener('click',function(){
-  if(dpat==='none')return;CP[dpat]=dc(DD[dpat]);useCustom=false;redg();
-});
-document.querySelectorAll('[data-edts]').forEach(function(btn){
-  btn.addEventListener('click',function(){
-    document.querySelectorAll('.ed-tb').forEach(function(b){b.classList.remove('on');});
-    btn.classList.add('on');
-    document.querySelectorAll('.ts-modal-btn').forEach(function(b){b.classList.toggle('on',b.dataset.ts===btn.dataset.edts);});
-    document.getElementById('ts-sel-btn').textContent=btn.dataset.edts;
-    ts=btn.dataset.edts;editorTs=btn.dataset.edts;uacc=null;
-    if(dpat!=='none'){CP[dpat]=dc(DD[dpat]);useCustom=false;redg();}
-  });
-});
-document.getElementById('eapp').addEventListener('click',function(){
-  if(dpat==='none')return;
-  var was=playing;if(was)stopM();
-  ts=editorTs;
-  document.querySelectorAll('.ts-modal-btn').forEach(function(b){b.classList.toggle('on',b.dataset.ts===ts);});
-  document.getElementById('ts-sel-btn').textContent=ts;
-  uacc=null;useCustom=true;if(was)startM();
-  this.textContent='✓ 適用しました';
-  var self=this;setTimeout(function(){self.textContent='✓ このパターンで再生';},1500);
+  if(!DD[dpat])return;CP[dpat]=dc(DD[dpat]);useCustom=false;redg();
 });
 document.getElementById('pb').addEventListener('click',function(){if(playing||countInPlaying)stopM();else startM();});
 document.querySelectorAll('[data-ci]').forEach(function(btn){
@@ -2349,7 +2396,7 @@ function rtgDoStart(){
       (function(idx2,b2,delay){
         setTimeout(function(){
           if(rtgState==='countin'){
-            document.getElementById('rtg-status').textContent=idx2<b2?'あと2小節...':''+((b2-(idx2-b2)));
+            document.getElementById('rtg-status').textContent=idx2<b2?'呼吸を整えて準備してください':''+((b2-(idx2-b2)));
           }
         },Math.max(0,delay));
       })(st.idx,b,(t-ctx.currentTime)*1000);
@@ -2859,6 +2906,7 @@ function setVaImage(which){
     vaImg.style.display='block'; // 同じ画像なら再読込せず、表示だけ確実に戻す
   }
 }
+drumApply(); // 起動時に音符モードに合わせたドラムとグリッドを出す
 setVaImage('metro'); // 初期表示はメトロノームタブ
 
 // ═══ オープニング演出＋BGM制御 ═══
@@ -3058,7 +3106,7 @@ function trDoStart(){
     (function(idx2,b2,delay){
       setTimeout(function(){
         if(trState==='countin'&&trToken===myToken){
-          if(idx2<b2) document.getElementById('tr-status').textContent='あと2小節...';
+          if(idx2<b2) document.getElementById('tr-status').textContent='呼吸を整えて準備してください';
           else document.getElementById('tr-status').textContent=String(b2-(idx2-b2));
         }
       },Math.max(0,delay));
@@ -3997,7 +4045,7 @@ function demoPlay(cfg){
         demoLater(function(){ pulseCircle(cfg.pulseId,isLast); },delay);
         demoLater(function(){
           var el=document.getElementById(cfg.statusId);
-          if(el) el.textContent=idx<cfg.beats?'あと2小節...':String(cfg.beats-(idx-cfg.beats));
+          if(el) el.textContent=idx<cfg.beats?'呼吸を整えて準備してください':String(cfg.beats-(idx-cfg.beats));
         },delay);
       })((t-t0)*1000,st.idx===ciLastIdx,st.idx);
     }
@@ -4497,7 +4545,7 @@ function gmDoStart(){
     if(st.beat){
       // 円の脈動と拍数表示は「数える拍」だけで動かす
       (function(delay,isLast){setTimeout(function(){if(gmState==='countin')pulseCircle('gm-pulse',isLast);},Math.max(0,delay));})((t-ctx.currentTime)*1000,st.idx===ciLastIdx);
-      (function(idx,delay){setTimeout(function(){if(gmState==='countin')document.getElementById('gm-status').textContent=idx<b?'あと2小節...':String(b-(idx-b));},Math.max(0,delay));})(st.idx,(t-ctx.currentTime)*1000);
+      (function(idx,delay){setTimeout(function(){if(gmState==='countin')document.getElementById('gm-status').textContent=idx<b?'呼吸を整えて準備してください':String(b-(idx-b));},Math.max(0,delay));})(st.idx,(t-ctx.currentTime)*1000);
     }
     t+=st.dt;
   }
