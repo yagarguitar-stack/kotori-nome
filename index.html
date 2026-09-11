@@ -1123,7 +1123,7 @@ var LA=0.1,SI=25;
 // 拍の頭で「表」、拍の裏で「裏」。3連とシャッフルのときだけ裏の位置が2/3にずれ、
 // 3連の真ん中は表のまま。16分は2粒ずつまとめて8分と同じ動きになる。
 // 画像は2枚とも重ねて置いてあり、切り替えは表示の入れ替えだけ（読み込み直さない）。
-var footTmr=null,footNext=0,footImgs=null,footReady=false;
+var footTmr=null,footNext=0,footAnchor=0,footImgs=null,footReady=false;
 function footEls(){
   if(!footImgs) footImgs={wrap:document.getElementById('foot-wrap'),
                           box:document.getElementById('foot-box'),
@@ -1146,7 +1146,7 @@ var footOn=(localStorage.getItem('foot_guide')!=='0');
     footOn=!footOn;
     try{localStorage.setItem('foot_guide',footOn?'1':'0');}catch(e){}
     apply();
-    if(footOn&&(playing||countInPlaying)){ footNext=ctx?ctx.currentTime:0; footTick(); }
+    if(footOn&&(playing||countInPlaying)){ footResync(); footTick(); }
     else { clearTimeout(footTmr);footTmr=null; }
   });
   apply();
@@ -1169,33 +1169,54 @@ function footShow(which){
 }
 // 裏がくる位置（拍の何割の地点か）
 function footUraRatio(){ return (mode==='et'||mode==='sh')?2/3:0.5; }
+// 再生開始時刻を基準にした拍の格子へ乗せ直す。
+// 「今」を拍の頭とみなすと、隠す→表示するを押した瞬間が拍の頭になってしまい、
+// 半拍ずれれば表と裏が入れ替わって見える。
+function footResync(){
+  if(!ctx) return;
+  var bi=bint(),k=Math.ceil((ctx.currentTime-footAnchor)/bi);
+  if(!isFinite(k)||k<0) k=0;
+  footNext=footAnchor+k*bi;
+}
+// 遅れて発火した予約は捨てる。画面を離れて戻った直後は予約がまとめて発火するため、
+// 古いものをそのまま反映すると次の拍まで逆さまのまま残る。
+function footAt(at,which){
+  setTimeout(function(){
+    if(!(playing||countInPlaying)||!footOn||!ctx) return;
+    if(ctx.currentTime-at>0.06) return;
+    footShow(which);
+  },Math.max(0,(at-ctx.currentTime)*1000));
+}
 function footStart(startTime){
   if(!footReady) return;
   var e=footEls();
   e.wrap.style.display='block';   // ボタンは再生中つねに出す
   if(!footOn) return;             // 「表示する」に戻すまで絵は出さない
   e.box.style.display='block';
-  footShow('ura');
-  footNext=startTime;
+  footShow('omote');              // 拍の頭は「表」
+  footAnchor=startTime;footNext=startTime;
   footTick();
 }
 function footTick(){
   if(!ctx){footStop();return;}
   var now=ctx.currentTime,bi=bint(),r=footUraRatio();
+  if(footNext<now-bi) footResync(); // 大きく遅れていたら格子へ戻す
   while(footNext<now+LA){
-    var t0=footNext;
-    (function(at){setTimeout(function(){if(playing||countInPlaying)footShow('ura');},
-      Math.max(0,(at-ctx.currentTime)*1000));})(t0);
-    (function(at){setTimeout(function(){if(playing||countInPlaying)footShow('omote');},
-      Math.max(0,(at-ctx.currentTime)*1000));})(t0+bi*r);
+    footAt(footNext,'omote');       // 拍の頭＝表
+    footAt(footNext+bi*r,'ura');    // 拍の裏＝裏
     footNext+=bi;
   }
   footTmr=setTimeout(footTick,SI);
 }
+document.addEventListener('visibilitychange',function(){
+  if(document.hidden||!footOn||!(playing||countInPlaying)) return;
+  clearTimeout(footTmr);footTmr=null;
+  footResync();footTick();
+});
 function footStop(){
   clearTimeout(footTmr);footTmr=null;
   var e=footEls();e.wrap.style.display='none';e.box.style.display='none';
-  footShow('ura');
+  footShow('omote');
 }
 
 function sclk(){
