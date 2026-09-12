@@ -542,7 +542,7 @@ body.focus-game #gm-tap-btn{display:block}
     </div>
     <div id="rtg-score" class="focus-keep" style="background:var(--score-bg);border-radius:var(--r);padding:6px 4px;overflow-x:auto;"></div>
     <button id="rtg-demo-btn" class="demo-btn" style="margin-top:8px;">&#9655; お手本を聴く</button>
-    <div class="demo-note">2小節のカウントインのあと、メトロノーム音とお手本のタップ音が鳴ります</div>
+    <div class="demo-note">押すとすぐに、メトロノーム音とお手本のタップ音が鳴ります</div>
     <div style="margin-bottom:8px;">
       <div style="font-size:var(--fs-xs);color:var(--ink-4);margin-bottom:4px;">判定モード</div>
       <div style="display:flex;gap:6px;">
@@ -686,7 +686,7 @@ body.focus-game #gm-tap-btn{display:block}
     </div>
     <div id="gm-score" class="focus-keep" style="background:var(--score-bg);border-radius:var(--r);padding:6px 4px;overflow-x:auto;"></div>
     <button id="gm-demo-btn" class="demo-btn" style="margin-top:8px;">&#9655; お手本を聴く</button>
-    <div class="demo-note">2小節のカウントインのあと、メトロノーム音とお手本のタップ音が鳴ります</div>
+    <div class="demo-note">押すとすぐに、メトロノーム音とお手本のタップ音が鳴ります</div>
     <div id="gm-pulse" class="focus-keep" style="width:60px;height:60px;border-radius:50%;background:var(--pulse);margin:12px auto;opacity:.3;transform:scale(.85);display:none;"></div>
     <div class="rtg-status focus-keep" id="gm-status">レベルを選択してスタート</div>
     <div class="focus-keep" style="display:flex;gap:8px;">
@@ -3991,7 +3991,7 @@ REPLAY_BTNS.forEach(function(b){
 });
 
 // ===== お手本再生（演奏を始める前にパターンを聴く）=====
-// 本番と同じ2小節のカウントインのあと、メトロノーム音とお手本のタップ音を鳴らす。
+// カウントインは付けず、押したらすぐメトロノーム音とお手本のタップ音を鳴らす。
 // 判定は行わず、最後まで鳴ったら自動で終わる。もう一度押すと途中で止まる。
 var demoToken=0, demoTimers=[], demoActiveBtn=null, demoPulseId=null;
 var DEMO_BTNS=['rtg-demo-btn','gm-demo-btn'];
@@ -4040,26 +4040,10 @@ function demoPlay(cfg){
   var t0=ctx.currentTime, t=t0+0.1;
   demoPulseId=cfg.pulseId;
 
-  // カウントイン（本番と同じ2小節・刻みの設定もそのまま使う）
+  // お手本にカウントインは付けない。押したらすぐ鳴る。
   var pulse=document.getElementById(cfg.pulseId);
-  if(pulse){pulse.style.display='block';pulse.style.visibility='visible';pulse.style.transform='scale(.85)';pulse.style.opacity='.3';pulse.style.background='#8aa0b5';}
-  var ciSteps=trainerCountInSteps(cfg.bi,cfg.beats,cfg.ciDiv,cfg.ciLastOnly);
-  var ciLastIdx=cfg.beats*2-1;
-  for(var i=0;i<ciSteps.length;i++){
-    var st=ciSteps[i];
-    if(st.beat) rtgMakeClick(t,st.barHead); // 数える拍：小節頭=強拍、それ以外=弱拍
-    else        rtgMakeSubClick(t);         // 拍と拍の間
-    if(st.beat){
-      (function(delay,isLast,idx){
-        demoLater(function(){ pulseCircle(cfg.pulseId,isLast); },delay);
-        demoLater(function(){
-          var el=document.getElementById(cfg.statusId);
-          if(el) el.textContent=idx<cfg.beats?'呼吸を整えて準備してください':String(cfg.beats-(idx-cfg.beats));
-        },delay);
-      })((t-t0)*1000,st.idx===ciLastIdx,st.idx);
-    }
-    t+=st.dt;
-  }
+  if(pulse){pulse.style.display='none';pulse.style.visibility='hidden';}
+  t+=0.15; // 押してから鳴り出すまでのわずかな間
 
   var playStart=t, startMs=(playStart-t0)*1000;
   demoLater(function(){
