@@ -222,6 +222,8 @@ body.focus-game #gm-tap-btn{display:block}
 .perfect-leg::before{background:var(--green)}
 .tr-retry-btn{width:100%;padding:12px;border-radius:var(--r-lg);font-size:var(--fs-xl);font-weight:bold;cursor:pointer;border:1px solid var(--amber);background:var(--surface);color:var(--amber);letter-spacing:.1em}
 </style>
+<!-- 共通の楽器の音（読み込めない時は、これまでの合成音で鳴る） -->
+<script src="https://yagarguitar-stack.github.io/design-system/v1/sound.js"></script>
 </head>
 <body>
 <!-- ═══ オープニング画面（はじめるボタンを押すまで本編を操作不可）═══ -->
@@ -256,10 +258,11 @@ body.focus-game #gm-tap-btn{display:block}
   </div>
   <div class="sl">クリック音</div>
   <div class="mr" style="margin-bottom:8px">
-    <button class="mb on" data-click="wood">木製</button>
+    <button class="mb" data-click="wood">木製</button>
     <button class="mb" data-click="stick">スティック</button>
     <button class="mb" data-click="pendulum">振り子</button>
     <button class="mb" data-click="cowbell">カウベル</button>
+    <button class="mb on" data-click="beep">電子音</button>
   </div>
   <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
     <span style="font-size:var(--fs-sm);color:var(--ink-3);min-width:56px;">🔊 音量</span>
@@ -791,6 +794,7 @@ body.focus-rhythm #rtg-pulse, body.focus-game #gm-pulse{width:90px;height:90px;m
 </div><!-- /#app-fade -->
 <footer id="app-credit">
   音楽：イワシロ音楽素材　<a href="https://iwashiro-sounds.work/" target="_blank" rel="noopener">https://iwashiro-sounds.work/</a>
+  <div id="sndcredits"></div>
 </footer>
 <audio id="bgm-open" src="decision.mp3" preload="auto"></audio>
 <audio id="bgm-tempo" src="iwashiro_atsugiri_ham.mp3" preload="auto"></audio>
@@ -803,7 +807,7 @@ var metMuted=false; // メトロノームを鳴らさない状態
 var useCustom=false,ecs=-1,countIn=0,countInPlaying=false,editorTs='2/4';
 // カウントインの刻み（1=4分 2=8分 3=3連 4=16分）と、最後の小節だけ刻むかどうか
 var ciDiv=1,ciLastOnly=false;
-var clickType='wood';
+var clickType='beep';   // 初期は共通の電子音（他のツールと同じ音）
 
 var vid=document.getElementById('vid');
 
@@ -841,6 +845,7 @@ function mclk(t,hi){
   else if(clickType==='stick') clkStick(t,hi);
   else if(clickType==='pendulum') clkPendulum(t,hi);
   else if(clickType==='cowbell') clkCowbell(t,hi);
+  else if(clickType==='beep') clkBeep(t,hi);
 }
 
 // 共通：ノイズバーストでアタックの鋭さを出すヘルパー
@@ -856,6 +861,7 @@ function getClickBus(){
   _clickBus.gain.value=clickVol;
   _clickBus.connect(ctx.destination);
   _clickBusCtx=ctx;
+  smpBind(ctx,_clickBus);
   return _clickBus;
 }
 // クリック音量を設定（スライダーから呼ぶ）
@@ -1033,6 +1039,49 @@ function clkCowbell(t,hi){
   g.gain.setValueAtTime(hi?1.5:1.2,t);
   src.start(t);
 }
+
+// ═══ 共通の楽器の音（design-system/v1/sound.js）═══
+// ドラムは録音（MusyngKite）で鳴らす。読み込めない時・読み込みが済むまでは、下の合成ドラムのまま。
+// ことりノームは途中で音の器（ctx）を作り直すので、作り直すたびにつなぎ直す。
+// 録音のデータは器が変わっても使い回せる（読み込みは最初の1回だけ）。
+var smpCtx=null, smpLoading=false, smpDrumOn=true;
+// 合成ドラムと同じ大きさになるよう、種類ごとに測って合わせた強さ
+// （hh＝拍の頭の刻み、hhs＝細かい刻み。今の強弱をそのまま録音に当てる）
+var SMP_DRUM={ bd:{name:'kick',vel:0.956}, sn:{name:'snare',vel:1.016}, hh:{name:'hihat',vel:1.081}, hhs:{name:'hihat',vel:0.630} };
+// 電子音の強さ。木製のクリックと同じ大きさ・同じ強弱の差（強拍／弱拍）に合わせた
+var SMP_BEEP={hi:1.079,lo:0.818};
+function smpOk(){ return !!(window.DS&&DS.sound); }
+function smpBind(c,bus){
+  if(!smpOk()||!c) return;
+  try{ DS.sound.use({context:c,output:bus}); smpCtx=c; }catch(e){ return; }
+  if(!smpLoading){
+    smpLoading=true;
+    DS.sound.load('drums').then(smpCredits).catch(function(){});
+  }
+}
+function smpCredits(){
+  var el=document.getElementById('sndcredits');
+  if(el&&smpOk()&&DS.sound.creditsHtml) el.innerHTML=DS.sound.creditsHtml(['drums']);
+}
+// 録音のドラムで鳴らせたら true
+function smpDrum(t,type){
+  if(!smpDrumOn||!smpOk()||!ctx) return false;
+  var bus=getClickBus();
+  if(smpCtx!==ctx||!DS.sound.isReady('drums')) return false;
+  var d=SMP_DRUM[type]; if(!d) return false;
+  try{ DS.sound.drum(d.name,{time:t,vel:d.vel,dest:bus}); return true; }catch(e){ return false; }
+}
+// 電子音のクリック。共通の音（sound.js）と同じ作り。読み込めない時もここで同じ音を作る
+function clkBeep(t,hi){
+  if(!ctx) return;
+  var bus=getClickBus();
+  if(smpOk()&&smpCtx===ctx&&DS.sound.click){ DS.sound.click(hi,{time:t,vel:SMP_BEEP[hi?'hi':'lo'],dest:bus}); return; }
+  var o=ctx.createOscillator(),g=ctx.createGain();
+  o.frequency.value=hi?1600:1000;
+  g.gain.setValueAtTime(SMP_BEEP[hi?'hi':'lo'],t);g.gain.exponentialRampToValueAtTime(0.0001,t+0.06);
+  o.connect(g);g.connect(bus);o.start(t);o.stop(t+0.07);
+}
+
 // ═══ ドラムの音作り ═══
 // 生成した音を使い回せるよう、ノイズは毎回作らずキャッシュする。
 var _drumNoise=null,_drumNoiseCtx=null;
@@ -1053,6 +1102,7 @@ function noiseSource(t,dur){
 }
 
 function mdrm(t,type){
+  if(smpDrum(t,type)) return;   // 録音で鳴らせたら、合成はしない
   var bus=getClickBus();
   if(type==='bd'){
     // 生のバスドラムに寄せた作り。
