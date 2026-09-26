@@ -30,6 +30,8 @@
   --green:#1D9E75;         --green-dark:#0F6E56;   --green-soft:#e8fff5;
   --blue:#185FA5;          --blue-dark:#0C447C;    --blue-soft:#e6f0ff;
   --red:#E24B4A;
+  --crash:#7F77DD;         --crash-dark:#534AB7;   /* ドラムのクラッシュ */
+  --ride:#D4537E;          --ride-dark:#993556;    /* ドラムのライド */
   /* 役割色 */
   --pulse:#8aa0b5;         --score-bg:#f2e6c8;
   /* 文字サイズ */
@@ -122,6 +124,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;heigh
 .ec.hh{background:var(--green);border-color:var(--green-dark)}
 .ec.sn{background:var(--blue);border-color:var(--blue-dark)}
 .ec.bd{background:var(--amber-dark);border-color:#854F0B}
+.ec.cr{background:var(--crash);border-color:var(--crash-dark)}
+.ec.rd{background:var(--ride);border-color:var(--ride-dark)}
 .ec.cur{outline:2px solid var(--red);outline-offset:1px}
 .eleg{display:flex;gap:10px;margin-bottom:8px;flex-wrap:wrap}
 .eli{display:flex;align-items:center;gap:4px;font-size:var(--fs-xs);color:var(--ink-3)}
@@ -162,6 +166,12 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;heigh
 .rtg-div-btn:disabled{opacity:.35;cursor:not-allowed}
 .score-toggle{font-size:var(--fs-2xs);color:var(--ink-3);background:none;border:1px solid var(--line-soft);border-radius:var(--r-sm);padding:2px 8px;cursor:pointer;min-height:26px}
 .score-toggle.off{color:var(--amber-dark);border-color:var(--amber)}
+/* 鳴らす／止めるの切り替え（ランプ付き。今の状態を表示する） */
+.lamp-btn{margin-left:auto;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-width:88px;min-height:36px;padding:0 14px;border-radius:var(--r);border:1px solid var(--line);background:var(--surface);color:var(--ink-3);font-size:var(--fs-md);letter-spacing:.05em;cursor:pointer;transition:border-color .15s,color .15s}
+.lamp-btn .lamp{width:10px;height:10px;border-radius:50%;background:var(--line);transition:background .15s,box-shadow .15s}
+.lamp-btn.on{border-color:var(--amber);color:var(--ink);font-weight:bold}
+.lamp-btn.on .lamp{background:var(--amber);box-shadow:0 0 0 3px var(--amber-soft),0 0 6px var(--amber)}
+#epan.muted{opacity:.45}
 .rtg-gen-slider,.gm-gen-slider{display:flex;align-items:center;gap:8px;margin-bottom:6px}
 .rtg-gen-slider span,.gm-gen-slider span{font-size:var(--fs-xs);color:var(--ink-3);min-width:76px}
 .rtg-gen-slider input[type=range],.gm-gen-slider input[type=range]{-webkit-appearance:none;flex:1;height:5px;border-radius:var(--r-sm);background:var(--line);outline:none}
@@ -318,24 +328,33 @@ body.focus-game #gm-tap-btn{display:block}
   </div>
   <div class="sl" style="display:flex;align-items:center;gap:8px;">
     <span>メトロノーム</span>
-    <button id="mmute" class="score-toggle" style="margin-left:auto;">鳴らさない</button>
+    <button id="mmute" class="lamp-btn on" aria-pressed="true"><span class="lamp"></span><span class="lamp-t">オン</span></button>
   </div>
-  <div class="apan on" id="apan">
-    <p class="etip">升をタップすると 高音 → 低音 → 消音 の順に変わります。</p>
-    <div class="agrid" id="agrid"></div>
-    <div class="ebr" style="margin-top:8px;">
-      <button id="acc-all" class="erst">すべて消す</button>
-      <button id="acc-reset" class="erst">最初の形に戻す</button>
+  <div id="met-body">
+    <div class="sl" style="display:flex;align-items:center;gap:8px;">
+      <span>アクセント</span>
+      <button id="amute" class="lamp-btn on" aria-pressed="true"><span class="lamp"></span><span class="lamp-t">オン</span></button>
+    </div>
+    <p class="etip" id="apan-off" style="display:none;margin-bottom:8px;">オフのときは、すべて同じ音で刻みます。</p>
+    <div class="apan on" id="apan">
+      <p class="etip">マスをタップすると 高音 → 低音 → 消音 の順に変わります。</p>
+      <div class="agrid" id="agrid"></div>
+      <div class="ebr" style="margin-top:8px;">
+        <button id="acc-all" class="erst">すべて消す</button>
+        <button id="acc-reset" class="erst">最初の形に戻す</button>
+      </div>
     </div>
   </div>
   <div class="sl" style="display:flex;align-items:center;gap:8px;">
     <span>ドラム</span>
     <span id="dname" style="font-size:var(--fs-xs);color:var(--ink-4);font-weight:normal;"></span>
-    <button id="dmute" class="score-toggle" style="margin-left:auto;">鳴らさない</button>
+    <button id="dmute" class="lamp-btn on" aria-pressed="true"><span class="lamp"></span><span class="lamp-t">オン</span></button>
   </div>
   <div id="epan" class="on">
-    <p class="etip">音符モードに合わせて切り替わります。升をタップすると、その場で変えられます。</p>
+    <p class="etip">音符モードに合わせて切り替わります。マスをタップすると、その場で変えられます。</p>
     <div class="eleg">
+      <div class="eli"><div class="edot" style="background:var(--crash)"></div>CR（クラッシュ）</div>
+      <div class="eli"><div class="edot" style="background:var(--ride)"></div>RD（ライド）</div>
       <div class="eli"><div class="edot" style="background:var(--green)"></div>HH</div>
       <div class="eli"><div class="edot" style="background:var(--blue)"></div>SN</div>
       <div class="eli"><div class="edot" style="background:var(--amber-dark)"></div>BD</div>
@@ -810,6 +829,7 @@ var AC=window.AudioContext||window.webkitAudioContext;
 var ctx=null,playing=false,ctmr=null,dtmr=null,nct=0,ndt=0,cb=0,ds=0;
 var bpm=120,mode='q',ts='4/4',dpat='none',aopen=true,eopen=true,uacc=null,taps=[];
 var metMuted=false; // メトロノームを鳴らさない状態
+var accOff=false;   // アクセントを使わない（すべて同じ音で刻む）状態
 var useCustom=false,ecs=-1,countIn=0,countInPlaying=false,editorTs='2/4';
 // カウントインの刻み（1=4分 2=8分 3=3連 4=16分）と、最後の小節だけ刻むかどうか
 var ciDiv=1,ciLastOnly=false;
@@ -821,12 +841,12 @@ var TS={'2/4':{b:2,d:4},'3/4':{b:3,d:4},'4/4':{b:4,d:4},'5/4':{b:5,d:4},'6/8':{b
 var M={q:{s:1},e:{s:2},et:{s:3},s:{s:4},st:{s:6},sh:{s:3}};
 
 var DD={
-  beat8:    {steps:8, div:2,HH:[1,1,1,1,1,1,1,1],SN:[0,0,1,0,0,0,1,0],BD:[1,0,0,0,1,0,0,0]},
-  beat16:   {steps:16,div:4,HH:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],SN:[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],BD:[1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0]},
-  shuffle8: {steps:12,div:3,HH:[1,0,1,1,0,1,1,0,1,1,0,1],SN:[0,0,0,1,0,0,0,0,0,1,0,0],BD:[1,0,0,0,0,0,1,0,0,0,0,0]},
-  shuffle16:{steps:24,div:6,HH:[1,0,1,1,0,1,1,0,1,1,0,1,1,0,1,1,0,1,1,0,1,1,0,1],SN:[0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0],BD:[1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0]},
-  beat4:    {steps:4, div:1,HH:[0,0,0,0],SN:[0,0,1,0],BD:[1,0,0,0]},
-  triplet8: {steps:12,div:3,HH:[1,1,1,1,1,1,1,1,1,1,1,1],SN:[0,0,0,1,0,0,0,0,0,1,0,0],BD:[1,0,0,0,0,0,1,0,0,0,0,0]}
+  beat8:    {steps:8, div:2,CR:[0,0,0,0,0,0,0,0],RD:[0,0,0,0,0,0,0,0],HH:[1,1,1,1,1,1,1,1],SN:[0,0,1,0,0,0,1,0],BD:[1,0,0,0,1,0,0,0]},
+  beat16:   {steps:16,div:4,CR:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],RD:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],HH:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],SN:[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],BD:[1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0]},
+  shuffle8: {steps:12,div:3,CR:[0,0,0,0,0,0,0,0,0,0,0,0],RD:[0,0,0,0,0,0,0,0,0,0,0,0],HH:[1,0,1,1,0,1,1,0,1,1,0,1],SN:[0,0,0,1,0,0,0,0,0,1,0,0],BD:[1,0,0,0,0,0,1,0,0,0,0,0]},
+  shuffle16:{steps:24,div:6,CR:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],RD:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],HH:[1,0,1,1,0,1,1,0,1,1,0,1,1,0,1,1,0,1,1,0,1,1,0,1],SN:[0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0],BD:[1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0]},
+  beat4:    {steps:4, div:1,CR:[0,0,0,0],RD:[0,0,0,0],HH:[0,0,0,0],SN:[0,0,1,0],BD:[1,0,0,0]},
+  triplet8: {steps:12,div:3,CR:[0,0,0,0,0,0,0,0,0,0,0,0],RD:[0,0,0,0,0,0,0,0,0,0,0,0],HH:[1,1,1,1,1,1,1,1,1,1,1,1],SN:[0,0,0,1,0,0,0,0,0,1,0,0],BD:[1,0,0,0,0,0,1,0,0,0,0,0]}
 };
 // 音符モードに対応するドラムパターン。音符モードを押すとこちらも切り替わる。
 var MODE_DRUM={q:'beat4',e:'beat8',et:'triplet8',s:'beat16',st:'shuffle16',sh:'shuffle8'};
@@ -1053,7 +1073,8 @@ function clkCowbell(t,hi){
 var smpCtx=null, smpLoading=false, smpDrumOn=true;
 // 合成ドラムと同じ大きさになるよう、種類ごとに測って合わせた強さ
 // （hh＝拍の頭の刻み、hhs＝細かい刻み。今の強弱をそのまま録音に当てる）
-var SMP_DRUM={ bd:{name:'kick',vel:0.956}, sn:{name:'snare',vel:1.016}, hh:{name:'hihat',vel:1.081}, hhs:{name:'hihat',vel:0.630} };
+var SMP_DRUM={ bd:{name:'kick',vel:0.956}, sn:{name:'snare',vel:1.016}, hh:{name:'hihat',vel:1.081}, hhs:{name:'hihat',vel:0.630},
+               cr:{name:'crash',vel:0.85}, rd:{name:'ride',vel:0.90} };
 // 電子音の強さ。木製のクリックと同じ大きさ・同じ強弱の差（強拍／弱拍）に合わせた
 var SMP_BEEP={hi:1.079,lo:0.818};
 function smpOk(){ return !!(window.DS&&DS.sound); }
@@ -1187,6 +1208,21 @@ function mdrm(t,type){
       o.connect(bp2);o.start(t);o.stop(t+dur+0.02);
     });
     bp2.connect(hp2);hp2.connect(g2);g2.connect(bus);
+  } else if(type==='cr'||type==='rd'){
+    // シンバル（録音が読み込めるまでの代わり）。クラッシュは広く長く、ライドは芯のある短めの響き
+    var crash=(type==='cr'),len=crash?1.4:0.6;
+    var ns2=noiseSource(t,len),hpc=ctx.createBiquadFilter(),gc=ctx.createGain();
+    hpc.type='highpass';hpc.frequency.value=crash?5200:7000;
+    gc.gain.setValueAtTime(0.0001,t);
+    gc.gain.exponentialRampToValueAtTime(crash?0.32:0.12,t+0.004);
+    gc.gain.exponentialRampToValueAtTime(0.001,t+len);
+    ns2.connect(hpc);hpc.connect(gc);gc.connect(bus);
+    if(!crash){ // ライドのカップの「チーン」という芯
+      var ob2=ctx.createOscillator(),gb2=ctx.createGain();
+      ob2.type='triangle';ob2.frequency.value=3200;
+      gb2.gain.setValueAtTime(0.06,t);gb2.gain.exponentialRampToValueAtTime(0.001,t+0.5);
+      ob2.connect(gb2);gb2.connect(bus);ob2.start(t);ob2.stop(t+0.55);
+    }
   }
 }
 
@@ -1298,8 +1334,7 @@ function sclk(){
     var acc=gacc(),v=acc[cb%tc()];
     var stepInBeat=cb%M[mode].s;
     if(mode==='sh'&&stepInBeat===1){cb++;nct+=sint();continue;}
-    if(!metMuted){if(v===2)mclk(nct,true);else if(v===1)mclk(nct,false);}
-    else mclk(nct,v===2);
+    if(!metMuted){if(accOff)mclk(nct,false);else if(v===2)mclk(nct,true);else if(v===1)mclk(nct,false);}
     cb++;nct+=sint();
   }
   ctmr=setTimeout(sclk,SI);
@@ -1316,6 +1351,8 @@ function sdrm(){
     if(p.HH[st]) mdrm(ndt,'hh');
     if(p.SN[st]) mdrm(ndt,'sn');
     if(p.BD[st]) mdrm(ndt,'bd');
+    if(p.CR&&p.CR[st]) mdrm(ndt,'cr');
+    if(p.RD&&p.RD[st]) mdrm(ndt,'rd');
     (function(t0,si){setTimeout(function(){if(playing)hlstep(si);},Math.max(0,(t0-ctx.currentTime)*1000));})(ndt,st);
     ds++;ndt+=bint()/p.div;
   }
@@ -1393,8 +1430,7 @@ function kcStart(startTime){
     if(step===Math.floor(step)&&!(mode==='sh'&&step===1)){
       var acc=gacc(),idx=p.beat*s+step;
       var v=(acc.length===p.meter[0]*s)?acc[idx]:(idx===0?2:(step===0?1:0));
-      if(!metMuted){if(v===2)mclk(t,true);else if(v===1)mclk(t,false);}
-      else mclk(t,v===2);
+      if(!metMuted){if(accOff)mclk(t,false);else if(v===2)mclk(t,true);else if(v===1)mclk(t,false);}
     }
     // ドラム（格子がひとつの元）
     var pp=CP[dpat];
@@ -1405,6 +1441,8 @@ function kcStart(startTime){
         if(pp.HH[st]) mdrm(t,'hh');
         if(pp.SN[st]) mdrm(t,'sn');
         if(pp.BD[st]) mdrm(t,'bd');
+        if(pp.CR&&pp.CR[st]) mdrm(t,'cr');
+        if(pp.RD&&pp.RD[st]) mdrm(t,'rd');
         p.dstep=st;
       }
     }
@@ -1554,6 +1592,8 @@ document.getElementById('acc-reset').addEventListener('click',function(){
   uacc=null;racg(); // 拍の頭だけ鳴る既定の形へ
 });
 
+// ドラムの行（上から：クラッシュ・ライド・ハイハット・スネア・バスドラム）
+var DROWS=['CR','RD','HH','SN','BD'];
 function getEditorPattern(){
   var tsInfo=TS[ts];
   var b=tsInfo.b;
@@ -1562,10 +1602,10 @@ function getEditorPattern(){
   var ratio=b/baseBeat;
   var newSteps=Math.round(basePat.steps*ratio);
   var newDiv=basePat.div;
-  var src=CP[dpat];
-  var p={steps:newSteps, div:newDiv, HH:[], SN:[], BD:[]};
-  ['HH','SN','BD'].forEach(function(row){
-    for(var i=0;i<newSteps;i++) p[row].push(src[row][i]||0);
+  var src=CP[dpat]||{};
+  var p={steps:newSteps, div:newDiv, CR:[], RD:[], HH:[], SN:[], BD:[]};
+  DROWS.forEach(function(row){
+    for(var i=0;i<newSteps;i++) p[row].push((src[row]&&src[row][i])||0);
   });
   return p;
 }
@@ -1574,12 +1614,13 @@ function drumApply(){
   dpat=MODE_DRUM[mode]||'beat8';
   if(!CP[dpat]) CP[dpat]=dc(DD[dpat]);
   var btn=document.getElementById('dmute');
-  if(btn){btn.textContent=drumMuted?'鳴らす':'鳴らさない';btn.classList.toggle('off',drumMuted);}
+  setLamp(btn,!drumMuted);
+  var ep=document.getElementById('epan');if(ep)ep.classList.toggle('muted',drumMuted);
   redg();
 }
 function redg(){
   var nameEl=document.getElementById('dname');
-  if(nameEl) nameEl.textContent=(DRUM_NAME[MODE_DRUM[mode]]||'')+(drumMuted?'（鳴らしません）':'');
+  if(nameEl) nameEl.textContent=(DRUM_NAME[MODE_DRUM[mode]]||'');
   if(!DD[dpat]){document.getElementById('etbl').innerHTML='';return;}
   var p=getEditorPattern();
   var steps=p.steps, div=p.div;
@@ -1593,7 +1634,7 @@ function redg(){
     hdr.appendChild(th);
   }
   tbl.appendChild(hdr);
-  ['HH','SN','BD'].forEach(function(row){
+  DROWS.forEach(function(row){
     var tr=document.createElement('tr');
     var td0=document.createElement('td');td0.className='erl';td0.textContent=row;tr.appendChild(td0);
     for(var i=0;i<steps;i++){
@@ -1669,11 +1710,31 @@ document.getElementById('dmute').addEventListener('click',function(){
   drumApply();
   if(was)startM();
 });
-// メトロノームを鳴らす／鳴らさない（升の設定はそのまま残る）
+// メトロノーム欄の出し入れ：アクセントはメトロノームを鳴らすときだけ、
+// 強弱のマスはさらにアクセントがオンのときだけ出す
+function metView(){
+  document.getElementById('met-body').style.display=metMuted?'none':'block';
+  document.getElementById('apan').classList.toggle('on',!accOff);
+  document.getElementById('apan-off').style.display=accOff?'block':'none';
+}
+// ランプ付きボタンの表示を今の状態に合わせる
+function setLamp(btn,on){
+  if(!btn)return;
+  btn.classList.toggle('on',on);
+  btn.setAttribute('aria-pressed',on?'true':'false');
+  var t=btn.querySelector('.lamp-t');if(t)t.textContent=on?'オン':'オフ';
+}
+// メトロノームを鳴らす／鳴らさない（マスの設定はそのまま残る）
 document.getElementById('mmute').addEventListener('click',function(){
   metMuted=!metMuted;
-  this.textContent=metMuted?'鳴らす':'鳴らさない';
-  this.classList.toggle('off',metMuted);
+  setLamp(this,!metMuted);
+  metView();
+});
+// アクセントを使う／使わない（マスの設定はそのまま残る）
+document.getElementById('amute').addEventListener('click',function(){
+  accOff=!accOff;
+  setLamp(this,!accOff);
+  metView();
 });
 document.getElementById('erst').addEventListener('click',function(){
   if(!DD[dpat])return;CP[dpat]=dc(DD[dpat]);useCustom=false;redg();
@@ -5220,6 +5281,8 @@ function prefRestore(){
   if(p.CP&&typeof p.CP==='object'){
     Object.keys(DD).forEach(function(k){
       var src=p.CP[k];if(!src)return;
+      // シンバルの行が無い古い保存は、空の行を足して受け入れる
+      ['CR','RD'].forEach(function(r){if(!Array.isArray(src[r]))src[r]=DD[k][r].slice();});
       var ok=Object.keys(DD[k]).every(function(row){
         return Array.isArray(src[row])&&src[row].length===DD[k][row].length;
       });
