@@ -224,6 +224,8 @@ body.focus-game #gm-tap-btn{display:block}
 </style>
 <!-- 共通の楽器の音（読み込めない時は、これまでの合成音で鳴る） -->
 <script src="https://yagarguitar-stack.github.io/design-system/v1/sound.js"></script>
+<!-- 共通の時計（読み込めない時は、これまでの刻み方で動く） -->
+<script src="https://yagarguitar-stack.github.io/design-system/v1/clock.js"></script>
 </head>
 <body>
 <!-- ═══ オープニング画面（はじめるボタンを押すまで本編を操作不可）═══ -->
@@ -1213,7 +1215,7 @@ var footOn=(localStorage.getItem('foot_guide')!=='0');
     footOn=!footOn;
     try{localStorage.setItem('foot_guide',footOn?'1':'0');}catch(e){}
     apply();
-    if(footOn&&(playing||countInPlaying)){ footResync(); footTick(); }
+    if(footOn&&(playing||countInPlaying)&&!kclock){ footResync(); footTick(); }
     else { clearTimeout(footTmr);footTmr=null; }
   });
   apply();
@@ -1262,7 +1264,7 @@ function footStart(startTime){
   e.box.style.display='block';
   footShow('omote');              // 拍の頭は「表」
   footAnchor=startTime;footNext=startTime;
-  footTick();
+  if(!kclock) footTick();   // 共通の時計がある時は、聞こえた瞬間に合わせて時計が切り替える
 }
 function footTick(){
   if(!ctx){footStop();return;}
@@ -1276,7 +1278,7 @@ function footTick(){
   footTmr=setTimeout(footTick,SI);
 }
 document.addEventListener('visibilitychange',function(){
-  if(document.hidden||!footOn||!(playing||countInPlaying)) return;
+  if(document.hidden||!footOn||!(playing||countInPlaying)||kclock) return;
   clearTimeout(footTmr);footTmr=null;
   footResync();footTick();
 });
@@ -1362,11 +1364,63 @@ function startCountIn(startTime){
   return t;
 }
 
+// ═══ 共通の時計（clock.js）で刻む。読み込めない時は上の sclk/sdrm（これまでの刻み方）で動く ═══
+// クリック・ドラム・格子の光・足の図を一つの時計から動かす。光と足の図は実際に聞こえた瞬間に合わせる。
+var kclock=null;
+function useClock(){return !!(window.DS&&DS.clock&&DS.clock.create);}
+function kcGcd(a,b){return b?kcGcd(b,a%b):a;}
+function kcLcm(a,b){return a/kcGcd(a,b)*b;}
+// 時計の升目：クリック・ドラム・足の図の「裏」のどれも割り切れる細かさ
+function kcDiv(){
+  var d=M[mode].s,p=CP[dpat];
+  if(dpat!=='none'&&!drumMuted&&p&&p.div) d=kcLcm(d,p.div);
+  return kcLcm(d,(mode==='et'||mode==='sh')?3:2);
+}
+function kcStart(startTime){
+  var div=kcDiv(),s=M[mode].s,footSub=Math.round(div*footUraRatio());
+  kclock=DS.clock.create({context:ctx,bpm:bpm,meter:[TS[ts].b,TS[ts].d],div:div,sound:false});
+  kclock.on('tick',function(t,p){
+    // テンポは次の拍から、拍子は次の小節から効く
+    var g=kclock.get();
+    if(g.bpm!==bpm) kclock.set({bpm:bpm});
+    if(g.meter[0]!==TS[ts].b||g.meter[1]!==TS[ts].d) kclock.set({meter:[TS[ts].b,TS[ts].d]});
+    // クリック（強弱は小節の中の位置で引く。鳴っている最中の編集もすぐ効く）
+    var step=p.sub*s/p.div;
+    if(step===Math.floor(step)&&!(mode==='sh'&&step===1)){
+      var acc=gacc(),idx=p.beat*s+step;
+      var v=(acc.length===p.meter[0]*s)?acc[idx]:(idx===0?2:(step===0?1:0));
+      if(!metMuted){if(v===2)mclk(t,true);else if(v===1)mclk(t,false);}
+      else mclk(t,v===2);
+    }
+    // ドラム（格子がひとつの元）
+    var pp=CP[dpat];
+    if(dpat!=='none'&&!drumMuted&&pp&&pp.steps&&pp.div){
+      var k=p.sub*pp.div/p.div;
+      if(k===Math.floor(k)){
+        var st=((p.bar*p.meter[0]+p.beat)*pp.div+k)%pp.steps;
+        if(pp.HH[st]) mdrm(t,'hh');
+        if(pp.SN[st]) mdrm(t,'sn');
+        if(pp.BD[st]) mdrm(t,'bd');
+        p.dstep=st;
+      }
+    }
+    p.foot=p.sub===0?'omote':(p.sub===footSub?'ura':null);
+  });
+  kclock.on('draw',function(p){
+    if(!playing&&!countInPlaying) return;
+    if(p.dstep!=null) hlstep(p.dstep);
+    if(p.foot&&footOn&&footReady) footShow(p.foot);
+  });
+  kclock.start(startTime);
+}
+function kcStop(){if(kclock){kclock.destroy();kclock=null;}}
+
 function doStart(startTime){
   if(!ctx) return;
   playing=true;cb=0;ds=0;
   nct=startTime;ndt=startTime;
-  sclk();sdrm();footStart(startTime);
+  if(useClock()){ if(!kclock) kcStart(startTime); footStart(startTime); }
+  else { sclk();sdrm();footStart(startTime); }
   document.getElementById('pb').textContent='■ ストップ';
   document.getElementById('pb').classList.add('on');
 }
@@ -1386,6 +1440,7 @@ function startM(){
       document.getElementById('pb').textContent='♪ カウントイン...';
       countInPlaying=true;
       var playStart=startCountIn(t0);
+      if(useClock()) kcStart(playStart); // 本番の頭から時計を動かす（画面の裏でも途切れない）
       var waitMs=(playStart-ctx.currentTime)*1000;
       setTimeout(function(){
         if(!ctx) return;
@@ -1406,6 +1461,7 @@ function startM(){
 function stopM(){
   playing=false;countInPlaying=false;
   clearTimeout(ctmr);clearTimeout(dtmr);
+  kcStop();
   footStop();
   if(ctx){ctx.close();ctx=null;}
   ecs=-1;upcur();
@@ -2518,7 +2574,7 @@ function rtgTap(){
   var btn=document.getElementById('rtg-tap-btn');
   btn.classList.add('tap-flash');
   setTimeout(function(){btn.classList.remove('tap-flash');},120);
-  rtgTaps.push(ctx?ctx.currentTime*1000:0); // AC軸ms（期待値と同じ時計でドリフトを防ぐ）
+  rtgTaps.push(ctx?tapAcMsNow():0); // AC軸ms（期待値と同じ時計でドリフトを防ぐ）
 }
 
 function rtgShowResult(){
@@ -2727,7 +2783,7 @@ function rtgDragEnd(){
 document.addEventListener('pointerup',rtgDragEnd);
 document.addEventListener('pointercancel',rtgDragEnd);
 
-document.getElementById('rtg-tap-btn').addEventListener('pointerdown',function(e){e.preventDefault();rtgTap();});
+document.getElementById('rtg-tap-btn').addEventListener('pointerdown',function(e){markTap(e);e.preventDefault();rtgTap();});
 document.getElementById('tr-mode-tempo').addEventListener('click',function(){
   document.body.classList.remove('focus-tempo','focus-rhythm','focus-game');
   this.classList.add('on');document.getElementById('tr-mode-rhythm').classList.remove('on');document.getElementById('tr-mode-game').classList.remove('on');
@@ -3077,7 +3133,7 @@ document.addEventListener('pointerdown',function(e){
   if(!inFocus) return; // いずれかのフォーカス中のみ
   // ストップボタン・その他ボタン/入力の上は通常動作させる（TAPを発火させない）
   if(e.target.closest('button, input, select, a, label')) return;
-  e.preventDefault();
+  markTap(e);e.preventDefault();
   if(b.contains('focus-tempo')) trTap();
   else if(b.contains('focus-rhythm')) rtgTap();
   else if(b.contains('focus-game')) gmTap();
@@ -3198,6 +3254,10 @@ function trDoStart(){
 
 // 本番開始のこのms前までは、カウントイン中のタップも受け付ける（突っ込み気味の1音目を取りこぼさない）
 var EARLY_TAP_MS=200;
+// タップの時刻は「押した瞬間」で取る。処理が始まるまでの待ち時間（ms）を、押した時の記録から差し引く
+var tapAgoMs=0;
+function markTap(e){tapAgoMs=(e&&e.timeStamp&&window.performance)?Math.min(100,Math.max(0,performance.now()-e.timeStamp)):0;}
+function tapAcMsNow(){return ctx.currentTime*1000-tapAgoMs;}
 function trTap(){
   if(!ctx) return;
   // 本番中でなくても、開始直前(200ms以内)なら受け付けて本番へ移行する
@@ -3211,7 +3271,7 @@ function trTap(){
   var btn=document.getElementById('tr-tap-btn');
   btn.classList.add('tap-flash');
   setTimeout(function(){btn.classList.remove('tap-flash');},120);
-  var tapAcMs=ctx.currentTime*1000;
+  var tapAcMs=tapAcMsNow();
   var tapIndex=trTapDiffs.length;
   // 補正は一元化関数で（calib実測優先・なければoutputLatency暫定）。判定はAC軸の差のみ
   var expectedAC=trTapOriginAC+tapIndex*trTapBi+inputLatencyComp();
@@ -3346,11 +3406,18 @@ document.getElementById('tr-stop-btn').addEventListener('click',function(){
   document.getElementById('tr-status').textContent='スタートを押してください';
   var pe2=document.getElementById('tr-pulse');if(pe2){pe2.style.display='none';pe2.style.visibility='';} // 停止時に円を消す
 });
-document.getElementById('tr-tap-btn').addEventListener('pointerdown',function(e){e.preventDefault();trTap();});
+document.getElementById('tr-tap-btn').addEventListener('pointerdown',function(e){markTap(e);e.preventDefault();trTap();});
 // ===== キャリブレーション =====
 var CALIB_KEY='kotori_calib';
-function calibLoad(){try{return JSON.parse(localStorage.getItem(CALIB_KEY)||'null');}catch(e){return null;}}
-function calibSave(val,dateStr){localStorage.setItem(CALIB_KEY,JSON.stringify({delay:val,date:dateStr}));}
+// 補正値は共通の場所（全ツールで1つ）に置く。共通の時計が読めない時は、これまでの保存先を使う
+function calibLoad(){
+  if(window.DS&&DS.clock&&DS.clock.latency){var d=DS.clock.latency.get();return d?{delay:d.ms,date:d.date}:null;}
+  try{return JSON.parse(localStorage.getItem(CALIB_KEY)||'null');}catch(e){return null;}
+}
+function calibSave(val,dateStr){
+  try{localStorage.setItem(CALIB_KEY,JSON.stringify({delay:val,date:dateStr}));}catch(e){}
+  if(window.DS&&DS.clock&&DS.clock.latency) DS.clock.latency.set(val,dateStr);
+}
 // キャリブレーション未実施か（実測値が保存されていなければ未実施）
 function calibIsDone(){ var d=calibLoad(); return !!(d && typeof d.delay==='number'); }
 // 未実施ならスタートを止めて誘導画面を出す。true=ブロックした
@@ -3415,7 +3482,7 @@ function calibStart(){
 function calibTap(){
   if(calibState!=='running') return;
   if(!calibBeatTimes.length) return; // まだ音が鳴っていない
-  var nowMs=Date.now();
+  var nowMs=Date.now()-tapAgoMs;
   // 最も近い鳴動時刻との差を取る（正=遅れ / 負=先行）。最近接なので予測的な早押しも拾える。
   var best=0,bestAbs=Infinity;
   for(var i=0;i<calibBeatTimes.length;i++){
@@ -4669,7 +4736,7 @@ function gmTap(){
   var btn=document.getElementById('gm-tap-btn');
   btn.classList.add('tap-flash');
   setTimeout(function(){btn.classList.remove('tap-flash');},120);
-  gmTaps.push(ctx.currentTime*1000); // AC軸ms。期待値も同じ時計のためドリフトしない
+  gmTaps.push(tapAcMsNow()); // AC軸ms。期待値も同じ時計のためドリフトしない
 }
 function gmShowResult(){
   gmState='done';
@@ -4789,7 +4856,7 @@ document.getElementById('gm-stop-btn').addEventListener('click',function(){
   document.getElementById('gm-status').textContent='レベルを選択してスタート';
   document.getElementById('gm-result').classList.remove('on');
 });
-document.getElementById('gm-tap-btn').addEventListener('pointerdown',function(e){e.preventDefault();gmTap();});
+document.getElementById('gm-tap-btn').addEventListener('pointerdown',function(e){markTap(e);e.preventDefault();gmTap();});
 
 document.getElementById('gm-reset-btn').addEventListener('click',function(){
   document.getElementById('gm-reset-overlay').classList.add('on');
@@ -4803,7 +4870,7 @@ document.getElementById('gm-reset-no').addEventListener('click',function(){
 });
 
 document.getElementById('calib-start-btn').addEventListener('click',function(){calibStart();});
-document.getElementById('calib-tap-btn').addEventListener('pointerdown',function(e){e.preventDefault();calibTap();});
+document.getElementById('calib-tap-btn').addEventListener('pointerdown',function(e){markTap(e);e.preventDefault();calibTap();});
 document.getElementById('calib-enable').addEventListener('change',function(){calibEnabled=this.checked;});
 
 // ═══ キーボード入力対応：Space / Enter / Shift でTAP（スクロール等のデフォルト動作は抑止）═══
@@ -4815,6 +4882,7 @@ document.addEventListener('keydown',function(e){
   if(ae&&(ae.tagName==='TEXTAREA'||ae.tagName==='SELECT'||(ae.tagName==='INPUT'&&ae.type!=='range'))) return;
   e.preventDefault(); // Spaceのスクロール／フォーカス中ボタンの二重発火を抑止
   if(e.repeat) return; // キー長押しの連打を無視
+  markTap(e);
   // 各関数は「実行中」の状態でなければ何もしないため、全て呼んでも実行中のモードのみが反応する
   calibTap();
   gmTap();
