@@ -226,6 +226,10 @@ body.focus-game #gm-tap-btn{display:block}
 <script src="https://yagarguitar-stack.github.io/design-system/v1/sound.js"></script>
 <!-- 共通の時計（読み込めない時は、これまでの刻み方で動く） -->
 <script src="https://yagarguitar-stack.github.io/design-system/v1/clock.js"></script>
+<!-- 共通のリズム譜（読み込めない時は、これまでの描き方で出す） -->
+<script src="https://yagarguitar-stack.github.io/design-system/v1/rhythm.js"></script>
+<style>/* 共通のリズム譜の色：記号は本文の色、縦の線は琥珀 */
+#rtg-score,#gm-score{--ds-rhy-ink:var(--ink);--ds-rhy-hi:var(--amber-dark)}</style>
 </head>
 <body>
 <!-- ═══ オープニング画面（はじめるボタンを押すまで本編を操作不可）═══ -->
@@ -1863,7 +1867,105 @@ function rtgHasDuplet3Like(){
   for(var i=0;i<rtgBeatsTotal();i++) if(scoreDuplet3Like(i)) return true;
   return false;
 }
+
+// ═══ 共通のリズム譜（rhythm.js）で描く。読み込めない時は下の renderRhythmScore／rtgRenderScoreTicks で描く ═══
+// ことりノームの升目（拍ごとの細かさ＋叩く/叩かない）を、共通のリズム譜の形に直して描く。
+// 叩いた所から次に叩く所まで音を伸ばし、拍や小節をまたげばタイでつなぐ（これまでと同じ考え方）。
+function kcRhy(){return !!(window.DS&&DS.rhythm&&DS.rhythm.render&&DS.rhythm.shape&&DS.rhythm.newTupletId);}   // 古い rhythm.js の時も、これまでの描き方で出す
+var kcViews={};   // 'rtg'／'gm' → いま描いてある譜面
+function kcDefIn(n){var p=1;while(p*2<n)p*=2;return p;}
+// beats：[{cells:[0/1…], tu:null|{n,in}, span:拍数}] を順に並べたもの。ts：[拍の数, 拍の音符]
+function kcBeatsToScore(beats,ts){
+  var R=DS.rhythm,Q=R.T.QUARTER,bu=Q*4/ts[1],bars=[],bar=null,inBar=ts[0],last=null,carry=false;
+  function push(n){bar.notes.push(n);last=n;n._bar=bar;return n;}
+  function pieces(count,unit,tu,rest,tieFirst){ // 連符の中で描けない長さは、描ける長さずつ（音はタイでつなぐ）
+    var left=count,first=true;
+    while(left>0){var t=left;while(t>1&&!R.shape(t*unit*tu.n/tu.in))t--;
+      if(!rest&&!first&&last)last.tie=true;
+      push({len:t*unit,rest:rest,tu:tu});left-=t;first=false;}
+  }
+  beats.forEach(function(bt){
+    if(inBar>=ts[0]){bar={ts:ts.slice(),notes:[]};bars.push(bar);inBar=0;}
+    var n=bt.cells.length,span=bt.span||1,unit=bu*span/n,tu=bt.tu?{n:bt.tu.n,in:bt.tu.in,id:R.newTupletId()}:null,k=0;
+    while(k<n){
+      var hit=!!bt.cells[k],j=k+1;
+      while(j<n&&!bt.cells[j])j++;
+      if(hit||(carry&&k===0)){
+        var cont=!hit;
+        if(cont&&!tu&&last&&!last.rest&&!last.tu&&last._bar===bar){last.len+=(j-k)*unit;k=j;continue;} // 同じ小節の普通の音はそのまま伸ばす
+        if(cont&&last)last.tie=true;
+        if(tu&&k===0&&j===n)push({len:bu*span,rest:false});          // まとまりまるごとの音は普通の音符
+        else if(tu)pieces(j-k,unit,tu,false);
+        else push({len:(j-k)*unit,rest:false});
+        carry=true;
+      } else {
+        if(!tu&&last&&last.rest&&!last.tu&&last._bar===bar)last.len+=(j-k)*unit;
+        else if(tu&&k===0&&j===n)push({len:bu*span,rest:true});
+        else if(tu)pieces(j-k,unit,tu,true);
+        else push({len:(j-k)*unit,rest:true});
+        carry=false;
+      }
+      k=j;
+    }
+    inBar+=span;
+  });
+  bars.forEach(function(b){b.notes.forEach(function(x){delete x._bar;});});
+  return {bars:bars};
+}
+function kcRender(which,areaId,score){
+  var area=document.getElementById(areaId);if(!area)return;
+  var w=Math.max(300,(area.clientWidth||620)-12);
+  kcViews[which]=DS.rhythm.render(area,score,{width:w,sp:8});
+}
+// アドバンス：拍ごとの細かさに合わせて升を読む（2拍3連として書くべき所は、これまでと同じ見分け方）
+function kcRtgScore(){
+  var beats=[],total=rtgBeatsTotal(),i=0;
+  while(i<total){
+    var m=rtgBeatModes[i],base=i*TICK_PER_BEAT;
+    if(m==='_d3c'){i++;continue;}
+    if(m==='duplet3'||scoreDuplet3Like(i)){
+      beats.push({cells:[0,1,2].map(function(g){return rtgPattern.TAP[base+g*80]?1:0;}),tu:{n:3,in:2},span:2});i+=2;continue;}
+    var cpb=RES_MODES[m].cellsPerBeat,step=RES_MODES[m].tickStep,cells=[];
+    for(var p=0;p<cpb;p++)cells.push(rtgPattern.TAP[base+p*step]?1:0);
+    beats.push({cells:cells,tu:(cpb===3||cpb===5||cpb===6)?{n:cpb,in:kcDefIn(cpb)}:null,span:1});i++;
+  }
+  return kcBeatsToScore(beats,[TS[rtgTs].b,TS[rtgTs].d]);
+}
+// ゲーム：小節ごとに細かさが違う面も1枚の譜面にまとめる
+function kcGmScore(lv){
+  var divs=Array.isArray(lv.divs)?lv.divs:null,beats=[],off=0;
+  var nb=divs?divs.length:Math.round(lv.MET.length/(4*lv.div));
+  for(var b=0;b<nb;b++){var div=divs?divs[b]:lv.div;
+    for(var bt=0;bt<4;bt++){var cells=[];for(var p=0;p<div;p++)cells.push(lv.TAP[off+bt*div+p]?1:0);
+      beats.push({cells:cells,tu:(div===3||div===5||div===6)?{n:div,in:kcDefIn(div)}:null,span:1});}
+    off+=4*div;}
+  return kcBeatsToScore(beats,[4,4]);
+}
+// 再生中の縦の線：実際に聞こえている時刻に合わせて流す
+var kcCurTok=0;
+function kcHeard(c){if(c.getOutputTimestamp&&window.performance){var ts=c.getOutputTimestamp();if(ts&&ts.contextTime>0)return ts.contextTime+(performance.now()-ts.performanceTime)/1000;}
+  return c.currentTime-(c.outputLatency||c.baseLatency||0);}
+function kcCursorStart(which,playStart,secPerTick,totalSec,alive){
+  var v=kcViews[which],c=ctx;if(!v||!c||!kcRhy())return;
+  var tok=++kcCurTok;
+  requestAnimationFrame(function frame(){   // 1コマ目も次の描き換えから（呼び出し元の準備が済んでから）
+    if(tok!==kcCurTok||!ctx||ctx!==c||!alive()){v.cursor(null);return;}
+    var h=kcHeard(c)-playStart;
+    if(h>totalSec){v.cursor(null);return;}
+    v.cursor(h<0?null:((h/secPerTick)%v.total));
+    requestAnimationFrame(frame);
+  });
+}
+function kcRtgCursor(playStart,alive){
+  if(!kcViews.rtg)return;var Q=DS.rhythm.T.QUARTER,beatTicks=Q*4/TS[rtgTs].d;
+  kcCursorStart('rtg',playStart,rtgBeatInterval()/beatTicks,rtgPlayMeasures()*rtgTicksPerMeasure()*rtgTickInterval(),alive);
+}
+function kcGmCursor(playStart,totalSec,alive){
+  if(!kcViews.gm)return;kcCursorStart('gm',playStart,gmBeatInterval()/DS.rhythm.T.QUARTER,totalSec,alive);
+}
+
 function rtgRenderScore(){
+  if(kcRhy()){kcRender('rtg','rtg-score',kcRtgScore());return;}
   var u=rtgUniformMode();
   var SUPPORTED={'4':1,'8':2,'16':4,'triplet':3};
   if(u==='triplet'&&rtgHasDuplet3Like()) u=null;
@@ -2540,6 +2642,7 @@ function rtgDoStart(){
 
   var waitMs=(playStart-ctx.currentTime)*1000;
   rtgPlayStart=playStart;
+  kcRtgCursor(playStart,function(){return rtgState==='countin'||rtgState==='tapping';});
   setTimeout(function(){
     if(rtgState!=='countin') return;
     var rtgOffset=Date.now()-ctx.currentTime*1000;
@@ -4163,6 +4266,9 @@ function demoPlay(cfg){
   t+=0.15; // 押してから鳴り出すまでのわずかな間
 
   var playStart=t, startMs=(playStart-t0)*1000;
+  // 譜面の上を縦の線が流れる（お手本を止めたら消える）
+  var kcAlive=function(){return demoActiveBtn!==null;};
+  if(cfg.tableId==='rtg-table')kcRtgCursor(playStart,kcAlive);else if(cfg.tableId==='gm-table')kcGmCursor(playStart,cfg.totalDurSec,kcAlive);
   demoLater(function(){
     var p=document.getElementById(cfg.pulseId); if(p) p.style.visibility='hidden';
     var el=document.getElementById(cfg.statusId); if(el) el.textContent='お手本を再生中';
@@ -4598,6 +4704,7 @@ function gmRenderGrid(){
 function gmRenderScore(){
   var area=document.getElementById('gm-score');if(!area||!gmLevel)return;
   var lv=gmLevel;
+  if(kcRhy()){kcRender('gm','gm-score',kcGmScore(lv));return;}
   if(Array.isArray(lv.divs)){
     // 小節ごとに分割が異なる：小節ごとにTAPを切って individually 描画
     area.innerHTML='';var offset=0;
@@ -4699,6 +4806,7 @@ function gmDoStart(){
     }
     totalDurSec=steps*reps*si2;
   }
+  kcGmCursor(playStart,totalDurSec,function(){return gmState==='countin'||gmState==='tapping';});
 
   var waitMs=(playStart-ctx.currentTime)*1000;
   var gmMetSiArr_=[],gmTapSiArr_=[];
