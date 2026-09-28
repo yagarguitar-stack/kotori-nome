@@ -240,8 +240,86 @@ body.focus-game #gm-tap-btn{display:block}
 <script src="https://yagarguitar-stack.github.io/design-system/v1/rhythm.js"></script>
 <style>/* 共通のリズム譜の色：記号は本文の色、縦の線は琥珀 */
 #rtg-score,#gm-score{--ds-rhy-ink:var(--ink);--ds-rhy-hi:var(--amber-dark)}</style>
+<!-- 共通の画面の部品（やわらかいモチーフ）。読み込めない時・古い版の時は、これまでの見た目のまま -->
+<link rel="stylesheet" href="https://yagarguitar-stack.github.io/design-system/v1/components.css">
+<script src="https://yagarguitar-stack.github.io/design-system/v1/components.js"></script>
+<style>
+/* ===== 共通の部品（版 1.1 以上）が読めた時だけ効く（body に kn-ds とモチーフが付く） ===== */
+body.kn-ds{
+  --face:var(--ds-well);
+  --bg:var(--ds-paper);
+  --surface:var(--face);
+  --surface-3:color-mix(in srgb,var(--ds-ink) 9%,var(--face));
+  --ink:var(--ds-ink);
+  --ink-2:color-mix(in srgb,var(--ds-ink) 82%,var(--ds-paper));
+  --ink-3:color-mix(in srgb,var(--ds-ink) 64%,var(--ds-paper));
+  --ink-4:color-mix(in srgb,var(--ds-ink) 48%,var(--ds-paper));
+  --amber:var(--ds-hi);
+  --amber-dark:color-mix(in srgb,var(--ds-hi) 62%,var(--ds-ink));
+  --amber-deep:var(--amber-dark);
+  --amber-soft:color-mix(in srgb,var(--ds-hi) 18%,var(--face));
+  --score-bg:var(--face);
+  color:var(--ds-ink);background-color:var(--ds-paper);font-family:var(--ds-font);
+}
+body.kn-ds{position:relative;min-height:100vh}
+body.kn-ds .ds-deco{position:absolute;pointer-events:none}
+body.kn-ds.ds-felt{padding-left:24px;padding-right:24px}
+body.kn-ds button,body.kn-ds input,body.kn-ds label{font-family:inherit}
+body.kn-ds #opening-overlay{background-color:var(--ds-paper);background-image:inherit}
+body.kn-ds #opening-title,body.kn-ds h1{color:var(--ink)}
+body.kn-ds #va{background:var(--surface-3)}
+body.kn-ds .bdisp{color:var(--ink)}
+body.kn-ds .tab-btn.on{color:var(--ink);border-bottom-color:var(--amber);border-bottom-width:4px}
+
+/* ── フェルトの手芸 ── */
+body.kn-ds.ds-felt{--line:var(--ds-stitch);--line-soft:var(--ds-stitch);--surface-2:var(--ds-f1);--green:var(--ds-on);--r-sm:8px;--r:14px;--r-lg:20px;--r-xl:24px}
+body.ds-felt h1{font-weight:900;font-size:1.5rem}
+body.ds-felt #opening-title{font-weight:900}
+body.ds-felt .mb,body.ds-felt .tb,body.ds-felt .ed-tb,body.ds-felt .atog,body.ds-felt .tap,body.ds-felt .ts-sel-btn,body.ds-felt .tr-mode-btn,body.ds-felt .lamp-btn,body.ds-felt .erst,body.ds-felt .eapp,body.ds-felt .demo-btn,body.ds-felt .rtg-div-btn,body.ds-felt .ts-modal-btn,body.ds-felt .tr-retry-btn,body.ds-felt .rtg-retry-btn,body.ds-felt .score-toggle{
+  border:0;background:var(--face);box-shadow:0 3px 0 var(--ds-lift);transition:transform .1s,box-shadow .1s,background .15s}
+body.ds-felt .mb:active,body.ds-felt .tb:active,body.ds-felt .atog:active,body.ds-felt .tap:active,body.ds-felt .ts-sel-btn:active,body.ds-felt .tr-mode-btn:active,body.ds-felt .lamp-btn:active,body.ds-felt .erst:active,body.ds-felt .eapp:active,body.ds-felt .demo-btn:active,body.ds-felt .rtg-div-btn:active,body.ds-felt .ts-modal-btn:active{transform:translateY(3px);box-shadow:0 0 0 var(--ds-lift)}
+body.ds-felt .mb.on,body.ds-felt .tb.on,body.ds-felt .ed-tb.on,body.ds-felt .ts-sel-btn.on,body.ds-felt .tr-mode-btn.on,body.ds-felt .rtg-div-btn.on,body.ds-felt .ts-modal-btn.on,body.ds-felt .eapp{background:var(--ds-hi);color:var(--ds-on-hi);transform:translateY(2px);box-shadow:0 1px 0 var(--ds-lift)}
+body.ds-felt .tap{color:var(--ink);font-weight:800}
+body.ds-felt .demo-btn{color:var(--green)}
+body.ds-felt #pb,body.ds-felt .tr-start-btn,body.ds-felt .rtg-start-btn,body.ds-felt #opening-start-btn{position:relative;background:var(--ds-hi);color:var(--ds-on-hi);border-radius:999px;box-shadow:0 6px 0 var(--ds-hi-deep);transition:transform .1s,box-shadow .1s}
+body.ds-felt #pb::after,body.ds-felt .tr-start-btn::after,body.ds-felt .rtg-start-btn::after,body.ds-felt #opening-start-btn::after{content:'';position:absolute;inset:6px;border:2px dashed rgba(255,255,255,.55);border-radius:999px;pointer-events:none}
+body.ds-felt #pb:active,body.ds-felt #pb.on,body.ds-felt .tr-start-btn:active,body.ds-felt .rtg-start-btn:active,body.ds-felt #opening-start-btn:active{transform:translateY(5px);box-shadow:0 1px 0 var(--ds-hi-deep)}
+body.ds-felt .tr-tap-btn,body.ds-felt .rtg-tap-btn{border:0;background:var(--ds-f2);color:var(--ink);box-shadow:0 5px 0 var(--ds-lift);outline:2px dashed var(--ds-stitch);outline-offset:-9px}
+body.ds-felt .apan,body.ds-felt #epan,body.ds-felt .tr-result,body.ds-felt .rtg-result{border:0;background:var(--ds-f1);outline:2px dashed var(--ds-stitch);outline-offset:-7px;padding:16px 14px;box-shadow:0 3px 0 var(--ds-faint)}
+body.ds-felt #epan{background:var(--ds-f2)}
+body.ds-felt .tr-result,body.ds-felt .rtg-result{background:var(--ds-f3)}
+body.ds-felt .ts-modal{background:var(--ds-paper);outline:2px dashed var(--ds-stitch);outline-offset:-8px}
+body.ds-felt .ec{border:0;box-shadow:inset 0 0 0 1.5px var(--ds-stitch)}
+body.ds-felt input[type=range]::-webkit-slider-thumb{background:var(--face);box-shadow:0 0 0 3px var(--ds-hi),0 3px 0 var(--ds-lift)}
+body.ds-felt #va{border-radius:22px;outline:2px dashed var(--ds-stitch);outline-offset:-8px}
+
+/* ── こどもの五線ノート ── */
+body.kn-ds.ds-note{--face:var(--ds-card);--line:var(--ds-ink);--line-soft:color-mix(in srgb,var(--ds-ink) 30%,var(--ds-card));--surface-2:var(--ds-card);--green:#2f9460;--r-sm:6px;--r:10px;--r-lg:14px;--r-xl:16px}
+body.ds-note h1,body.ds-note #opening-title{display:inline-block;font-weight:800;padding:0 12px;background:linear-gradient(transparent 58%,var(--ds-tape1) 58%)}
+body.ds-note #app-fade>h1{align-self:center}
+body.ds-note .mb,body.ds-note .tb,body.ds-note .ed-tb,body.ds-note .atog,body.ds-note .tap,body.ds-note .ts-sel-btn,body.ds-note .tr-mode-btn,body.ds-note .lamp-btn,body.ds-note .erst,body.ds-note .eapp,body.ds-note .demo-btn,body.ds-note .rtg-div-btn,body.ds-note .ts-modal-btn,body.ds-note .tr-retry-btn,body.ds-note .rtg-retry-btn{
+  border:2px solid var(--ds-ink);background:var(--face);color:var(--ink);box-shadow:3px 3px 0 var(--ds-shadow);transition:transform .08s,box-shadow .08s,background .15s}
+body.ds-note .mb:active,body.ds-note .tb:active,body.ds-note .atog:active,body.ds-note .tap:active,body.ds-note .ts-sel-btn:active,body.ds-note .tr-mode-btn:active,body.ds-note .lamp-btn:active,body.ds-note .erst:active,body.ds-note .eapp:active,body.ds-note .demo-btn:active,body.ds-note .rtg-div-btn:active,body.ds-note .ts-modal-btn:active{transform:translate(3px,3px);box-shadow:0 0 0 var(--ds-shadow)}
+body.ds-note .mb.on,body.ds-note .tb.on,body.ds-note .ed-tb.on,body.ds-note .ts-sel-btn.on,body.ds-note .tr-mode-btn.on,body.ds-note .rtg-div-btn.on,body.ds-note .ts-modal-btn.on,body.ds-note .eapp{background:var(--ds-hi);color:var(--ds-on-hi);border-color:var(--ds-ink);transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ds-shadow)}
+body.ds-note .score-toggle{border:2px solid var(--ds-ink);color:var(--ink)}
+body.ds-note #pb,body.ds-note .tr-start-btn,body.ds-note .rtg-start-btn,body.ds-note #opening-start-btn{background:var(--ds-hi);color:var(--ds-on-hi);border:2.5px solid var(--ds-ink);border-radius:16px;box-shadow:5px 5px 0 var(--ds-shadow);transition:transform .08s,box-shadow .08s}
+body.ds-note #pb:active,body.ds-note #pb.on,body.ds-note .tr-start-btn:active,body.ds-note .rtg-start-btn:active,body.ds-note #opening-start-btn:active{transform:translate(5px,5px);box-shadow:0 0 0 var(--ds-shadow)}
+body.ds-note .tr-tap-btn,body.ds-note .rtg-tap-btn{border:2.5px solid var(--ds-ink);background:var(--face);color:var(--ink);box-shadow:5px 5px 0 var(--ds-shadow)}
+body.ds-note .apan,body.ds-note #epan,body.ds-note .tr-result,body.ds-note .rtg-result{position:relative;background:var(--ds-card);border:2px solid var(--ds-ink);box-shadow:3px 3px 0 var(--ds-shadow);margin-top:14px}
+body.ds-note .apan::before,body.ds-note #epan::before{content:'';position:absolute;top:-11px;left:50%;width:80px;height:18px;margin-left:-40px;transform:rotate(-3deg);opacity:.95;pointer-events:none;
+  background:repeating-linear-gradient(45deg,var(--ds-tape2) 0 6px,color-mix(in srgb,var(--ds-tape2) 70%,#fff) 6px 12px)}
+body.ds-note #epan::before{transform:rotate(2deg);background:repeating-linear-gradient(45deg,var(--ds-tape3) 0 6px,color-mix(in srgb,var(--ds-tape3) 70%,#fff) 6px 12px)}
+body.ds-note .ts-modal{border:2.5px solid var(--ds-ink);box-shadow:6px 6px 0 var(--ds-shadow)}
+body.ds-note .ec{border:1.5px solid var(--ds-ink)}
+body.ds-note input[type=range]::-webkit-slider-thumb{background:var(--ds-hi);border:2px solid var(--ds-ink);box-shadow:2px 2px 0 var(--ds-shadow)}
+body.ds-note #va{border:2px solid var(--ds-ink);box-shadow:4px 4px 0 var(--ds-shadow)}
+</style>
 </head>
 <body>
+<script>/* 共通の画面の部品（版 1.1 以上）が読めた時だけ、やわらかいモチーフの見た目にする（今は昼の色で固定） */
+(function(){if(!(window.DS&&DS.ui&&parseFloat(DS.ui.version)>=1.1))return;var b=document.body;b.classList.add('ds-felt','ds-day','kn-ds');
+  b.setAttribute('data-ds-enter','off');
+  document.addEventListener('DOMContentLoaded',function(){DS.ui.init(b);});})();</script>
 <!-- ═══ オープニング画面（はじめるボタンを押すまで本編を操作不可）═══ -->
 <div id="opening-overlay">
   <div id="opening-inner">
