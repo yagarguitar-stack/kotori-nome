@@ -166,6 +166,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;heigh
 .rtg-div-btn:disabled{opacity:.35;cursor:not-allowed}
 .score-toggle{font-size:var(--fs-2xs);color:var(--ink-3);background:none;border:1px solid var(--line-soft);border-radius:var(--r-sm);padding:2px 8px;cursor:pointer;min-height:26px}
 .score-toggle.off{color:var(--amber-dark);border-color:var(--amber)}
+/* 譜面の書き方（休符あり／伸ばす）：選んでいる方を色付きに */
+.kc-style{display:inline-flex;gap:4px;margin-left:auto;margin-right:6px}
+.kc-style .score-toggle.on{color:var(--amber-dark);border-color:var(--amber);font-weight:bold}
+body.focus-sight .kc-style,body.focus-rhythm .kc-style,body.focus-game .kc-style{display:none}
 /* 鳴らす／止めるの切り替え（ランプ付き。今の状態を表示する） */
 .lamp-btn{margin-left:auto;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-width:88px;min-height:36px;padding:0 14px;border-radius:var(--r);border:1px solid var(--line);background:var(--surface);color:var(--ink-3);font-size:var(--fs-md);letter-spacing:.05em;cursor:pointer;transition:border-color .15s,color .15s}
 .lamp-btn .lamp{width:10px;height:10px;border-radius:50%;background:var(--line);transition:background .15s,box-shadow .15s}
@@ -595,7 +599,7 @@ body.focus-game #gm-tap-btn{display:block}
     <div style="font-size:var(--fs-2xs);color:var(--ink-4);margin-bottom:8px;">マスはタップで切り替え、なぞると続けてONになります。消すときはタップか「入力リセット」で</div>
     <div id="rtg-score-head" class="focus-keep" style="display:flex;align-items:center;margin:8px 0 2px;">
       <span style="font-size:var(--fs-2xs);color:var(--ink-4);font-weight:bold;">リズム譜（TAP）</span>
-      <button id="rtg-score-toggle" class="score-toggle" style="margin-left:auto;">譜面を隠す</button>
+      <span class="kc-style"><button class="score-toggle on" data-kcstyle="rest">休符あり</button><button class="score-toggle" data-kcstyle="tie">伸ばす</button></span><button id="rtg-score-toggle" class="score-toggle">譜面を隠す</button>
     </div>
     <div id="rtg-score" class="focus-keep" style="background:var(--score-bg);border-radius:var(--r);padding:6px 4px;overflow-x:auto;"></div>
     <button id="rtg-demo-btn" class="demo-btn" style="margin-top:8px;">&#9655; お手本を聴く</button>
@@ -740,7 +744,7 @@ body.focus-game #gm-tap-btn{display:block}
     <div class="rtg-grid-wrap focus-keep"><div id="gm-table"></div></div>
     <div id="gm-score-head" class="focus-keep" style="display:flex;align-items:center;margin:8px 0 2px;">
       <span style="font-size:var(--fs-2xs);color:var(--ink-4);font-weight:bold;">リズム譜（TAP）</span>
-      <button id="gm-score-toggle" class="score-toggle" style="margin-left:auto;">譜面を隠す</button>
+      <span class="kc-style"><button class="score-toggle on" data-kcstyle="rest">休符あり</button><button class="score-toggle" data-kcstyle="tie">伸ばす</button></span><button id="gm-score-toggle" class="score-toggle">譜面を隠す</button>
     </div>
     <div id="gm-score" class="focus-keep" style="background:var(--score-bg);border-radius:var(--r);padding:6px 4px;overflow-x:auto;"></div>
     <button id="gm-demo-btn" class="demo-btn" style="margin-top:8px;">&#9655; お手本を聴く</button>
@@ -849,6 +853,7 @@ body.focus-game #gm-tap-btn{display:block}
     <div id="sk-qhead" class="focus-keep" style="display:flex;align-items:baseline;justify-content:space-between;margin:4px 0 6px;">
       <span id="sk-qno" style="font-size:var(--fs-sm);color:var(--ink-3);font-weight:bold;">1問目</span>
       <span id="sk-qinfo" style="font-size:var(--fs-xs);color:var(--ink-4);display:none;"></span>
+      <span class="kc-style"><button class="score-toggle on" data-kcstyle="rest">休符あり</button><button class="score-toggle" data-kcstyle="tie">伸ばす</button></span>
       <button id="sk-regen" style="font-size:var(--fs-xs);color:var(--ink-4);background:none;border:1px solid var(--line-soft);border-radius:var(--r-sm);padding:2px 8px;cursor:pointer;">別の譜面にする</button>
     </div>
     <div id="sk-score" class="focus-keep" style="background:var(--score-bg);border-radius:var(--r);padding:6px 4px;overflow-x:auto;min-height:60px;"></div>
@@ -2071,7 +2076,60 @@ function kcRhy(){return !!(window.DS&&DS.rhythm&&DS.rhythm.render&&DS.rhythm.sha
 var kcViews={};   // 'rtg'／'gm' → いま描いてある譜面
 function kcDefIn(n){var p=1;while(p*2<n)p*=2;return p;}
 // beats：[{cells:[0/1…], tu:null|{n,in}, span:拍数}] を順に並べたもの。ts：[拍の数, 拍の音符]
+// 譜面の書き方：'rest'＝休符を使う（既定）／'tie'＝次の音まで伸ばす（タイでつなぐ）
+var kcStyle='rest';
+// 休符を使う書き方：音は同じ拍の中でだけ伸ばし、拍の中で次の音が無ければ休符にする
+function kcBeatsToScoreRest(beats,ts){
+  var R=DS.rhythm,Q=R.T.QUARTER,bu=Q*4/ts[1],bars=[],bar=null,inBar=ts[0];
+  // 描ける長さずつに分けて置く（音はタイでつなぐ）
+  function put(len,rest,unit,tu){
+    var sc=tu?tu.n/tu.in:1;
+    if(R.shape(len*sc)){bar.notes.push(tu?{len:len,rest:rest,tu:tu}:{len:len,rest:rest});return;}
+    var left=Math.round(len/unit),first=true;
+    while(left>0){
+      var t=left;while(t>1&&!R.shape(t*unit*sc))t--;
+      if(!rest&&!first)bar.notes[bar.notes.length-1].tie=true;
+      bar.notes.push(tu?{len:t*unit,rest:rest,tu:tu}:{len:t*unit,rest:rest});
+      left-=t;first=false;
+    }
+  }
+  beats.forEach(function(bt){
+    if(inBar>=ts[0]){bar={ts:ts.slice(),notes:[],beatRest:[]};bars.push(bar);inBar=0;}
+    var n=bt.cells.length,span=bt.span||1,unit=bu*span/n;
+    var tu=bt.tu?{n:bt.tu.n,in:bt.tu.in,id:R.newTupletId()}:null;
+    var hasHit=bt.cells.some(function(c){return c;});
+    if(!hasHit){bar.notes.push({len:bu*span,rest:true,_full:true,_at:inBar,_span:span});inBar+=span;return;}
+    var segs=[],k=0;
+    while(k<n){
+      var j=k+1;while(j<n&&!bt.cells[j])j++;
+      if(bt.cells[k]) segs.push({len:(j-k)*unit,rest:false});
+      else segs.push({len:(j-k)*unit,rest:true});
+      k=j;
+    }
+    if(segs.length===1){bar.notes.push({len:bu*span,rest:false});}   // 拍まるごとの音は普通の音符
+    else segs.forEach(function(sg){put(sg.len,sg.rest,unit,tu);});
+    inBar+=span;
+  });
+  // まるごと休みの拍をまとめる：小節全部なら全休符、4分の拍子で1-2拍目・3-4拍目が続けて休みなら2分休符
+  bars.forEach(function(b){
+    var nb=b.ts[0],allRest=b.notes.every(function(x){return x.rest;});
+    if(allRest){b.notes=[{len:bu*nb,rest:true}];return;}
+    if(b.ts[1]===4){
+      var out=[];
+      for(var i=0;i<b.notes.length;i++){
+        var x=b.notes[i],y=b.notes[i+1];
+        if(x._full&&x._span===1&&y&&y._full&&y._span===1&&x._at%2===0&&y._at===x._at+1){out.push({len:bu*2,rest:true});i++;continue;}
+        out.push(x);
+      }
+      b.notes=out;
+    }
+    b.notes.forEach(function(x){delete x._full;delete x._at;delete x._span;});
+    delete b.beatRest;
+  });
+  return {bars:bars};
+}
 function kcBeatsToScore(beats,ts){
+  if(kcStyle==='rest') return kcBeatsToScoreRest(beats,ts);
   var R=DS.rhythm,Q=R.T.QUARTER,bu=Q*4/ts[1],bars=[],bar=null,inBar=ts[0],last=null,carry=false;
   function push(n){bar.notes.push(n);last=n;n._bar=bar;return n;}
   function pieces(count,unit,tu,rest,tieFirst){ // 連符の中で描けない長さは、描ける長さずつ（音はタイでつなぐ）
@@ -3695,6 +3753,20 @@ function skAgain(fresh){
 }
 skSyncSetup();
 
+// 譜面の書き方の切り替え（3つのモードで共通。押すと見えている譜面を描き直す）
+function kcSetStyle(st){
+  kcStyle=(st==='tie')?'tie':'rest';
+  document.querySelectorAll('[data-kcstyle]').forEach(function(b){b.classList.toggle('on',b.dataset.kcstyle===kcStyle);});
+  try{rtgRenderScore();}catch(e){}
+  try{gmRenderScore();}catch(e){}
+  if(skState==='idle'&&skPrev==='self'&&skQs.length) skDraw('sk','sk-score',skQs[0]);
+  document.querySelectorAll('.sk-detail').forEach(function(d){
+    if(d.style.display!=='none'){var i=+d.id.replace('sk-detail-','');skDraw('skq'+i,'sk-qscore-'+i,skQs[i]);}
+  });
+}
+document.querySelectorAll('[data-kcstyle]').forEach(function(b){
+  b.addEventListener('click',function(){kcSetStyle(this.dataset.kcstyle);});
+});
 drumApply(); // 起動時に音符モードに合わせたドラムとグリッドを出す
 setVaImage('metro'); // 初期表示はメトロノームタブ
 
@@ -5908,6 +5980,7 @@ document.addEventListener('keydown',function(e){
   gmTap();
   rtgTap();
   trTap();
+  skTap();
 });
 
 // ═══ 段階5b: ゲームのランダム出題（既存Lv1-25は温存・星記録対象外）═══
@@ -6072,6 +6145,7 @@ function prefSave(){
         ciDiv:ciDiv, ciLastOnly:ciLastOnly,
         trBpm:trBpm, trTs:trTs,
         tkSub:tkSub, tkSound:tkSound, tkClick:tkClick, tkBars:tkBars,
+        kcStyle:kcStyle,
         skBpm:skBpm, skTs:skTs, skStar:skStar, skPrev:skPrev, skCount:skCount, skOni:skOni, skCiDiv:skCiDiv,
         rtgBpm:rtgBpm, rtgTs:rtgTs, rtgResMode:rtgResMode, rtgGridMeasures:rtgGridMeasures,
         rtgGenMeasures:rtgGenMeasures,
@@ -6090,7 +6164,7 @@ function prefWire(){
    '[data-tts]','[data-rtgts]','[data-div]','[data-measures]','[data-cid]',
    '[data-rtgcid]','[data-gmcid]','[data-genmeas]',
    '[data-tksub]','[data-tksnd]','[data-tkclk]','[data-tkbars]',
-   '[data-skts]','[data-skprev]','[data-skcount]','[data-skcid]','#sk-judge-normal','#sk-judge-oni'].forEach(function(sel){
+   '[data-skts]','[data-skprev]','[data-skcount]','[data-skcid]','#sk-judge-normal','#sk-judge-oni','[data-kcstyle]'].forEach(function(sel){
     document.querySelectorAll(sel).forEach(function(b){b.addEventListener('click',prefSave);});
   });
   ['tap','tr-tap-tempo','rtg-tap-tempo','gm-tap-tempo','eapp','erst',
@@ -6156,6 +6230,7 @@ function prefRestore(){
   if(p.tkClick) press('[data-tkclk="'+p.tkClick+'"]');
   if(p.tkBars) press('[data-tkbars="'+p.tkBars+'"]');
   if(p.tkSub) press('[data-tksub="'+p.tkSub+'"]');
+  if(p.kcStyle) kcSetStyle(p.kcStyle);
   if(p.skTs) press('[data-skts="'+p.skTs+'"]');
   if(p.skPrev) press('[data-skprev="'+p.skPrev+'"]');
   if(p.skCount) press('[data-skcount="'+p.skCount+'"]');
