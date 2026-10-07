@@ -370,6 +370,7 @@ body.focus-game #gm-tap-btn{display:block}
     <button class="tr-mode-btn on" id="tr-mode-tempo">体感テンポ</button>
     <button class="tr-mode-btn" id="tr-mode-game">ゲーム</button>
     <button class="tr-mode-btn" id="tr-mode-rhythm">アドバンス</button>
+    <button class="tr-mode-btn" id="tr-mode-sight">初見</button>
   </div>
   <div id="calib-box" style="border:1px solid var(--line-soft);border-radius:var(--r);padding:10px;margin-bottom:14px;background:var(--surface-2);">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
@@ -787,6 +788,85 @@ body.focus-game #gm-tap-btn{display:block}
       </div>
       </div>
     </div>
+
+  <!-- 初見モード -->
+  <div class="tr-panel" id="tr-panel-sight">
+    <div style="font-size:var(--fs-xs);color:var(--ink-4);margin:-6px 0 14px;line-height:1.6;">自動で作ったリズム譜を、その場で読んで叩きます。グリッドやお手本は答え合わせのときに出ます。</div>
+    <div class="sl" style="margin-bottom:4px;">テンポ</div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+      <span class="bdisp" id="sk-bpm-disp" style="font-size:var(--fs-5xl);font-weight:bold;color:var(--amber);min-width:60px;text-align:center;">90</span>
+      <input type="range" id="sk-bpm-slider" min="30" max="240" value="90" style="-webkit-appearance:none;flex:1;height:6px;border-radius:var(--r-sm);background:var(--line);outline:none;">
+      <button id="sk-tap-tempo" style="padding:6px 12px;border-radius:var(--r);border:1px solid var(--amber);background:var(--surface);color:var(--amber);font-size:var(--fs-sm);font-weight:bold;cursor:pointer;">TAP</button>
+    </div>
+    <div class="sl" style="margin-bottom:4px;">拍子</div>
+    <div style="display:flex;gap:6px;margin-bottom:12px;">
+      <button class="tb" data-skts="2/4" style="flex:1;min-height:36px;">2/4</button>
+      <button class="tb" data-skts="3/4" style="flex:1;min-height:36px;">3/4</button>
+      <button class="tb on" data-skts="4/4" style="flex:1;min-height:36px;">4/4</button>
+      <button class="tb" data-skts="5/4" style="flex:1;min-height:36px;">5/4</button>
+      <button class="tb" data-skts="6/8" style="flex:1;min-height:36px;">6/8</button>
+      <button class="tb" data-skts="7/8" style="flex:1;min-height:36px;">7/8</button>
+    </div>
+    <div class="sl" style="margin-bottom:4px;">難しさ</div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+      <input type="range" id="sk-star" min="1" max="5" step="1" value="2" style="-webkit-appearance:none;flex:1;height:6px;border-radius:var(--r-sm);background:var(--line);outline:none;">
+      <span id="sk-star-label" style="font-size:var(--fs-sm);color:var(--amber-dark);font-weight:bold;min-width:88px;text-align:right;"></span>
+    </div>
+    <div class="sl" style="margin-bottom:4px;">下見</div>
+    <div style="display:flex;gap:6px;margin-bottom:4px;">
+      <button class="tb" data-skprev="ci" style="flex:1;min-height:40px;">カウントインの間だけ</button>
+      <button class="tb on" data-skprev="self" style="flex:1;min-height:40px;">自分でスタート</button>
+    </div>
+    <div id="sk-prev-note" style="font-size:var(--fs-xs);color:var(--ink-4);margin-bottom:12px;line-height:1.6;"></div>
+    <div class="sl" style="margin-bottom:4px;">出題数</div>
+    <div style="display:flex;gap:6px;margin-bottom:4px;">
+      <button class="tb on" data-skcount="4" style="flex:1;min-height:40px;">4問</button>
+      <button class="tb" data-skcount="8" style="flex:1;min-height:40px;">8問</button>
+      <button class="tb" data-skcount="12" style="flex:1;min-height:40px;">12問</button>
+    </div>
+    <div style="font-size:var(--fs-xs);color:var(--ink-4);margin-bottom:12px;line-height:1.6;">1問は4小節です。止まらずに続けて読みます。</div>
+    <div style="margin-bottom:8px;">
+      <div style="font-size:var(--fs-xs);color:var(--ink-4);margin-bottom:4px;">判定モード</div>
+      <div style="display:flex;gap:6px;">
+        <button id="sk-judge-normal" style="flex:1;padding:6px;border-radius:8px;background:#e8fff5;border:2px solid #1D9E75;color:#0F6E56;font-size:.74rem;font-weight:bold;cursor:pointer;">通常判定</button>
+        <button id="sk-judge-oni" style="flex:1;padding:6px;border-radius:8px;background:#ffffff;border:1px solid #d5d0c3;color:#8a857a;font-size:.74rem;cursor:pointer;">👹 鬼判定</button>
+      </div>
+      <div id="sk-judge-desc" style="font-size:var(--fs-xs);color:var(--ink-4);margin-top:4px;line-height:1.7;">PERFECT ±41ms　GREAT ±83ms　GOOD ±108ms</div>
+    </div>
+    <div class="sl" style="margin-bottom:4px;">カウントインの刻み</div>
+    <div class="rtg-div-row" style="margin-bottom:6px;">
+      <button class="rtg-div-btn on" data-skcid="1">4分</button>
+      <button class="rtg-div-btn" data-skcid="2">8分</button>
+      <button class="rtg-div-btn" data-skcid="4">16分</button>
+      <button class="rtg-div-btn" data-skcid="8">32分</button>
+    </div>
+    <div class="rtg-div-row" style="margin-bottom:12px;">
+      <button class="rtg-div-btn" data-skcid="3">3連</button>
+      <button class="rtg-div-btn" data-skcid="5">5連</button>
+      <button class="rtg-div-btn" data-skcid="6">6連</button>
+      <div style="flex:1;visibility:hidden;"></div>
+    </div>
+    <div id="sk-qhead" class="focus-keep" style="display:flex;align-items:baseline;justify-content:space-between;margin:4px 0 6px;">
+      <span id="sk-qno" style="font-size:var(--fs-sm);color:var(--ink-3);font-weight:bold;">1問目</span>
+      <span id="sk-qinfo" style="font-size:var(--fs-xs);color:var(--ink-4);display:none;"></span>
+      <button id="sk-regen" style="font-size:var(--fs-xs);color:var(--ink-4);background:none;border:1px solid var(--line-soft);border-radius:var(--r-sm);padding:2px 8px;cursor:pointer;">別の譜面にする</button>
+    </div>
+    <div id="sk-score" class="focus-keep" style="background:var(--score-bg);border-radius:var(--r);padding:6px 4px;overflow-x:auto;min-height:60px;"></div>
+    <div id="sk-next-wrap" class="focus-keep" style="display:none;">
+      <div style="font-size:var(--fs-2xs);color:var(--ink-4);font-weight:bold;margin:10px 0 4px;" id="sk-next-label">次の譜面</div>
+      <div style="opacity:.5;max-height:150px;overflow:hidden;-webkit-mask-image:linear-gradient(#000 60%,transparent);mask-image:linear-gradient(#000 60%,transparent);">
+        <div id="sk-next" style="background:var(--score-bg);border-radius:var(--r);padding:6px 4px;"></div>
+      </div>
+    </div>
+    <div id="sk-pulse" class="focus-keep" style="width:60px;height:60px;border-radius:50%;background:var(--pulse);margin:12px auto;opacity:.3;transform:scale(.85);display:none;"></div>
+    <div class="rtg-status focus-keep" id="sk-status">譜面を見て、準備ができたらスタート</div>
+    <div class="focus-keep" style="display:flex;gap:8px;">
+      <button class="rtg-start-btn" id="sk-start-btn" style="flex:1;">▶ スタート</button>
+      <button class="rtg-start-btn" id="sk-stop-btn" style="flex:1;background:var(--amber-deep);display:none;">■ ストップ</button>
+    </div>
+    <button class="rtg-tap-btn inactive focus-keep" id="sk-tap-btn">TAP</button>
+    <div class="rtg-result" id="sk-result"></div>
+  </div>
   </div>
 </div>
 <style>
@@ -821,7 +901,14 @@ body.focus-tempo #tr-pulse{width:90px;height:90px;margin:20px auto}
 /* 共通で隠す：画像・タブバー・モード切替・フッター */
 body.focus-rhythm h1, body.focus-rhythm #va, body.focus-rhythm .tab-bar, body.focus-rhythm .tr-mode-bar, body.focus-rhythm #app-credit, body.focus-rhythm #calib-box,
 body.focus-game h1, body.focus-game #va, body.focus-game .tab-bar, body.focus-game .tr-mode-bar, body.focus-game #app-credit, body.focus-game #calib-box,
-body.focus-tempo #calib-box{display:none!important}
+body.focus-tempo #calib-box,
+body.focus-sight h1, body.focus-sight #va, body.focus-sight .tab-bar, body.focus-sight .tr-mode-bar, body.focus-sight #app-credit, body.focus-sight #calib-box{display:none!important}
+/* 初見：パネル直下でfocus-keepを持たない要素（設定欄）を隠す */
+body.focus-sight #tr-panel-sight > *:not(.focus-keep){display:none!important}
+body.focus-sight #sk-status{font-size:var(--fs-2xl);color:var(--amber);font-weight:bold;height:2.2em;min-height:0;margin:8px 0 10px;overflow:hidden}
+/* 譜面を2枚出すので、TAPは他のモードより低めにする */
+body.focus-sight #sk-tap-btn{padding:44px 28px;font-size:2.2rem;border-width:4px;margin-bottom:16px;letter-spacing:.15em}
+body.focus-sight #sk-pulse{width:60px;height:60px;margin:10px auto}
 /* リズム：パネル直下でfocus-keepを持たない要素を隠す（focus-keepは元のdisplayのまま）*/
 body.focus-rhythm #tr-panel-rhythm > *:not(.focus-keep){display:none!important}
 /* ゲーム：同上 */
@@ -3233,6 +3320,381 @@ function setVaImage(which){
     vaImg.style.display='block'; // 同じ画像なら再読込せず、表示だけ確実に戻す
   }
 }
+// ═══ 初見モード ═══
+// 自動で作ったリズム譜（1問＝4小節）を、グリッドもお手本も見せずに読んで叩く。
+// 問題は止まらずに続けて出し、演奏中は「次の譜面」を薄く出して先読みできるようにする。
+var skBpm=90,skTs='4/4',skStar=2,skPrev='self',skCount=4,skOni=false,skCiDiv=1;
+var SK_BARS=4;
+var skQs=[];            // 問題の並び（1問目は下見用に先に作る）
+var skState='idle',skToken=0,skTaps=[],skPlay=null,skTapTempo=[];
+VA_IMAGES.sight=VA_IMAGES.rhythm;
+
+function skThresh(){return skOni?ONI_THRESH:{p:41.7,gr:83.3,gd:108.3};}
+function skBeatSec(){return (60/skBpm)*(4/TS[skTs].d);}
+function skCanDraw(){return kcRhy();}
+
+// --- 問題を作る（おまかせ生成と同じ難しさの決まりを使う）---
+// 8分の拍子（6/8・7/8）は1拍が8分音符なので、細かくなりすぎないよう1段ゆるめる
+var SK_EIGHTH_EASE={'4':'4','8':'8','16':'8','triplet':'8','32':'16','sextup':'16','quint':'8'};
+function skMakeQuestion(){
+  var star=rtgGenClampStar(skStar),P=rtgGenDerive(star),pool=rtgGenPoolFor(star);
+  var b=TS[skTs].b,d=TS[skTs].d,beats=[],onsets=[];
+  for(var bar=0;bar<SK_BARS;bar++){
+    var mode=pick(pool);if(d===8)mode=SK_EIGHTH_EASE[mode]||'8';
+    var cpb=RES_MODES[mode].cellsPerBeat,barHit=false,first=beats.length;
+    for(var j=0;j<b;j++){
+      var cells=[];
+      for(var p=0;p<cpb;p++){
+        var prob=P.density/100;
+        if(p===0) prob*=(1-P.syncopation/100*0.6); else prob*=(1+P.syncopation/100*0.5);
+        prob*=(1-P.rest/100*0.5);
+        var hit=rnd()<prob?1:0;cells.push(hit);if(hit)barHit=true;
+      }
+      beats.push({cells:cells,tu:(cpb===3||cpb===5||cpb===6)?{n:cpb,in:kcDefIn(cpb)}:null,span:1,cpb:cpb});
+    }
+    if(!barHit) beats[first].cells[0]=1;   // 1小節まるごと休みにはしない
+  }
+  beats.forEach(function(bt,gi){
+    var j=gi%b,bar=Math.floor(gi/b);
+    bt.cells.forEach(function(c,p){
+      if(!c)return;
+      onsets.push({t:gi+p/bt.cpb,bar:bar,pos:j+p/bt.cpb,label:beatPosLabel(j+1,p,bt.cpb)});
+    });
+  });
+  return {beats:beats,onsets:onsets,ts:skTs};
+}
+function skScoreOf(q){return kcBeatsToScore(q.beats.map(function(bt){return {cells:bt.cells,tu:bt.tu,span:1};}),[TS[q.ts].b,TS[q.ts].d]);}
+function skDraw(which,areaId,q){
+  var area=document.getElementById(areaId);if(!area)return;
+  if(!q){area.innerHTML='';return;}
+  if(!skCanDraw()){area.innerHTML='<div style="padding:14px;font-size:var(--fs-sm);color:var(--ink-3);text-align:center;">譜面を描く部品を読み込めませんでした。通信を確かめて、開き直してください。</div>';return;}
+  area.innerHTML='';kcRender(which,areaId,skScoreOf(q));
+}
+function skPlaceholder(text){
+  document.getElementById('sk-score').innerHTML='<div style="padding:22px 10px;font-size:var(--fs-sm);color:var(--ink-4);text-align:center;">'+text+'</div>';
+}
+
+// --- 設定欄の表示 ---
+var SK_PREV_NOTE={
+  ci:'スタートを押すと譜面が出ます。カウントインの間に読んでから叩きます。',
+  self:'譜面を見て、準備ができたらスタートを押します。2問目からは前の問題に続けて始まります。'
+};
+function skSyncSetup(){
+  document.getElementById('sk-prev-note').textContent=SK_PREV_NOTE[skPrev];
+  document.getElementById('sk-star-label').textContent=rtgGenLabel(skStar);
+  document.getElementById('sk-regen').style.display=(skPrev==='self')?'':'none';
+}
+// 開始前の下見：自分でスタートなら1問目を見せる。カウントインの間だけなら隠しておく
+function skShowIdle(newQ){
+  if(newQ||!skQs.length||skQs[0].ts!==skTs) skQs=[skMakeQuestion()];
+  document.getElementById('sk-qno').textContent='1問目';
+  document.getElementById('sk-qinfo').style.display='none';
+  document.getElementById('sk-next-wrap').style.display='none';
+  if(skPrev==='self'){skDraw('sk','sk-score',skQs[0]);document.getElementById('sk-status').textContent='譜面を見て、準備ができたらスタート';}
+  else{skPlaceholder('スタートを押すと、ここに譜面が出ます');document.getElementById('sk-status').textContent='スタートを押すと譜面が出ます';}
+  skSyncSetup();
+}
+function skPick(attr,cb){
+  document.querySelectorAll('['+attr+']').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      if(skState!=='idle'&&skState!=='done')return;
+      document.querySelectorAll('['+attr+']').forEach(function(x){x.classList.toggle('on',x===btn);});
+      cb(btn.getAttribute(attr));
+    });
+  });
+}
+skPick('data-skts',function(v){skTs=v;skShowIdle(true);});
+skPick('data-skprev',function(v){skPrev=v;skShowIdle(false);});
+skPick('data-skcount',function(v){skCount=parseInt(v,10);});
+skPick('data-skcid',function(v){skCiDiv=parseInt(v,10);});
+document.getElementById('sk-star').addEventListener('input',function(){skStar=rtgGenClampStar(this.value);skSyncSetup();});
+document.getElementById('sk-star').addEventListener('change',function(){skShowIdle(true);if(typeof prefSave==='function')prefSave();});
+document.getElementById('sk-bpm-slider').addEventListener('input',function(){skBpm=parseInt(this.value,10);document.getElementById('sk-bpm-disp').textContent=skBpm;});
+document.getElementById('sk-tap-tempo').addEventListener('click',function(){
+  var now=Date.now();
+  if(skTapTempo.length&&now-skTapTempo[skTapTempo.length-1]>2000) skTapTempo=[];
+  skTapTempo.push(now);if(skTapTempo.length>8)skTapTempo.shift();
+  if(skTapTempo.length>=2){
+    var bpm=Math.round(60000/((skTapTempo[skTapTempo.length-1]-skTapTempo[0])/(skTapTempo.length-1)));
+    skBpm=Math.max(30,Math.min(240,bpm));
+    document.getElementById('sk-bpm-slider').value=skBpm;document.getElementById('sk-bpm-disp').textContent=skBpm;
+    if(typeof prefSave==='function')prefSave();
+  }
+});
+function skSetJudge(oni){
+  skOni=oni;
+  var on='flex:1;padding:6px;border-radius:8px;font-size:.74rem;font-weight:bold;cursor:pointer;',off='flex:1;padding:6px;border-radius:8px;background:#ffffff;border:1px solid #d5d0c3;color:#8a857a;font-size:.74rem;cursor:pointer;';
+  document.getElementById('sk-judge-normal').style.cssText=oni?off:on+'background:#e8fff5;border:2px solid #1D9E75;color:#0F6E56;';
+  document.getElementById('sk-judge-oni').style.cssText=oni?on+'background:#2a0000;border:2px solid #E24B4A;color:#ff6b6b;':off;
+  document.getElementById('sk-judge-desc').textContent=oni?'👹 PERFECT ±20ms　GREAT ±40ms　GOOD ±60ms':'PERFECT ±41ms　GREAT ±83ms　GOOD ±108ms';
+}
+document.getElementById('sk-judge-normal').addEventListener('click',function(){skSetJudge(false);});
+document.getElementById('sk-judge-oni').addEventListener('click',function(){skSetJudge(true);});
+document.getElementById('sk-regen').addEventListener('click',function(){skShowIdle(true);});
+
+// --- モードの切り替え（既存の3つのボタンと並べる）---
+var SK_MODE_IDS=['tr-mode-tempo','tr-mode-game','tr-mode-rhythm'];
+SK_MODE_IDS.forEach(function(id){
+  document.getElementById(id).addEventListener('click',function(){
+    document.getElementById('tr-mode-sight').classList.remove('on');
+    document.getElementById('tr-panel-sight').classList.remove('on');
+    document.body.classList.remove('focus-sight');
+  });
+});
+document.getElementById('tr-mode-sight').addEventListener('click',function(){
+  document.body.classList.remove('focus-tempo','focus-rhythm','focus-game','focus-sight');
+  SK_MODE_IDS.forEach(function(id){document.getElementById(id).classList.remove('on');});
+  ['tr-panel-tempo','tr-panel-rhythm','tr-panel-game'].forEach(function(id){document.getElementById(id).classList.remove('on');});
+  this.classList.add('on');document.getElementById('tr-panel-sight').classList.add('on');
+  demoStop();
+  trCurrentMode='sight';setVaImage('sight');
+  if(skState==='idle') skShowIdle(false);   // 見えてから描くと、譜面の幅が画面に合う
+});
+
+// --- 演奏 ---
+function skStart(){
+  stopBgm();demoStop();stopReplay();resetReplayBtns();
+  if(calibBlockIfNeeded()) return;
+  if(!skCanDraw()){skShowIdle(false);return;}
+  skState='idle';
+  if(!ctx) ctx=new(window.AudioContext||window.webkitAudioContext)();
+  if(ctx.state==='suspended') ctx.resume();
+  // 1問目は下見したものを使い、残りを作り足す
+  if(!skQs.length||skQs[0].ts!==skTs) skQs=[skMakeQuestion()];
+  skQs=skQs.slice(0,skCount);
+  while(skQs.length<skCount) skQs.push(skMakeQuestion());
+  document.body.classList.add('focus-sight');
+  if(clickType==='cowbell'&&!cowbellReady()){
+    document.getElementById('sk-status').textContent='♪ 準備中...';
+    loadCowbell(function(){if(ctx)skDoStart();});
+  } else skDoStart();
+}
+function skShowQuestion(i){
+  var n=skQs.length;
+  document.getElementById('sk-qno').textContent=(i+1)+' / '+n+' 問目';
+  skDraw('sk','sk-score',skQs[i]);
+  var nw=document.getElementById('sk-next-wrap');
+  if(i+1<n){nw.style.display='block';document.getElementById('sk-next-label').textContent='次の譜面';skDraw('skn','sk-next',skQs[i+1]);}
+  else{nw.style.display='none';}
+}
+function skDoStart(){
+  var tok=++skToken;skState='countin';skTaps=[];
+  document.getElementById('sk-result').classList.remove('on');
+  document.getElementById('sk-tap-btn').classList.add('inactive');
+  document.getElementById('sk-start-btn').style.display='none';
+  document.getElementById('sk-stop-btn').style.display='block';
+  document.getElementById('sk-regen').style.display='none';
+  var qi=document.getElementById('sk-qinfo');qi.textContent=rtgGenLabel(skStar).split(' ')[0]+'　'+skBpm+' BPM';qi.style.display='';
+  skShowQuestion(0);
+  var pulse=document.getElementById('sk-pulse');
+  if(pulse){pulse.style.display='block';pulse.style.visibility='visible';pulse.style.transform='scale(.85)';pulse.style.opacity='.3';pulse.style.background='#8aa0b5';}
+
+  var bi=skBeatSec(),b=TS[skTs].b,t=ctx.currentTime+0.1;
+  var steps=trainerCountInSteps(bi,b,skCiDiv,false),lastIdx=b*2-1;
+  steps.forEach(function(st){
+    if(st.beat) rtgMakeClick(t,st.barHead); else rtgMakeSubClick(t);
+    if(st.beat){
+      (function(delay,isLast,idx2){
+        setTimeout(function(){
+          if(tok!==skToken||skState!=='countin')return;
+          pulseCircle('sk-pulse',isLast);
+          document.getElementById('sk-status').textContent=idx2<b?'譜面を読んでください':String(b-(idx2-b));
+        },Math.max(0,delay));
+      })((t-ctx.currentTime)*1000,st.idx===lastIdx,st.idx);
+    }
+    t+=st.dt;
+  });
+  var playStart=t,qLen=SK_BARS*b*bi,n=skQs.length;
+  // 本番中も拍ごとにクリックを鳴らす（小節の頭は強く）
+  for(var k=0;k<n*SK_BARS*b;k++) rtgMakeClick(playStart+k*bi,k%b===0);
+  // 判定用（AC軸ms＋補正）と、聴き比べ用（Date軸ms）の期待時刻
+  var comp=inputLatencyComp(),calibDelay=calibGetDelay(),dateOff=Date.now()-ctx.currentTime*1000;
+  skPlay={playStart:playStart,bi:bi,b:b,qLen:qLen,items:[]};
+  skQs.forEach(function(q,qi2){
+    var qs=playStart+qi2*qLen;
+    q.onsets.forEach(function(o){
+      var s=qs+o.t*bi;
+      skPlay.items.push({q:qi2,ac:s*1000+comp,date:dateOff+s*1000+calibDelay,label:o.label,pos:o.pos,bar:o.bar});
+    });
+    q.metDate=[];for(var k2=0;k2<SK_BARS*b;k2++) q.metDate.push(dateOff+(qs+k2*bi)*1000+calibDelay);
+  });
+  var alive=function(){return tok===skToken&&(skState==='countin'||skState==='tapping');};
+  var Q=DS.rhythm.T.QUARTER,secPerTick=bi/(Q*4/TS[skTs].d);
+  // 問ごとに譜面を切り替え、小節ごとに今の位置を出す
+  skQs.forEach(function(q,i){
+    var qs=playStart+i*qLen;
+    setTimeout(function(){
+      if(!alive())return;
+      if(i>0) skShowQuestion(i);
+      kcCursorStart('sk',qs,secPerTick,qLen,alive);
+    },Math.max(0,(qs-ctx.currentTime)*1000-(i>0?20:0)));
+    for(var bar=0;bar<SK_BARS;bar++){
+      (function(bb,delay){
+        setTimeout(function(){if(alive()&&skState==='tapping')document.getElementById('sk-status').textContent=(bb+1)+'小節目';},Math.max(0,delay));
+      })(bar,(qs+bar*b*bi-ctx.currentTime)*1000);
+    }
+  });
+  setTimeout(function(){
+    if(tok!==skToken||skState!=='countin')return;
+    skState='tapping';
+    var p=document.getElementById('sk-pulse');if(p)p.style.visibility='hidden';
+    document.getElementById('sk-tap-btn').classList.remove('inactive');
+    document.getElementById('sk-status').textContent='1小節目';
+  },Math.max(0,(playStart-ctx.currentTime)*1000-30));
+  var endMs=(playStart+n*qLen-ctx.currentTime)*1000+skThresh().gd+150;
+  setTimeout(function(){if(tok===skToken&&skState==='tapping')skShowResult();},Math.max(0,endMs));
+}
+function skTap(){
+  if(!ctx||!skPlay)return;
+  if(skState==='countin'&&skPlay.items.length&&(ctx.currentTime*1000)>=(skPlay.items[0].ac-EARLY_TAP_MS)){
+    skState='tapping';
+    var p=document.getElementById('sk-pulse');if(p)p.style.visibility='hidden';
+    document.getElementById('sk-tap-btn').classList.remove('inactive');
+  }
+  if(skState!=='tapping')return;
+  var btn=document.getElementById('sk-tap-btn');
+  btn.classList.add('tap-flash');setTimeout(function(){btn.classList.remove('tap-flash');},120);
+  skTaps.push(tapAcMsNow());
+}
+document.getElementById('sk-tap-btn').addEventListener('pointerdown',function(e){markTap(e);e.preventDefault();skTap();});
+document.getElementById('sk-start-btn').addEventListener('click',skStart);
+function skBackToIdle(){
+  document.body.classList.remove('focus-sight');
+  var p=document.getElementById('sk-pulse');if(p){p.style.display='none';p.style.visibility='';}
+  document.getElementById('sk-tap-btn').classList.add('inactive');
+  document.getElementById('sk-stop-btn').style.display='none';
+  document.getElementById('sk-start-btn').style.display='block';
+}
+document.getElementById('sk-stop-btn').addEventListener('click',function(){
+  skState='idle';skToken++;
+  if(ctx){try{ctx.close();}catch(e){}ctx=null;}
+  skBackToIdle();
+  skShowIdle(false);
+  scrollToStartBtn('sk-start-btn');
+});
+
+// --- 結果 ---
+function skJudge(){
+  // 叩いた時刻を、近い順にいちばん近い音へ割り当てる。
+  // 割り当てる幅は、となりの音との間の半分まで（細かいリズムで隣の音を取り違えないように）
+  var it=skPlay.items,used=new Array(skTaps.length).fill(false),res=[];
+  for(var j=0;j<it.length;j++){
+    var gap=500;
+    if(j>0) gap=Math.min(gap,(it[j].ac-it[j-1].ac)/2);
+    if(j+1<it.length) gap=Math.min(gap,(it[j+1].ac-it[j].ac)/2);
+    gap=Math.max(gap,skThresh().gd);
+    var best=-1,bd=1e9;
+    for(var i=0;i<skTaps.length;i++){
+      if(used[i])continue;var dd=Math.abs(skTaps[i]-it[j].ac);
+      if(dd<=gap&&dd<bd){bd=dd;best=i;}
+    }
+    if(best>=0){used[best]=true;var df=skTaps[best]-it[j].ac;res.push({miss:false,diff:df,diffAdj:df});}
+    else res.push({miss:true,diff:null});
+  }
+  return res;
+}
+function skPts(r,th){if(r.miss)return 0;var a=Math.abs(r.diffAdj);return a<=th.p?100:a<=th.gr?60:a<=th.gd?20:0;}
+function skGrade(pct){
+  if(pct>=90)return {g:'good',t:'とてもよく読めています'};
+  if(pct>=75)return {g:'good',t:'よく読めています'};
+  if(pct>=55)return {g:'ok',t:'もう少しです'};
+  return {g:'fair',t:'ゆっくりのテンポで試してみましょう'};
+}
+function skShowResult(){
+  skState='done';skBackToIdle();
+  document.getElementById('sk-status').textContent='完了';
+  document.getElementById('sk-next-wrap').style.display='none';
+  var th=skThresh(),res=skJudge(),it=skPlay.items,n=skQs.length;
+  var cnt={p:0,gr:0,gd:0,miss:0},sum=0;
+  res.forEach(function(r){
+    sum+=skPts(r,th);
+    if(r.miss){cnt.miss++;return;}
+    var a=Math.abs(r.diffAdj);
+    if(a<=th.p)cnt.p++;else if(a<=th.gr)cnt.gr++;else if(a<=th.gd)cnt.gd++;else cnt.miss++;
+  });
+  var pct=res.length?Math.round(sum/res.length):0,gr=skGrade(pct);
+  var perQ=[];
+  for(var q=0;q<n;q++) perQ.push({sum:0,cnt:0,miss:0,idx:[]});
+  res.forEach(function(r,i){
+    var Q=perQ[it[i].q];Q.sum+=skPts(r,th);Q.cnt++;Q.idx.push(i);
+    if(r.miss||Math.abs(r.diffAdj)>th.gd)Q.miss++;
+  });
+  var clean=perQ.filter(function(Q){return Q.miss===0;}).length;
+  function card(t,big,sub,cls){return '<div style="flex:1;background:var(--bg);border-radius:var(--r);padding:9px 6px;text-align:center;"><div style="font-size:var(--fs-2xs);color:var(--ink-4);margin-bottom:2px;">'+t+'</div><div class="tr-bpm-diff '+cls+'" style="font-size:var(--fs-2xl);margin-bottom:0;">'+big+'</div><div style="font-size:var(--fs-xs);color:var(--ink-3);">'+sub+'</div></div>';}
+  var counts=[['PERFECT',cnt.p,'var(--green)'],['GREAT',cnt.gr,'var(--blue)'],['GOOD',cnt.gd,'var(--amber)'],['MISS',cnt.miss,'var(--red)']].map(function(c){
+    return '<div style="flex:1;text-align:center;"><div style="font-size:var(--fs-2xs);color:'+c[2]+';font-weight:bold">'+c[0]+'</div><div style="font-size:var(--fs-lg);font-weight:bold;color:var(--ink-2)">'+c[1]+'</div></div>';}).join('');
+  var rows='';
+  perQ.forEach(function(Q,i){
+    var qp=Q.cnt?Math.round(Q.sum/Q.cnt):0,cls=qp>=90?'good':qp>=75?'ok':qp>=55?'fair':'bad';
+    rows+='<div style="display:flex;align-items:center;gap:10px;padding:9px 10px;background:var(--bg);border-radius:var(--r);margin-bottom:6px;">'
+      +'<span style="font-size:var(--fs-sm);color:var(--ink-3);min-width:44px;">'+(i+1)+'問目</span>'
+      +'<span class="tr-bpm-diff '+cls+'" style="font-size:var(--fs-xl);margin:0;">'+qp+'%</span>'
+      +'<span style="font-size:var(--fs-xs);color:var(--ink-4);flex:1;">'+(Q.miss?'ミス'+Q.miss+'回':'ミスなし')+'</span>'
+      +'<button class="sk-open" data-q="'+i+'" style="font-size:var(--fs-xs);color:var(--blue);background:var(--surface);border:1px solid var(--blue);border-radius:var(--r-sm);padding:4px 10px;font-weight:bold;cursor:pointer;">答え合わせ</button></div>'
+      +'<div class="sk-detail" id="sk-detail-'+i+'" style="display:none;border:1px solid var(--line-soft);border-radius:var(--r);padding:8px;margin:-2px 0 8px;background:var(--surface);">'
+      +'<div id="sk-qscore-'+i+'" style="background:var(--score-bg);border-radius:var(--r);padding:6px 4px;overflow-x:auto;"></div>'
+      +'<div style="font-size:var(--fs-2xs);color:var(--ink-4);margin:6px 0;">お手本を聴いたり、自分の叩き方と聴き比べたりして確かめられます。</div>'
+      +'<div style="display:flex;gap:6px;"><button class="demo-btn sk-demo" data-q="'+i+'" style="flex:1">▷ お手本を聴く</button>'
+      +'<button class="sk-cmp" data-q="'+i+'" style="flex:1;padding:8px;border-radius:var(--r);border:1px solid var(--blue);background:var(--surface);color:var(--blue);font-size:var(--fs-sm);font-weight:bold;cursor:pointer;">♪ 聴き比べる</button></div>'
+      +'<div style="font-size:var(--fs-2xs);color:var(--ink-4);text-align:center;margin-top:3px;">左メトロノーム音　右あなた</div></div>';
+  });
+  var el=document.getElementById('sk-result');
+  el.innerHTML='<div class="tr-result-title" style="font-size:var(--fs-sm);color:var(--ink-3);margin-bottom:8px;">結果　<span style="color:var(--ink-4)">'+rtgGenLabel(skStar).split(' ')[0]+'・'+skBpm+' BPM・'+skTs+'・'+n+'問</span></div>'
+    +'<div style="display:flex;gap:8px;margin-bottom:8px;">'+card('正確さ',pct+'%',gr.t,gr.g)+card('ミスなしの問',clean+'問',n+'問中','ok')+'</div>'
+    +'<div style="display:flex;background:var(--bg);border-radius:var(--r);padding:8px 4px;margin-bottom:12px;">'+counts+'</div>'
+    +'<div id="sk-tendency" style="display:none;margin:0 0 12px;padding:9px 11px;background:var(--amber-soft);border-left:3px solid var(--amber);border-radius:var(--r-sm);"></div>'
+    +'<div style="font-size:var(--fs-xs);color:var(--ink-3);font-weight:bold;margin:4px 0 6px;">問ごとの結果</div>'+rows
+    +'<div style="display:flex;flex-direction:column;gap:6px;margin-top:10px;">'
+    +'<button id="sk-again-new" style="width:100%;padding:8px;border-radius:var(--r);border:1px solid var(--amber);background:var(--surface);color:var(--amber);font-size:var(--fs-sm);font-weight:bold;cursor:pointer;">新しい譜面でもう一度</button>'
+    +'<button id="sk-again-same" style="width:100%;padding:8px;border-radius:var(--r);border:1px solid var(--line);background:var(--surface);color:var(--ink-3);font-size:var(--fs-sm);cursor:pointer;">同じ譜面でもう一度</button></div>';
+  renderTendency('sk-tendency',analyzeTendency(res,it.map(function(o){return {label:o.label,pos:o.pos};}),th));
+  el.classList.add('on');
+  skLast={res:res,perQ:perQ};
+  // 答え合わせを開く／閉じる
+  el.querySelectorAll('.sk-open').forEach(function(b){
+    b.addEventListener('click',function(){
+      var i=+this.dataset.q,dt=document.getElementById('sk-detail-'+i),open=dt.style.display==='none';
+      dt.style.display=open?'block':'none';this.textContent=open?'閉じる':'答え合わせ';
+      if(open) skDraw('skq'+i,'sk-qscore-'+i,skQs[i]);
+    });
+  });
+  el.querySelectorAll('.sk-demo').forEach(function(b){b.addEventListener('click',function(){skListen(+this.dataset.q,false);});});
+  el.querySelectorAll('.sk-cmp').forEach(function(b){b.addEventListener('click',function(){skListen(+this.dataset.q,true);});});
+  document.getElementById('sk-again-new').addEventListener('click',function(){skAgain(true);});
+  document.getElementById('sk-again-same').addEventListener('click',function(){skAgain(false);});
+  document.getElementById('sk-qno').textContent='結果';
+  document.getElementById('sk-qinfo').style.display='none';
+  skDraw('sk','sk-score',null);document.getElementById('sk-score').style.display='none';document.getElementById('sk-qhead').style.display='none';
+  setTimeout(function(){el.scrollIntoView({behavior:'smooth',block:'start'});},80);
+}
+var skLast=null;
+// 答え合わせの音：お手本（正しいリズム）か、自分の叩き方との聴き比べ
+function skListen(i,mine){
+  if(!skLast)return;
+  var it=skPlay.items,idx=skLast.perQ[i].idx,q=skQs[i];
+  var exp=idx.map(function(k){return it[k].date;});
+  replayData={bpm:skBpm,metExpectedMs:q.metDate,expectedMs:exp,
+    diffAdjs:idx.map(function(k){var r=skLast.res[k];return r.miss?null:r.diffAdj;}),
+    misses:idx.map(function(k){return skLast.res[k].miss;}),
+    tapSiArr:exp.map(function(ms){return {ms:ms};})};
+  if(mine) replayPlay(true); else replayPlayMetOnTap();
+}
+function skAgain(fresh){
+  stopReplay();
+  document.getElementById('sk-result').classList.remove('on');
+  document.getElementById('sk-score').style.display='';document.getElementById('sk-qhead').style.display='';
+  if(fresh) skQs=[skMakeQuestion()];
+  skState='idle';
+  if(skPrev==='self'){
+    // 自分でスタート：1問目を見せて、スタートを待つ
+    document.getElementById('sk-qno').textContent='1問目';
+    skDraw('sk','sk-score',skQs[0]);skSyncSetup();
+    document.getElementById('sk-status').textContent='譜面を見て、準備ができたらスタート';
+    scrollToStartBtn('sk-start-btn');
+  } else skStart();
+}
+skSyncSetup();
+
 drumApply(); // 起動時に音符モードに合わせたドラムとグリッドを出す
 setVaImage('metro'); // 初期表示はメトロノームタブ
 
@@ -5610,6 +6072,7 @@ function prefSave(){
         ciDiv:ciDiv, ciLastOnly:ciLastOnly,
         trBpm:trBpm, trTs:trTs,
         tkSub:tkSub, tkSound:tkSound, tkClick:tkClick, tkBars:tkBars,
+        skBpm:skBpm, skTs:skTs, skStar:skStar, skPrev:skPrev, skCount:skCount, skOni:skOni, skCiDiv:skCiDiv,
         rtgBpm:rtgBpm, rtgTs:rtgTs, rtgResMode:rtgResMode, rtgGridMeasures:rtgGridMeasures,
         rtgGenMeasures:rtgGenMeasures,
         rtgPattern:rtgPattern, rtgBeatModes:rtgBeatModes,
@@ -5626,14 +6089,15 @@ function prefWire(){
   ['[data-click]','.mb[data-mode]','.ts-modal-btn','.db','[data-ci]','[data-edts]',
    '[data-tts]','[data-rtgts]','[data-div]','[data-measures]','[data-cid]',
    '[data-rtgcid]','[data-gmcid]','[data-genmeas]',
-   '[data-tksub]','[data-tksnd]','[data-tkclk]','[data-tkbars]'].forEach(function(sel){
+   '[data-tksub]','[data-tksnd]','[data-tkclk]','[data-tkbars]',
+   '[data-skts]','[data-skprev]','[data-skcount]','[data-skcid]','#sk-judge-normal','#sk-judge-oni'].forEach(function(sel){
     document.querySelectorAll(sel).forEach(function(b){b.addEventListener('click',prefSave);});
   });
   ['tap','tr-tap-tempo','rtg-tap-tempo','gm-tap-tempo','eapp','erst',
    'rtg-clear-btn','rtg-gen-go','agrid','etbl','rtg-table'].forEach(function(id){
     var e=document.getElementById(id);if(e)e.addEventListener('click',prefSave);
   });
-  ['bs','tr-bpm-slider','rtg-bpm-slider','gm-bpm-slider'].forEach(function(id){
+  ['bs','tr-bpm-slider','rtg-bpm-slider','gm-bpm-slider','sk-bpm-slider'].forEach(function(id){
     var e=document.getElementById(id);if(e)e.addEventListener('input',prefSave);
   });
   var ce=document.getElementById('calib-enable');if(ce)ce.addEventListener('change',prefSave);
@@ -5692,6 +6156,13 @@ function prefRestore(){
   if(p.tkClick) press('[data-tkclk="'+p.tkClick+'"]');
   if(p.tkBars) press('[data-tkbars="'+p.tkBars+'"]');
   if(p.tkSub) press('[data-tksub="'+p.tkSub+'"]');
+  if(p.skTs) press('[data-skts="'+p.skTs+'"]');
+  if(p.skPrev) press('[data-skprev="'+p.skPrev+'"]');
+  if(p.skCount) press('[data-skcount="'+p.skCount+'"]');
+  if(p.skCiDiv) press('[data-skcid="'+p.skCiDiv+'"]');
+  if(p.skOni) press('#sk-judge-oni');
+  if(p.skBpm){skBpm=p.skBpm;document.getElementById('sk-bpm-slider').value=skBpm;document.getElementById('sk-bpm-disp').textContent=skBpm;}
+  if(p.skStar){skStar=rtgGenClampStar(p.skStar);document.getElementById('sk-star').value=skStar;skQs=[];skSyncSetup();}
 
   // --- アドバンス ---
   if(p.rtgTs&&TS[p.rtgTs]) press('[data-rtgts="'+p.rtgTs+'"]');
