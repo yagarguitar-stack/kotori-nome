@@ -400,6 +400,14 @@ body.focus-game #gm-tap-btn{display:block}
   </div>
   <!-- 体感テンポ -->
   <div class="tr-panel on" id="tr-panel-tempo">
+  <div id="tk-mode-wrap">
+    <div class="sl" style="margin-bottom:4px;">モード</div>
+    <div style="display:flex;gap:6px;margin-bottom:4px;">
+      <button class="tb on" data-tksub="jump" style="flex:1;min-height:40px;">ショート</button>
+      <button class="tb" data-tksub="keep" style="flex:1;min-height:40px;">ロング</button>
+    </div>
+    <div id="tk-sub-note" style="font-size:var(--fs-xs);color:var(--ink-4);margin-bottom:12px;line-height:1.6;"></div>
+  </div>
   <div class="tr-settings" style="width:100%;margin-bottom:12px;">
     <div class="sl" style="margin-bottom:4px;">テンポ</div>
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
@@ -416,6 +424,34 @@ body.focus-game #gm-tap-btn{display:block}
       <button class="tb" data-tts="6/8" style="flex:1;min-height:40px;">6/8</button>
       <button class="tb" data-tts="7/8" style="flex:1;min-height:40px;">7/8</button>
     </div>
+  </div>
+  <div id="tk-opts" style="display:none;">
+    <div class="sl" style="margin-bottom:4px;">合わせる音</div>
+    <div style="display:flex;gap:6px;margin-bottom:12px;">
+      <button class="tb on" data-tksnd="met" style="flex:1;min-height:40px;">メトロノーム</button>
+      <button class="tb" data-tksnd="drum" style="flex:1;min-height:40px;">ドラム</button>
+    </div>
+    <div id="tk-snd-note" style="display:none;font-size:var(--fs-xs);color:var(--ink-4);margin:-8px 0 12px;line-height:1.6;"></div>
+    <div class="sl" style="margin-bottom:4px;" id="tk-clk-label">クリック</div>
+    <div style="display:flex;gap:6px;margin-bottom:4px;">
+      <button class="tb" data-tkclk="always" style="flex:1;min-height:40px;">ずっと鳴らす</button>
+      <button class="tb" data-tkclk="first" style="flex:1;min-height:40px;">最初だけ</button>
+      <button class="tb on" data-tkclk="alt" style="flex:1;min-height:40px;">鳴る・消えるを交互</button>
+    </div>
+    <div id="tk-clk-note" style="font-size:var(--fs-xs);color:var(--ink-4);margin-bottom:12px;line-height:1.6;"></div>
+    <div class="sl" style="margin-bottom:4px;">小節数</div>
+    <div style="display:flex;gap:6px;margin-bottom:12px;">
+      <button class="tb" data-tkbars="4" style="flex:1;min-height:40px;">4小節</button>
+      <button class="tb on" data-tkbars="8" style="flex:1;min-height:40px;">8小節</button>
+      <button class="tb" data-tkbars="16" style="flex:1;min-height:40px;">16小節</button>
+    </div>
+  </div>
+  <div class="tr-howto" id="tk-howto" style="display:none;background:var(--surface-2);border:1px solid var(--line-soft);border-radius:var(--r-lg);padding:12px;margin-bottom:12px;font-size:var(--fs-sm);color:var(--ink-3);line-height:1.7;">
+    <div style="font-weight:bold;color:var(--ink-4);margin-bottom:4px;letter-spacing:.05em;">遊び方 <span style="font-weight:normal;font-size:var(--fs-sm);">何小節も叩き続けて、ズレの平均や癖を調べるモードです</span></div>
+    1. テンポ・拍子・鳴らし方・小節数を設定<br>
+    2. スタートを押す<br>
+    3. 2小節のカウントインのあと、4分音符を叩き続ける<br>
+    4. 最後の小節が終わると結果が出ます
   </div>
   <div class="tr-howto" style="background:var(--surface-2);border:1px solid var(--line-soft);border-radius:var(--r-lg);padding:12px;margin-bottom:12px;font-size:var(--fs-sm);color:var(--ink-3);line-height:1.7;">
     <div style="font-weight:bold;color:var(--ink-4);margin-bottom:4px;letter-spacing:.05em;">遊び方 <span style="font-weight:normal;font-size:var(--fs-sm);">カウントインから曲に入る時にテンポがズレないように練習できるモードです</span></div>
@@ -462,6 +498,14 @@ body.focus-game #gm-tap-btn{display:block}
       <button id="tr-retry2-btn" style="width:100%;padding:8px;border-radius:var(--r);border:1px solid var(--amber);background:var(--surface);color:var(--amber);font-size:var(--fs-sm);font-weight:bold;cursor:pointer;">もう一度</button>
     </div>
   </div>
+  <div class="tr-result" id="tk-result">
+    <div id="tk-body"></div>
+    <div style="display:flex;flex-direction:column;gap:6px;margin-top:12px;">
+      <button id="tk-replay" style="width:100%;padding:8px;border-radius:var(--r);border:1px solid var(--blue);background:var(--surface);color:var(--blue);font-size:var(--fs-sm);font-weight:bold;cursor:pointer;">♪ 聴き比べる</button>
+      <div style="font-size:var(--fs-2xs);color:var(--ink-4);text-align:center;margin-bottom:2px;">左メトロノーム音　右あなた</div>
+      <button id="tk-retry" style="width:100%;padding:8px;border-radius:var(--r);border:1px solid var(--amber);background:var(--surface);color:var(--amber);font-size:var(--fs-sm);font-weight:bold;cursor:pointer;">もう一度</button>
+    </div>
+  </div>
   </div>
 
   <!-- アドバンス -->
@@ -490,21 +534,6 @@ body.focus-game #gm-tap-btn{display:block}
       <button class="tb" data-rtgts="6/8" style="flex:1;min-height:36px;">6/8</button>
       <button class="tb" data-rtgts="7/8" style="flex:1;min-height:36px;">7/8</button>
     </div>
-    <div class="sl" style="margin-bottom:4px;">分割単位</div>
-    <div class="rtg-div-row" style="margin-bottom:5px;">
-      <button class="rtg-div-btn" data-div="1">4分</button>
-      <button class="rtg-div-btn on" data-div="2">8分</button>
-      <button class="rtg-div-btn" data-div="4">16分</button>
-      <button class="rtg-div-btn" data-div="8">32分</button>
-    </div>
-    <div class="rtg-div-row">
-      <button class="rtg-div-btn" data-div="3">3連</button>
-      <button class="rtg-div-btn" data-div="5">5連</button>
-      <button class="rtg-div-btn" data-div="6">6連</button>
-      <button class="rtg-div-btn" data-div="d3" id="rtg-div-d3">2拍3連</button>
-    </div>
-    <div style="font-size:var(--fs-2xs);color:var(--ink-4);margin-bottom:8px;">グリッドの拍番号をタップすると、その拍だけ選択中の分割に変わります（混合リズム）</div>
-    <div style="font-size:var(--fs-2xs);color:var(--ink-4);margin-bottom:8px;">マスはタップで切り替え、なぞると続けてONになります。消すときはタップか「入力リセット」で</div>
     <div class="sl" style="margin-bottom:4px;">パターン長</div>
     <div class="rtg-div-row" style="margin-bottom:8px;">
       <button class="rtg-div-btn on" data-measures="1">1小節</button>
@@ -513,22 +542,6 @@ body.focus-game #gm-tap-btn{display:block}
       <button class="rtg-div-btn" data-measures="4">4小節</button>
     </div>
     <div style="font-size:var(--fs-2xs);color:var(--ink-4);margin-bottom:8px;">1小節のときだけ、同じ小節を2回演奏します</div>
-    <div class="sl" style="margin-bottom:4px;">カウントインの刻み</div>
-    <div class="rtg-div-row" style="margin-bottom:6px;">
-      <button class="rtg-div-btn on" data-rtgcid="1">4分</button>
-      <button class="rtg-div-btn" data-rtgcid="2">8分</button>
-      <button class="rtg-div-btn" data-rtgcid="4">16分</button>
-      <button class="rtg-div-btn" data-rtgcid="8">32分</button>
-    </div>
-    <div class="rtg-div-row" style="margin-bottom:6px;">
-      <button class="rtg-div-btn" data-rtgcid="3">3連</button>
-      <button class="rtg-div-btn" data-rtgcid="5">5連</button>
-      <button class="rtg-div-btn" data-rtgcid="6">6連</button>
-    </div>
-    <label id="rtg-ci-last-wrap" style="display:flex;align-items:center;gap:6px;margin-bottom:8px;font-size:var(--fs-sm);color:var(--ink-3);cursor:pointer;">
-      <input type="checkbox" id="rtg-ci-last-only">
-      <span>最後の小節だけ刻む</span>
-    </label>
     <button id="rtg-gen-tog" class="atog" style="margin-bottom:6px;"><span>🎲 おまかせ生成（ランダム出題）</span><span id="rtg-gen-arr">▷</span></button>
     <div id="rtg-gen-pan" style="display:none;background:var(--surface-2);border:1px solid var(--line-soft);border-radius:var(--r);padding:10px;margin-bottom:8px;">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
@@ -558,12 +571,27 @@ body.focus-game #gm-tap-btn{display:block}
       </div>
       <button id="rtg-gen-go" style="width:100%;margin-top:8px;padding:10px;border-radius:var(--r);border:none;background:var(--amber);color:var(--ink);font-size:var(--fs-lg);font-weight:bold;cursor:pointer;">🎲 この難易度で生成</button>
     </div>
+    <div class="sl" style="margin-bottom:4px;">分割単位</div>
+    <div class="rtg-div-row" style="margin-bottom:5px;">
+      <button class="rtg-div-btn" data-div="1">4分</button>
+      <button class="rtg-div-btn on" data-div="2">8分</button>
+      <button class="rtg-div-btn" data-div="4">16分</button>
+      <button class="rtg-div-btn" data-div="8">32分</button>
+    </div>
+    <div class="rtg-div-row">
+      <button class="rtg-div-btn" data-div="3">3連</button>
+      <button class="rtg-div-btn" data-div="5">5連</button>
+      <button class="rtg-div-btn" data-div="6">6連</button>
+      <button class="rtg-div-btn" data-div="d3" id="rtg-div-d3">2拍3連</button>
+    </div>
     <div class="rtg-legend" style="align-items:center;">
       <div class="rtg-leg"><div class="rtg-dot" style="background:var(--amber)"></div>MET（メトロノーム）</div>
       <div class="rtg-leg"><div class="rtg-dot" style="background:var(--blue)"></div>TAP（自分）</div>
       <button id="rtg-clear-btn" style="margin-left:auto;font-size:var(--fs-xs);color:var(--ink-4);background:none;border:1px solid var(--line-soft);border-radius:var(--r-sm);padding:2px 8px;cursor:pointer;min-height:28px;">入力リセット</button>
     </div>
     <div class="rtg-grid-wrap"><div id="rtg-table"></div></div>
+    <div style="font-size:var(--fs-2xs);color:var(--ink-4);margin:6px 0 8px;">グリッドの拍番号をタップすると、その拍だけ選択中の分割に変わります（混合リズム）</div>
+    <div style="font-size:var(--fs-2xs);color:var(--ink-4);margin-bottom:8px;">マスはタップで切り替え、なぞると続けてONになります。消すときはタップか「入力リセット」で</div>
     <div id="rtg-score-head" class="focus-keep" style="display:flex;align-items:center;margin:8px 0 2px;">
       <span style="font-size:var(--fs-2xs);color:var(--ink-4);font-weight:bold;">リズム譜（TAP）</span>
       <button id="rtg-score-toggle" class="score-toggle" style="margin-left:auto;">譜面を隠す</button>
@@ -579,6 +607,23 @@ body.focus-game #gm-tap-btn{display:block}
       </div>
       <div id="rtg-judge-desc" style="font-size:var(--fs-xs);color:var(--ink-4);margin-top:4px;line-height:1.7;">PERFECT ±41ms　GREAT ±83ms　GOOD ±108ms</div>
     </div>
+    <div class="sl" style="margin-bottom:4px;">カウントインの刻み</div>
+    <div class="rtg-div-row" style="margin-bottom:6px;">
+      <button class="rtg-div-btn on" data-rtgcid="1">4分</button>
+      <button class="rtg-div-btn" data-rtgcid="2">8分</button>
+      <button class="rtg-div-btn" data-rtgcid="4">16分</button>
+      <button class="rtg-div-btn" data-rtgcid="8">32分</button>
+    </div>
+    <div class="rtg-div-row" style="margin-bottom:6px;">
+      <button class="rtg-div-btn" data-rtgcid="3">3連</button>
+      <button class="rtg-div-btn" data-rtgcid="5">5連</button>
+      <button class="rtg-div-btn" data-rtgcid="6">6連</button>
+      <div style="flex:1;visibility:hidden;"></div>
+    </div>
+    <label id="rtg-ci-last-wrap" style="display:flex;align-items:center;gap:6px;margin-bottom:8px;font-size:var(--fs-sm);color:var(--ink-3);cursor:pointer;">
+      <input type="checkbox" id="rtg-ci-last-only">
+      <span>最後の小節だけ刻む</span>
+    </label>
     <div id="rtg-pulse" class="focus-keep" style="width:60px;height:60px;border-radius:50%;background:var(--pulse);margin:12px auto;opacity:.3;transform:scale(.85);display:none;"></div>
     <div class="rtg-status focus-keep" id="rtg-status">パターンを作ってスタート</div>
     <div class="focus-keep" style="display:flex;gap:8px;">
@@ -628,22 +673,6 @@ body.focus-game #gm-tap-btn{display:block}
       <input type="range" id="gm-bpm-slider" min="30" max="240" value="120" style="-webkit-appearance:none;flex:1;height:6px;border-radius:var(--r-sm);background:var(--line);outline:none;">
       <button id="gm-tap-tempo" style="padding:6px 12px;border-radius:var(--r);border:1px solid var(--amber);background:var(--surface);color:var(--amber);font-size:var(--fs-sm);font-weight:bold;cursor:pointer;white-space:nowrap;">TAP</button>
     </div>
-    <div class="sl" style="margin-bottom:4px;">カウントインの刻み</div>
-    <div class="rtg-div-row" style="margin-bottom:6px;">
-      <button class="rtg-div-btn on" data-gmcid="1">4分</button>
-      <button class="rtg-div-btn" data-gmcid="2">8分</button>
-      <button class="rtg-div-btn" data-gmcid="4">16分</button>
-      <button class="rtg-div-btn" data-gmcid="8">32分</button>
-    </div>
-    <div class="rtg-div-row" style="margin-bottom:6px;">
-      <button class="rtg-div-btn" data-gmcid="3">3連</button>
-      <button class="rtg-div-btn" data-gmcid="5">5連</button>
-      <button class="rtg-div-btn" data-gmcid="6">6連</button>
-    </div>
-    <label id="gm-ci-last-wrap" style="display:flex;align-items:center;gap:6px;margin-bottom:8px;font-size:var(--fs-sm);color:var(--ink-3);cursor:pointer;">
-      <input type="checkbox" id="gm-ci-last-only">
-      <span>最後の小節だけ刻む</span>
-    </label>
     <div style="margin-bottom:4px;font-size:var(--fs-xs);color:var(--ink-4);">通常判定</div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:8px;">
       <div style="background:var(--green-soft);border:1px solid var(--green);border-radius:var(--r);padding:8px 4px;text-align:center;">
@@ -715,6 +744,23 @@ body.focus-game #gm-tap-btn{display:block}
     <div id="gm-score" class="focus-keep" style="background:var(--score-bg);border-radius:var(--r);padding:6px 4px;overflow-x:auto;"></div>
     <button id="gm-demo-btn" class="demo-btn" style="margin-top:8px;">&#9655; お手本を聴く</button>
     <div class="demo-note">押すとすぐに、メトロノーム音とお手本のタップ音が鳴ります</div>
+    <div class="sl" style="margin-bottom:4px;">カウントインの刻み</div>
+    <div class="rtg-div-row" style="margin-bottom:6px;">
+      <button class="rtg-div-btn on" data-gmcid="1">4分</button>
+      <button class="rtg-div-btn" data-gmcid="2">8分</button>
+      <button class="rtg-div-btn" data-gmcid="4">16分</button>
+      <button class="rtg-div-btn" data-gmcid="8">32分</button>
+    </div>
+    <div class="rtg-div-row" style="margin-bottom:6px;">
+      <button class="rtg-div-btn" data-gmcid="3">3連</button>
+      <button class="rtg-div-btn" data-gmcid="5">5連</button>
+      <button class="rtg-div-btn" data-gmcid="6">6連</button>
+      <div style="flex:1;visibility:hidden;"></div>
+    </div>
+    <label id="gm-ci-last-wrap" style="display:flex;align-items:center;gap:6px;margin-bottom:8px;font-size:var(--fs-sm);color:var(--ink-3);cursor:pointer;">
+      <input type="checkbox" id="gm-ci-last-only">
+      <span>最後の小節だけ刻む</span>
+    </label>
     <div id="gm-pulse" class="focus-keep" style="width:60px;height:60px;border-radius:50%;background:var(--pulse);margin:12px auto;opacity:.3;transform:scale(.85);display:none;"></div>
     <div class="rtg-status focus-keep" id="gm-status">レベルを選択してスタート</div>
     <div class="focus-keep" style="display:flex;gap:8px;">
@@ -757,7 +803,9 @@ body.focus-tempo .tab-bar,
 body.focus-tempo .tr-mode-bar,
 body.focus-tempo #app-credit,
 body.focus-tempo #tr-panel-tempo .tr-settings,
-body.focus-tempo #tr-panel-tempo .tr-howto{display:none!important}
+body.focus-tempo #tr-panel-tempo .tr-howto,
+body.focus-tempo #tk-mode-wrap,
+body.focus-tempo #tk-opts{display:none!important}
 /* 演奏ゾーンを大きく中央に */
 /* 文言が変わっても（カウントイン→TAP）高さが動かないよう、min-heightではなくheightで固定する */
 body.focus-tempo #tr-status{font-size:var(--fs-2xl);color:var(--amber);font-weight:bold;height:2.8em;min-height:0;margin-bottom:20px;overflow:hidden}
@@ -3364,6 +3412,7 @@ function pulseCircle(pulseId,isLast){
 function trPulse(isLast){pulseCircle('tr-pulse',isLast);}
 
 function trDoStart(){
+  if(tkSub==='keep'){tkDoStart();return;} // 「ロング」は別の手順
   trState='countin';trTaps=[];trTapDiffs=[];var myToken=++trToken;
   document.getElementById('tr-result').classList.remove('on');
   document.getElementById('tr-tap-btn').classList.add('inactive');
@@ -3424,6 +3473,7 @@ function markTap(e){tapAgoMs=(e&&e.timeStamp&&window.performance)?Math.min(100,M
 function tapAcMsNow(){return ctx.currentTime*1000-tapAgoMs;}
 function trTap(){
   if(!ctx) return;
+  if(tkSub==='keep'){tkTap();return;}
   // 本番中でなくても、開始直前(200ms以内)なら受け付けて本番へ移行する
   if(trState==='countin' && trTapOriginAC>0 && (ctx.currentTime*1000) >= (trTapOriginAC-EARLY_TAP_MS)){
     trState='tapping'; // 予約より早く本番入り。以降は通常処理
@@ -3514,6 +3564,344 @@ function trShowResult(){
     if(rp) rp.scrollIntoView({behavior:'smooth',block:'start'});
   },80);
 }
+
+// ===== 体感テンポ「ロング」モード =====
+// 何小節も4分音符を叩き続け、ズレの平均・ばらつき・テンポの流れ・拍ごとの癖を出す。
+// ズレの向きは「＋＝早い（走り）・−＝遅い（もたり）」で表示する。
+var tkSub='jump',tkSound='met',tkClick='alt',tkBars=8;
+var tkDiffs=[],tkTotal=0,tkBeats=4,tkBi=500;
+var TK_CLK_NOTE={
+  always:'最後まで{s}が鳴ります。{s}に合わせる力を見ます。',
+  first:'カウントインのあとは鳴りません。体の中のテンポを見ます。',
+  alt:'1小節鳴って1小節消える、をくり返します。消えている間もテンポを保てるかを見ます。'
+};
+// この小節（0始まり）で音を鳴らすか
+function tkOn(bar){
+  if(tkClick==='always') return true;
+  if(tkClick==='first') return false;
+  return bar%2===0; // 1小節鳴って1小節消える
+}
+function tkSndWord(){return tkSound==='drum'?'ドラム':'クリック';}
+// 設定欄の表示を今の選択に合わせる
+function tkSync(){
+  var keep=(tkSub==='keep');
+  document.getElementById('tk-sub-note').textContent=keep
+    ?'決めた小節数のあいだ叩き続けて、ズレの平均や癖を調べます。'
+    :'カウントインのあとクリックが止まります。1小節だけ叩いて、テンポを保てたかを確かめます。';
+  document.getElementById('tk-opts').style.display=keep?'block':'none';
+  document.getElementById('tk-howto').style.display=keep?'block':'none';
+  var jh=document.querySelector('#tr-panel-tempo .tr-howto:not(#tk-howto)');
+  if(jh) jh.style.display=keep?'none':'';
+  var sn=document.getElementById('tk-snd-note');
+  sn.style.display=tkSound==='drum'?'block':'none';
+  sn.textContent=tkSound==='drum'?'メトロノームの画面で作ったドラムの型（いまは「'+(DRUM_NAME[dpat]||'8ビート')+'」）で鳴ります。':'';
+  document.getElementById('tk-clk-label').textContent=tkSound==='drum'?'ドラムの鳴らし方':'クリック';
+  document.getElementById('tk-clk-note').textContent=TK_CLK_NOTE[tkClick].replace(/\{s\}/g,tkSndWord());
+}
+function tkPick(attr,cb){
+  document.querySelectorAll('['+attr+']').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      document.querySelectorAll('['+attr+']').forEach(function(x){x.classList.toggle('on',x===btn);});
+      cb(btn.getAttribute(attr));
+      tkSync();
+    });
+  });
+}
+tkPick('data-tksub',function(v){
+  tkSub=v;
+  document.getElementById('tr-result').classList.remove('on');
+  document.getElementById('tk-result').classList.remove('on');
+});
+tkPick('data-tksnd',function(v){tkSound=v;});
+tkPick('data-tkclk',function(v){tkClick=v;});
+tkPick('data-tkbars',function(v){tkBars=parseInt(v,10);});
+tkSync();
+
+function tkDoStart(){
+  trState='countin';var myToken=++trToken;
+  document.getElementById('tr-result').classList.remove('on');
+  document.getElementById('tk-result').classList.remove('on');
+  document.getElementById('tr-tap-btn').classList.add('inactive');
+  document.getElementById('tr-start-btn').style.display='none';
+  document.getElementById('tr-stop-btn').style.display='block';
+  var pulseEl=document.getElementById('tr-pulse');
+  if(pulseEl){pulseEl.style.display='block';pulseEl.style.visibility='visible';pulseEl.style.transform='scale(.85)';pulseEl.style.opacity='.3';pulseEl.style.background='#8aa0b5';}
+
+  var bi=(60/trBpm)*(4/TS[trTs].d);
+  var b=TS[trTs].b;
+  var t=ctx.currentTime+0.1;
+  // カウントイン2小節（「ショート」と同じ）
+  for(var i=0;i<b*2;i++){
+    rtgMakeClick(t,i%b===0);
+    (function(delay,isLast){
+      setTimeout(function(){if(trToken===myToken) trPulse(isLast);},Math.max(0,delay));
+    })((t-ctx.currentTime)*1000,i===b*2-1);
+    (function(idx2,b2,delay){
+      setTimeout(function(){
+        if(trState==='countin'&&trToken===myToken){
+          if(idx2<b2) document.getElementById('tr-status').textContent='呼吸を整えて準備してください';
+          else document.getElementById('tr-status').textContent=String(b2-(idx2-b2));
+        }
+      },Math.max(0,delay));
+    })(i,b,(t-ctx.currentTime)*1000);
+    t+=bi;
+  }
+  var t0=t;
+  tkBeats=b; tkTotal=b*tkBars; tkBi=bi*1000;
+  tkDiffs=[]; for(var n=0;n<tkTotal;n++) tkDiffs.push(null);
+  trTapOriginAC=t0*1000;
+  trTapOriginMs=Date.now()+(t0-ctx.currentTime)*1000;
+
+  // 叩いている間の音を、先にまとめて予約する（止めるときは ctx ごと閉じる）
+  var p=(tkSound==='drum')?CP[dpat]:null;
+  for(var bar=0;bar<tkBars;bar++){
+    if(!tkOn(bar)) continue;
+    for(var k=0;k<b;k++){
+      var tb=t0+(bar*b+k)*bi;
+      if(!p){ rtgMakeClick(tb,k===0); continue; }
+      var dv=p.div||1;
+      for(var sb=0;sb<dv;sb++){
+        var st=(k*dv+sb)%p.steps, tt=tb+sb*bi/dv;
+        if(p.HH&&p.HH[st]) mdrm(tt,'hh');
+        if(p.SN&&p.SN[st]) mdrm(tt,'sn');
+        if(p.BD&&p.BD[st]) mdrm(tt,'bd');
+        if(p.CR&&p.CR[st]) mdrm(tt,'cr');
+        if(p.RD&&p.RD[st]) mdrm(tt,'rd');
+      }
+    }
+  }
+  // 小節ごとに、今どこかを表示する
+  for(var bar2=0;bar2<tkBars;bar2++){
+    (function(bb,delay){
+      setTimeout(function(){
+        if(trToken!==myToken||trState!=='tapping') return;
+        document.getElementById('tr-status').textContent=(bb+1)+' / '+tkBars+' 小節'+(tkOn(bb)?'':'（音なし）');
+      },Math.max(0,delay));
+    })(bar2,(t0+bar2*b*bi-ctx.currentTime)*1000);
+  }
+  // 本番に入る
+  setTimeout(function(){
+    if(trState!=='countin'||trToken!==myToken) return;
+    trState='tapping';
+    var pe=document.getElementById('tr-pulse');if(pe){pe.style.visibility='hidden';}
+    document.getElementById('tr-tap-btn').classList.remove('inactive');
+    document.getElementById('tr-status').textContent='1 / '+tkBars+' 小節'+(tkOn(0)?'':'（音なし）');
+  },Math.max(0,(t0-ctx.currentTime)*1000-30));
+  // 最後の拍から半拍ぶん待って終える
+  setTimeout(function(){
+    if(trToken!==myToken||(trState!=='tapping'&&trState!=='countin')) return;
+    trState='done';tkShowResult();
+  },Math.max(0,(t0+(tkTotal-0.5)*bi-ctx.currentTime)*1000+tkBi));
+}
+
+// 叩いた時刻を、いちばん近い拍に割り当てる（叩き漏れがあっても後ろがずれない）
+function tkTap(){
+  if(trState==='countin'&&trTapOriginAC>0&&(ctx.currentTime*1000)>=(trTapOriginAC-EARLY_TAP_MS)){
+    trState='tapping';
+    var pe0=document.getElementById('tr-pulse');if(pe0){pe0.style.visibility='hidden';}
+    var tb0=document.getElementById('tr-tap-btn');if(tb0) tb0.classList.remove('inactive');
+  }
+  if(trState!=='tapping') return;
+  var btn=document.getElementById('tr-tap-btn');
+  btn.classList.add('tap-flash');
+  setTimeout(function(){btn.classList.remove('tap-flash');},120);
+  var tapAc=tapAcMsNow()-inputLatencyComp();
+  var idx=Math.round((tapAc-trTapOriginAC)/tkBi);
+  if(idx<0||idx>=tkTotal) return;
+  var diff=tapAc-(trTapOriginAC+idx*tkBi);
+  // 同じ拍に2回叩いたときは、拍に近いほうを残す
+  if(tkDiffs[idx]==null||Math.abs(diff)<Math.abs(tkDiffs[idx])) tkDiffs[idx]=diff;
+}
+
+// --- 集計の道具 ---
+function tkMean(a){return a.length?a.reduce(function(x,y){return x+y;},0)/a.length:null;}
+function tkFmt(v){v=Math.round(v);return (v>0?'+':'')+v+'ms';}
+function tkAvgGrade(v){
+  var a=Math.abs(v),dir=v>0?'走り':'もたり';
+  if(a<=10) return {g:'good',t:'ぴったり'};
+  if(a<=25) return {g:'ok',t:'少し'+dir+'ぎみ'};
+  if(a<=50) return {g:'fair',t:dir+'ぎみ'};
+  return {g:'bad',t:'かなり'+(v>0?'走っています':'もたっています')};
+}
+function tkSdGrade(v){
+  if(v<=15) return {g:'good',t:'とても安定'};
+  if(v<=30) return {g:'ok',t:'まずまず安定'};
+  if(v<=50) return {g:'fair',t:'ややばらつく'};
+  return {g:'bad',t:'ばらつきが大きい'};
+}
+function tkCard(title,big,sub,cls){
+  return '<div style="flex:1;background:var(--bg);border-radius:var(--r);padding:9px 6px;text-align:center;">'
+    +'<div style="font-size:var(--fs-2xs);color:var(--ink-4);margin-bottom:2px;">'+title+'</div>'
+    +'<div class="tr-bpm-diff '+(cls||'')+'" style="font-size:var(--fs-2xl);margin-bottom:0;">'+big+'</div>'
+    +'<div style="font-size:var(--fs-xs);color:var(--ink-3);">'+sub+'</div></div>';
+}
+function tkSec(t,note){
+  return '<div style="font-size:var(--fs-xs);color:var(--ink-3);font-weight:bold;margin:14px 0 4px;letter-spacing:.04em;">'+t
+    +'<span style="font-weight:normal;color:var(--ink-4);margin-left:6px;">'+note+'</span></div>';
+}
+
+// テンポの流れ（小節ごとの実際のテンポ）
+function tkFlowSvg(barBpm,shade){
+  var W=340,H=120,x0=34,top=8,h=H-28,n=barBpm.length,w=(W-x0-8)/n;
+  var mx=0;barBpm.forEach(function(v){if(v!=null)mx=Math.max(mx,Math.abs(v-trBpm));});
+  var r=Math.max(2,Math.ceil(mx+0.5)),step=r<=3?1:r<=6?2:r<=15?5:10;
+  r=Math.ceil(r/step)*step;
+  var lo=trBpm-r,hi=trBpm+r,y=function(v){return top+h-(v-lo)/(hi-lo)*h;};
+  var s='<svg viewBox="0 0 '+W+' '+H+'" width="100%" style="display:block">';
+  if(shade) for(var b=0;b<n;b++) if(!tkOn(b)) s+='<rect x="'+(x0+b*w).toFixed(1)+'" y="'+top+'" width="'+(w+0.5).toFixed(1)+'" height="'+h+'" fill="var(--surface-3)"/>';
+  for(var v=lo+step;v<hi;v+=step){
+    var main=(v===trBpm);
+    s+='<line x1="'+x0+'" x2="'+(W-8)+'" y1="'+y(v).toFixed(1)+'" y2="'+y(v).toFixed(1)+'" stroke="var(--line-soft)" stroke-width="'+(main?1.4:0.8)+'"'+(main?'':' stroke-dasharray="3 3"')+'/>';
+    s+='<text x="'+(x0-6)+'" y="'+(y(v)+3).toFixed(1)+'" text-anchor="end" font-size="9" fill="var(--ink-4)">'+v+'</text>';
+  }
+  var seg=[],segs=[];
+  barBpm.forEach(function(v,b){
+    if(v==null){if(seg.length)segs.push(seg);seg=[];return;}
+    seg.push((x0+w*(b+.5)).toFixed(1)+','+y(Math.max(lo,Math.min(hi,v))).toFixed(1));
+  });
+  if(seg.length)segs.push(seg);
+  segs.forEach(function(sg){s+='<polyline points="'+sg.join(' ')+'" fill="none" stroke="var(--amber)" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>';});
+  barBpm.forEach(function(v,b){
+    var cx=(x0+w*(b+.5)).toFixed(1);
+    if(v!=null) s+='<circle cx="'+cx+'" cy="'+y(Math.max(lo,Math.min(hi,v))).toFixed(1)+'" r="3.6" fill="var(--surface)" stroke="var(--amber-dark)" stroke-width="1.8"/>';
+    if(n<=8||b===0||(b+1)%4===0) s+='<text x="'+cx+'" y="'+(H-6)+'" text-anchor="middle" font-size="9" fill="var(--ink-4)">'+(b+1)+'</text>';
+  });
+  return s+'</svg>';
+}
+// 拍ごとの癖（＋は早い・−は遅い）
+function tkBeatSvg(beatAvg){
+  var W=340,H=88,x0=10,n=beatAvg.length,w=(W-20)/n;
+  var neg=beatAvg.some(function(v){return v!=null&&v<0;}),pos=beatAvg.some(function(v){return v!=null&&v>0;});
+  var mx=1;beatAvg.forEach(function(v){if(v!=null)mx=Math.max(mx,Math.abs(v));});
+  var mid=(neg&&pos)?(H/2-6):neg?16:H-24;
+  var room=(neg&&pos)?(H/2-22):(H-44);
+  var sc=Math.min(2.2,room/mx);
+  var s='<svg viewBox="0 0 '+W+' '+H+'" width="100%" style="display:block">';
+  s+='<line x1="'+x0+'" x2="'+(W-10)+'" y1="'+mid+'" y2="'+mid+'" stroke="var(--line)" stroke-width="1"/>';
+  var bw=Math.min(28,w*0.5);
+  beatAvg.forEach(function(v,k){
+    var cx=x0+w*(k+.5);
+    s+='<text x="'+cx.toFixed(1)+'" y="'+(H-4)+'" text-anchor="middle" font-size="10" fill="var(--ink-3)">'+(k+1)+'拍目</text>';
+    if(v==null){s+='<text x="'+cx.toFixed(1)+'" y="'+(mid-5)+'" text-anchor="middle" font-size="10" fill="var(--ink-4)">—</text>';return;}
+    var r=Math.round(v),bh=Math.max(Math.abs(v)*sc,1.5),col=Math.abs(v)>=15?'var(--amber)':'var(--green)';
+    var yy=v>0?mid-bh:mid;
+    s+='<rect x="'+(cx-bw/2).toFixed(1)+'" y="'+yy.toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+bh.toFixed(1)+'" rx="3" fill="'+col+'"/>';
+    s+='<text x="'+cx.toFixed(1)+'" y="'+(v>0?yy-4:mid+bh+11).toFixed(1)+'" text-anchor="middle" font-size="10" font-weight="bold" fill="var(--ink-2)">'+(r>0?'+':'')+r+'</text>';
+  });
+  return s+'</svg>';
+}
+
+function tkShowResult(){
+  document.body.classList.remove('focus-tempo');
+  var pr=document.getElementById('tr-pulse');if(pr){pr.style.display='none';pr.style.visibility='';}
+  document.getElementById('tr-tap-btn').classList.add('inactive');
+  document.getElementById('tr-status').textContent='完了';
+  document.getElementById('tr-stop-btn').style.display='none';
+  document.getElementById('tr-start-btn').style.display='block';
+
+  var b=tkBeats,bars=tkBars,alt=(tkClick==='alt'),sw=tkSndWord();
+  // ＋＝早い になるよう向きを反転（diff は「遅れ」が＋）
+  var dev=tkDiffs.map(function(d){return d==null?null:-d;});
+  var vals=dev.filter(function(v){return v!=null;});
+  var miss=tkTotal-vals.length;
+  var head='<div class="tr-result-title">結果　<span style="color:var(--ink-4)">'+trBpm+' BPM・'+trTs+'・'+bars+'小節・'
+    +sw+(tkSound==='drum'?'（'+(DRUM_NAME[dpat]||'')+'）':'')+{always:'ずっと',first:'最初だけ',alt:'交互'}[tkClick]
+    +(miss>0?'・叩き漏れ '+miss+'回':'')+'</span></div>';
+  var body=document.getElementById('tk-body');
+
+  if(vals.length<Math.max(4,Math.ceil(tkTotal/4))){
+    body.innerHTML=head+'<div style="padding:16px 4px;text-align:center;color:var(--ink-3);font-size:var(--fs-md);line-height:1.8;">叩いた記録が少なく、集計できませんでした。<br>最後の小節まで叩き続けてみてください。</div>';
+    replayData=null;
+    document.getElementById('tk-result').classList.add('on');
+    return;
+  }
+  var avg=tkMean(vals);
+  var sd=Math.sqrt(tkMean(vals.map(function(v){return (v-avg)*(v-avg);})));
+  // 2段目：交互なら「鳴っている間／消えている間」、それ以外は「前半／後半」
+  var gA=[],gB=[];
+  dev.forEach(function(v,i){
+    if(v==null) return;
+    var bar=Math.floor(i/b);
+    if(alt){(tkOn(bar)?gA:gB).push(v);} else {(bar<bars/2?gA:gB).push(v);}
+  });
+  var aA=tkMean(gA),aB=tkMean(gB);
+  var labA=alt?'鳴っている間':'前半',labB=alt?'消えている間':'後半';
+  // 小節ごとのテンポ：その小節の打点に直線を当てはめ、拍の間隔を出す
+  var barBpm=[];
+  for(var bar=0;bar<bars;bar++){
+    var xs=[],ys=[];
+    for(var k=0;k<b;k++){var d=tkDiffs[bar*b+k];if(d!=null){xs.push(k);ys.push(k*tkBi+d);}}
+    if(xs.length<2){barBpm.push(null);continue;}
+    var mx=tkMean(xs),my=tkMean(ys),num=0,den=0;
+    for(var q=0;q<xs.length;q++){num+=(xs[q]-mx)*(ys[q]-my);den+=(xs[q]-mx)*(xs[q]-mx);}
+    var iv=num/den;
+    barBpm.push(iv>0?Math.round(trBpm*tkBi/iv*10)/10:null);
+  }
+  // 拍ごとの癖
+  var beatAvg=[];
+  for(var k2=0;k2<b;k2++){
+    var a=[];for(var bb=0;bb<bars;bb++){var v2=dev[bb*b+k2];if(v2!=null)a.push(v2);}
+    beatAvg.push(a.length?tkMean(a):null);
+  }
+  // 傾向のひとこと
+  var title='',lines=[];
+  if(aA!=null&&aB!=null&&Math.abs(aB-aA)>=12){
+    var up=(aB-aA)>0;
+    title=alt?(sw+'が消えると'+(up?'走りぎみ':'もたりぎみ')):('後半になると'+(up?'走りぎみ':'もたりぎみ'));
+    lines.push(labA+'は平均 '+tkFmt(aA)+'、'+labB+'は平均 '+tkFmt(aB)+' です。');
+  } else if(Math.abs(avg)<=10&&sd<=25){
+    title='よく安定しています';
+    lines.push('平均 '+tkFmt(avg)+'、ばらつき ±'+Math.round(sd)+'ms です。');
+  } else if(Math.abs(avg)>10){
+    title='全体に'+(avg>0?'走りぎみ':'もたりぎみ');
+    lines.push('平均 '+tkFmt(avg)+' です。');
+  } else {
+    title='ズレの幅がやや大きめ';
+    lines.push('平均は '+tkFmt(avg)+' ですが、ばらつきが ±'+Math.round(sd)+'ms あります。');
+  }
+  // 他の拍より目立ってずれている拍（ずれの向きが平均と同じとき）を挙げる
+  var odd=[];beatAvg.forEach(function(v,k){
+    if(v!=null&&Math.abs(v)>=15&&Math.abs(v-avg)>=8&&(v-avg>0)===(v>0)) odd.push({k:k,v:v});
+  });
+  if(odd.length&&odd.length<b){
+    var early=odd.filter(function(o){return o.v>0;}).map(function(o){return o.k+1;});
+    var late=odd.filter(function(o){return o.v<0;}).map(function(o){return o.k+1;});
+    if(early.length) lines.push('特に'+early.join('・')+'拍目が早くなりやすいようです。');
+    if(late.length) lines.push('特に'+late.join('・')+'拍目が遅くなりやすいようです。');
+  }
+  var bpms=barBpm.filter(function(v){return v!=null;});
+  if(bpms.length>=4){
+    var hlf=Math.floor(bpms.length/2),f1=tkMean(bpms.slice(0,hlf)),f2=tkMean(bpms.slice(bpms.length-hlf));
+    if(Math.abs(f2-f1)>=1.5) lines.push('テンポはだんだん'+(f2>f1?'速く':'遅く')+'なっています。');
+  }
+  var ga=tkAvgGrade(avg),gs=tkSdGrade(sd);
+  var row2=(aA!=null&&aB!=null)?'<div style="display:flex;gap:8px;">'+tkCard(labA,tkFmt(aA),tkAvgGrade(aA).t,tkAvgGrade(aA).g)+tkCard(labB,tkFmt(aB),tkAvgGrade(aB).t,tkAvgGrade(aB).g)+'</div>':'';
+  var legend=alt?'<div style="display:flex;gap:12px;font-size:var(--fs-2xs);color:var(--ink-4);margin-top:2px;"><span><span style="display:inline-block;width:10px;height:10px;background:var(--surface);border:1px solid var(--line);vertical-align:-1px;margin-right:4px"></span>'+sw+'が鳴っていた小節</span><span><span style="display:inline-block;width:10px;height:10px;background:var(--surface-3);vertical-align:-1px;margin-right:4px"></span>消えていた小節</span></div>':'';
+  body.innerHTML=head
+    +'<div style="display:flex;gap:8px;margin-bottom:8px;">'+tkCard('平均のズレ',tkFmt(avg),ga.t,ga.g)+tkCard('ばらつき','±'+Math.round(sd)+'ms',gs.t,gs.g)+'</div>'
+    +row2
+    +'<div style="margin:12px 0 0;padding:9px 11px;background:var(--amber-soft);border-left:3px solid var(--amber);border-radius:var(--r-sm);font-size:var(--fs-sm);color:var(--ink-2);line-height:1.7;"><b style="color:var(--amber-dark)">'+title+'</b><br>'+lines.join('')+'</div>'
+    +tkSec('テンポの流れ','小節ごとの実際のテンポ（BPM）')+tkFlowSvg(barBpm,alt)+legend
+    +tkSec('拍ごとの癖','＋は早い・−は遅い（ms）')+tkBeatSvg(beatAvg);
+
+  // 聴き比べ用（メトロノーム音は全拍で鳴らす）
+  var exp=[];for(var i=0;i<tkTotal;i++) exp.push(trTapOriginMs+i*tkBi);
+  replayData={
+    bpm:trBpm, expectedMs:exp, metExpectedMs:exp,
+    diffAdjs:tkDiffs.map(function(d){return d==null?0:d;}),
+    misses:tkDiffs.map(function(d){return d==null;})
+  };
+  document.getElementById('tk-result').classList.add('on');
+  setTimeout(function(){
+    var rp=document.getElementById('tk-result');
+    if(rp) rp.scrollIntoView({behavior:'smooth',block:'start'});
+  },80);
+}
+document.getElementById('tk-retry').addEventListener('click',function(){
+  stopReplay(); resetReplayBtns();
+  document.getElementById('tk-result').classList.remove('on');
+  trStart();
+});
 
 document.getElementById('tr-bpm-slider').addEventListener('input',function(){
   trBpm=parseInt(this.value);document.getElementById('tr-bpm-disp').textContent=trBpm;
@@ -4235,6 +4623,7 @@ function replayPlayMetOnTap(){
 // ===== リプレイボタン（トグル式：再生中は「■ 停止」に変わり、押すと停止）=====
 var REPLAY_BTNS=[
   {id:'tr-replay-both', play:function(){replayPlay(true);}, label:'リプレイ', color:'#185FA5', withTap:true},
+  {id:'tk-replay', play:function(){replayPlay(true);}, label:'♪ 聴き比べる', color:'#185FA5', withTap:true},
   {id:'rtg-replay-both', play:function(){replayPlay(true);}, label:'リプレイ', color:'#185FA5', withTap:true},
   {id:'rtg-replay-met-tap', play:function(){replayPlayMetOnTap();}, label:'正解', color:'#1D9E75', withTap:false},
   {id:'gm-replay-both', play:function(){replayPlay(true);}, label:'リプレイ', color:'#185FA5', withTap:true},
@@ -5220,6 +5609,7 @@ function prefSave(){
         dpat:dpat, useCustom:useCustom, uacc:uacc, CP:CP,
         ciDiv:ciDiv, ciLastOnly:ciLastOnly,
         trBpm:trBpm, trTs:trTs,
+        tkSub:tkSub, tkSound:tkSound, tkClick:tkClick, tkBars:tkBars,
         rtgBpm:rtgBpm, rtgTs:rtgTs, rtgResMode:rtgResMode, rtgGridMeasures:rtgGridMeasures,
         rtgGenMeasures:rtgGenMeasures,
         rtgPattern:rtgPattern, rtgBeatModes:rtgBeatModes,
@@ -5235,7 +5625,8 @@ function prefSave(){
 function prefWire(){
   ['[data-click]','.mb[data-mode]','.ts-modal-btn','.db','[data-ci]','[data-edts]',
    '[data-tts]','[data-rtgts]','[data-div]','[data-measures]','[data-cid]',
-   '[data-rtgcid]','[data-gmcid]','[data-genmeas]'].forEach(function(sel){
+   '[data-rtgcid]','[data-gmcid]','[data-genmeas]',
+   '[data-tksub]','[data-tksnd]','[data-tkclk]','[data-tkbars]'].forEach(function(sel){
     document.querySelectorAll(sel).forEach(function(b){b.addEventListener('click',prefSave);});
   });
   ['tap','tr-tap-tempo','rtg-tap-tempo','gm-tap-tempo','eapp','erst',
@@ -5297,6 +5688,10 @@ function prefRestore(){
   // --- 体感テンポ ---
   if(p.trTs&&TS[p.trTs]) press('[data-tts="'+p.trTs+'"]');
   slide('tr-bpm-slider',p.trBpm);
+  if(p.tkSound) press('[data-tksnd="'+p.tkSound+'"]');
+  if(p.tkClick) press('[data-tkclk="'+p.tkClick+'"]');
+  if(p.tkBars) press('[data-tkbars="'+p.tkBars+'"]');
+  if(p.tkSub) press('[data-tksub="'+p.tkSub+'"]');
 
   // --- アドバンス ---
   if(p.rtgTs&&TS[p.rtgTs]) press('[data-rtgts="'+p.rtgTs+'"]');
