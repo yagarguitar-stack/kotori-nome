@@ -6324,6 +6324,8 @@ function prefRestore(){
       if(ok)CP[k]=src;
     });
     if(p.useCustom&&p.dpat&&p.dpat!=='none')useCustom=true;
+    // 戻した形でマスを描き直す（描き直さないと、画面のマスと鳴る音が別々の物を指してしまう）
+    redg();
   }
   // アクセント。拍子・音符モードを復元した後の粒数と一致するときだけ受け入れる。
   if(Array.isArray(p.uacc)&&p.uacc.length===tc()){uacc=p.uacc;}
