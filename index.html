@@ -126,6 +126,13 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;heigh
 .ec.bd{background:var(--amber-dark);border-color:#854F0B}
 .ec.cr{background:var(--crash);border-color:var(--crash-dark)}
 .ec.rd{background:var(--ride);border-color:var(--ride-dark)}
+.ec.oh{background:#5DCAA5;border-color:#0F6E56}
+.ec.rm{background:#888780;border-color:#5F5E5A}
+.ec.th{background:#D85A30;border-color:#993C1D}
+.ec.tl{background:#993C1D;border-color:#712B13}
+/* ほかの音（OH・RM・TH・TL）：たたんでいる間は行と凡例を隠す */
+#epan:not(.more) .erow-extra,#epan:not(.more) .eli-extra{display:none}
+.emore{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;margin:0 0 8px;padding:6px;border-radius:var(--r-sm);border:1px dashed var(--line);background:none;color:var(--ink-3);font-size:var(--fs-xs);cursor:pointer}
 .ec.cur{outline:2px solid var(--red);outline-offset:1px}
 .eleg{display:flex;gap:10px;margin-bottom:8px;flex-wrap:wrap}
 .eli{display:flex;align-items:center;gap:4px;font-size:var(--fs-xs);color:var(--ink-3)}
@@ -352,7 +359,8 @@ body.focus-game #gm-tap-btn{display:block}
   <div class="sl" style="display:flex;align-items:center;gap:8px;">
     <span>ドラム</span>
     <span id="dname" style="font-size:var(--fs-xs);color:var(--ink-4);font-weight:normal;"></span>
-    <button id="dmute" class="lamp-btn on" aria-pressed="true"><span class="lamp"></span><span class="lamp-t">オン</span></button>
+    <button id="dtight" class="lamp-btn" aria-pressed="false"><span class="lamp"></span><span class="lamp-t">タイト</span></button>
+    <button id="dmute" class="lamp-btn on" aria-pressed="true" style="margin-left:6px;"><span class="lamp"></span><span class="lamp-t">オン</span></button>
   </div>
   <div id="epan" class="on">
     <p class="etip">音符モードに合わせて切り替わります。マスをタップすると、その場で変えられます。</p>
@@ -362,8 +370,13 @@ body.focus-game #gm-tap-btn{display:block}
       <div class="eli"><div class="edot" style="background:var(--green)"></div>HH</div>
       <div class="eli"><div class="edot" style="background:var(--blue)"></div>SN</div>
       <div class="eli"><div class="edot" style="background:var(--amber-dark)"></div>BD</div>
+      <div class="eli eli-extra"><div class="edot" style="background:#5DCAA5"></div>OH（オープンハイハット）</div>
+      <div class="eli eli-extra"><div class="edot" style="background:#888780"></div>RM（リム）</div>
+      <div class="eli eli-extra"><div class="edot" style="background:#D85A30"></div>TH（ハイタム）</div>
+      <div class="eli eli-extra"><div class="edot" style="background:#993C1D"></div>TL（ロータム）</div>
     </div>
     <div class="egw"><table class="etbl" id="etbl"></table></div>
+    <button class="emore" id="emore"></button>
     <div class="ebr" style="margin-top:8px;">
       <button class="erst" id="erst">最初の形に戻す</button>
     </div>
@@ -982,12 +995,12 @@ var TS={'2/4':{b:2,d:4},'3/4':{b:3,d:4},'4/4':{b:4,d:4},'5/4':{b:5,d:4},'6/8':{b
 var M={q:{s:1},e:{s:2},et:{s:3},s:{s:4},st:{s:6},sh:{s:3}};
 
 var DD={
-  beat8:    {steps:8, div:2,CR:[0,0,0,0,0,0,0,0],RD:[0,0,0,0,0,0,0,0],HH:[1,1,1,1,1,1,1,1],SN:[0,0,1,0,0,0,1,0],BD:[1,0,0,0,1,0,0,0]},
-  beat16:   {steps:16,div:4,CR:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],RD:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],HH:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],SN:[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],BD:[1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0]},
-  shuffle8: {steps:12,div:3,CR:[0,0,0,0,0,0,0,0,0,0,0,0],RD:[0,0,0,0,0,0,0,0,0,0,0,0],HH:[1,0,1,1,0,1,1,0,1,1,0,1],SN:[0,0,0,1,0,0,0,0,0,1,0,0],BD:[1,0,0,0,0,0,1,0,0,0,0,0]},
-  shuffle16:{steps:24,div:6,CR:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],RD:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],HH:[1,0,1,1,0,1,1,0,1,1,0,1,1,0,1,1,0,1,1,0,1,1,0,1],SN:[0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0],BD:[1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0]},
-  beat4:    {steps:4, div:1,CR:[0,0,0,0],RD:[0,0,0,0],HH:[0,0,0,0],SN:[0,0,1,0],BD:[1,0,0,0]},
-  triplet8: {steps:12,div:3,CR:[0,0,0,0,0,0,0,0,0,0,0,0],RD:[0,0,0,0,0,0,0,0,0,0,0,0],HH:[1,1,1,1,1,1,1,1,1,1,1,1],SN:[0,0,0,1,0,0,0,0,0,1,0,0],BD:[1,0,0,0,0,0,1,0,0,0,0,0]}
+  beat8:    {steps:8, div:2,CR:[0,0,0,0,0,0,0,0],RD:[0,0,0,0,0,0,0,0],OH:[0,0,0,0,0,0,0,0],RM:[0,0,0,0,0,0,0,0],TH:[0,0,0,0,0,0,0,0],TL:[0,0,0,0,0,0,0,0],HH:[1,1,1,1,1,1,1,1],SN:[0,0,1,0,0,0,1,0],BD:[1,0,0,0,1,0,0,0]},
+  beat16:   {steps:16,div:4,CR:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],RD:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],OH:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],RM:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],TH:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],TL:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],HH:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],SN:[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],BD:[1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0]},
+  shuffle8: {steps:12,div:3,CR:[0,0,0,0,0,0,0,0,0,0,0,0],RD:[0,0,0,0,0,0,0,0,0,0,0,0],OH:[0,0,0,0,0,0,0,0,0,0,0,0],RM:[0,0,0,0,0,0,0,0,0,0,0,0],TH:[0,0,0,0,0,0,0,0,0,0,0,0],TL:[0,0,0,0,0,0,0,0,0,0,0,0],HH:[1,0,1,1,0,1,1,0,1,1,0,1],SN:[0,0,0,1,0,0,0,0,0,1,0,0],BD:[1,0,0,0,0,0,1,0,0,0,0,0]},
+  shuffle16:{steps:24,div:6,CR:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],RD:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],OH:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],RM:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],TH:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],TL:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],HH:[1,0,1,1,0,1,1,0,1,1,0,1,1,0,1,1,0,1,1,0,1,1,0,1],SN:[0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0],BD:[1,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0]},
+  beat4:    {steps:4, div:1,CR:[0,0,0,0],RD:[0,0,0,0],OH:[0,0,0,0],RM:[0,0,0,0],TH:[0,0,0,0],TL:[0,0,0,0],HH:[0,0,0,0],SN:[0,0,1,0],BD:[1,0,0,0]},
+  triplet8: {steps:12,div:3,CR:[0,0,0,0,0,0,0,0,0,0,0,0],RD:[0,0,0,0,0,0,0,0,0,0,0,0],OH:[0,0,0,0,0,0,0,0,0,0,0,0],RM:[0,0,0,0,0,0,0,0,0,0,0,0],TH:[0,0,0,0,0,0,0,0,0,0,0,0],TL:[0,0,0,0,0,0,0,0,0,0,0,0],HH:[1,1,1,1,1,1,1,1,1,1,1,1],SN:[0,0,0,1,0,0,0,0,0,1,0,0],BD:[1,0,0,0,0,0,1,0,0,0,0,0]}
 };
 // 音符モードに対応するドラムパターン。音符モードを押すとこちらも切り替わる。
 var MODE_DRUM={q:'beat4',e:'beat8',et:'triplet8',s:'beat16',st:'shuffle16',sh:'shuffle8'};
@@ -1215,9 +1228,15 @@ var smpCtx=null, smpLoading=false, smpDrumOn=true;
 // 合成ドラムと同じ大きさになるよう、種類ごとに測って合わせた強さ
 // （hh＝拍の頭の刻み、hhs＝細かい刻み。今の強弱をそのまま録音に当てる）
 var SMP_DRUM={ bd:{name:'kick',vel:0.956}, sn:{name:'snare',vel:1.016}, hh:{name:'hihat',vel:1.081}, hhs:{name:'hihat',vel:0.630},
-               cr:{name:'crash',vel:0.85}, rd:{name:'ride',vel:0.90} };
+               cr:{name:'crash',vel:0.85}, rd:{name:'ride',vel:0.90},
+               oh:{name:'hihat-open',vel:0.85}, rm:{name:'rim',vel:0.90}, th:{name:'tom-high',vel:0.95}, tl:{name:'tom-low',vel:0.95} };
 // 電子音の強さ。木製のクリックと同じ大きさ・同じ強弱の差（強拍／弱拍）に合わせた
 var SMP_BEEP={hi:1.079,lo:0.818};
+// 「タイト」：ドラムの響きを短く止める（dur＝そのまま鳴らす長さ、release＝消えるまでの長さ。秒）
+var drumTight=false;
+var SMP_TIGHT={ kick:{dur:0.15,release:0.05}, snare:{dur:0.12,release:0.05}, hihat:{dur:0.045,release:0.035},
+                crash:{dur:0.35,release:0.15}, ride:{dur:0.25,release:0.10},
+                'hihat-open':{dur:0.18,release:0.08}, rim:{dur:0.06,release:0.04}, 'tom-high':{dur:0.15,release:0.06}, 'tom-low':{dur:0.18,release:0.07} };
 function smpOk(){ return !!(window.DS&&DS.sound); }
 function smpBind(c,bus){
   if(!smpOk()||!c) return;
@@ -1237,7 +1256,9 @@ function smpDrum(t,type){
   var bus=getClickBus();
   if(smpCtx!==ctx||!DS.sound.isReady('drums')) return false;
   var d=SMP_DRUM[type]; if(!d) return false;
-  try{ DS.sound.drum(d.name,{time:t,vel:d.vel,dest:bus}); return true; }catch(e){ return false; }
+  var o={time:t,vel:d.vel,dest:bus};
+  if(drumTight&&SMP_TIGHT[d.name]){o.dur=SMP_TIGHT[d.name].dur;o.release=SMP_TIGHT[d.name].release;}
+  try{ var v=DS.sound.drum(d.name,o); if(type==='oh') drumOpenHat=v; return true; }catch(e){ return false; }
 }
 // 電子音のクリック。共通の音（sound.js）と同じ作り。読み込めない時もここで同じ音を作る
 function clkBeep(t,hi){
@@ -1269,9 +1290,49 @@ function noiseSource(t,dur){
   return s;
 }
 
+// 1マス分のドラムを鳴らす（メトロノーム・体感テンポ「ロング」で共通）
+// 同じマスにオープンとクローズのハイハットがあれば、オープンだけを鳴らす
+function drumStep(t,p,st){
+  var oh=!!(p.OH&&p.OH[st]);
+  if(p.HH&&p.HH[st]&&!oh) mdrm(t,'hh');
+  if(oh) mdrm(t,'oh');
+  if(p.RM&&p.RM[st]) mdrm(t,'rm');
+  if(p.SN&&p.SN[st]) mdrm(t,'sn');
+  if(p.TH&&p.TH[st]) mdrm(t,'th');
+  if(p.TL&&p.TL[st]) mdrm(t,'tl');
+  if(p.BD&&p.BD[st]) mdrm(t,'bd');
+  if(p.CR&&p.CR[st]) mdrm(t,'cr');
+  if(p.RD&&p.RD[st]) mdrm(t,'rd');
+}
+// 鳴っているオープンハイハット。次にクローズを叩いた時刻で響きを止める（本物と同じ）
+var drumOpenHat=null;
 function mdrm(t,type){
+  if((type==='hh'||type==='hhs')&&drumOpenHat){try{drumOpenHat.stop(t);}catch(e){}drumOpenHat=null;}
   if(smpDrum(t,type)) return;   // 録音で鳴らせたら、合成はしない
   var bus=getClickBus();
+  // 録音が読み込めるまでの代わりの音（オープンハイハット・リム・タム）
+  if(type==='oh'){
+    var lenO=drumTight?0.26:0.6,nO=noiseSource(t,lenO),hO=ctx.createBiquadFilter(),gO=ctx.createGain();
+    hO.type='highpass';hO.frequency.value=7000;
+    gO.gain.setValueAtTime(0.0001,t);gO.gain.exponentialRampToValueAtTime(0.22,t+0.004);gO.gain.exponentialRampToValueAtTime(0.001,t+lenO);
+    nO.connect(hO);hO.connect(gO);gO.connect(bus);
+    drumOpenHat={stop:function(w){try{gO.gain.cancelScheduledValues(w);gO.gain.setTargetAtTime(0.0001,w,0.01);}catch(e){}}};
+    return;
+  }
+  if(type==='rm'){
+    var nR=noiseSource(t,0.05),bR=ctx.createBiquadFilter(),gR=ctx.createGain();
+    bR.type='bandpass';bR.frequency.value=1900;bR.Q.value=3;
+    gR.gain.setValueAtTime(0.5,t);gR.gain.exponentialRampToValueAtTime(0.001,t+0.05);
+    nR.connect(bR);bR.connect(gR);gR.connect(bus);
+    return;
+  }
+  if(type==='th'||type==='tl'){
+    var f0=type==='th'?220:140,lenT=drumTight?0.18:0.4,oT=ctx.createOscillator(),gT=ctx.createGain();
+    oT.type='sine';oT.frequency.setValueAtTime(f0*1.6,t);oT.frequency.exponentialRampToValueAtTime(f0,t+0.05);
+    gT.gain.setValueAtTime(0.0001,t);gT.gain.exponentialRampToValueAtTime(0.6,t+0.004);gT.gain.exponentialRampToValueAtTime(0.001,t+lenT);
+    oT.connect(gT);gT.connect(bus);oT.start(t);oT.stop(t+lenT+0.02);
+    return;
+  }
   if(type==='bd'){
     // 生のバスドラムに寄せた作り。
     // 低音を薄くし、そのぶん胴の「コン」とビーターの「コッ」で輪郭を出す。
@@ -1489,11 +1550,7 @@ function sdrm(){
   var now=ctx.currentTime;
   while(ndt<now+LA){
     var st=ds%p.steps;
-    if(p.HH[st]) mdrm(ndt,'hh');
-    if(p.SN[st]) mdrm(ndt,'sn');
-    if(p.BD[st]) mdrm(ndt,'bd');
-    if(p.CR&&p.CR[st]) mdrm(ndt,'cr');
-    if(p.RD&&p.RD[st]) mdrm(ndt,'rd');
+    drumStep(ndt,p,st);
     (function(t0,si){setTimeout(function(){if(playing)hlstep(si);},Math.max(0,(t0-ctx.currentTime)*1000));})(ndt,st);
     ds++;ndt+=bint()/p.div;
   }
@@ -1579,11 +1636,7 @@ function kcStart(startTime){
       var k=p.sub*pp.div/p.div;
       if(k===Math.floor(k)){
         var st=((p.bar*p.meter[0]+p.beat)*pp.div+k)%pp.steps;
-        if(pp.HH[st]) mdrm(t,'hh');
-        if(pp.SN[st]) mdrm(t,'sn');
-        if(pp.BD[st]) mdrm(t,'bd');
-        if(pp.CR&&pp.CR[st]) mdrm(t,'cr');
-        if(pp.RD&&pp.RD[st]) mdrm(t,'rd');
+        drumStep(t,pp,st);
         p.dstep=st;
       }
     }
@@ -1733,8 +1786,9 @@ document.getElementById('acc-reset').addEventListener('click',function(){
   uacc=null;racg(); // 拍の頭だけ鳴る既定の形へ
 });
 
-// ドラムの行（上から：クラッシュ・ライド・ハイハット・スネア・バスドラム）
-var DROWS=['CR','RD','HH','SN','BD'];
+// ドラムの行（上から：シンバル類 → 太鼓類 → バスドラム）
+var DROWS=['CR','RD','OH','HH','RM','SN','TH','TL','BD'];
+var DROWS_EXTRA={OH:1,RM:1,TH:1,TL:1};   // たためる行
 function getEditorPattern(){
   var tsInfo=TS[ts];
   var b=tsInfo.b;
@@ -1744,7 +1798,8 @@ function getEditorPattern(){
   var newSteps=Math.round(basePat.steps*ratio);
   var newDiv=basePat.div;
   var src=CP[dpat]||{};
-  var p={steps:newSteps, div:newDiv, CR:[], RD:[], HH:[], SN:[], BD:[]};
+  var p={steps:newSteps, div:newDiv};
+  DROWS.forEach(function(r){p[r]=[];});
   DROWS.forEach(function(row){
     for(var i=0;i<newSteps;i++) p[row].push((src[row]&&src[row][i])||0);
   });
@@ -1777,6 +1832,7 @@ function redg(){
   tbl.appendChild(hdr);
   DROWS.forEach(function(row){
     var tr=document.createElement('tr');
+    if(DROWS_EXTRA[row]) tr.className='erow-extra';
     var td0=document.createElement('td');td0.className='erl';td0.textContent=row;tr.appendChild(td0);
     for(var i=0;i<steps;i++){
       (function(si,r){
@@ -1791,6 +1847,8 @@ function redg(){
           p[r][si]=p[r][si]?0:1;
           td.classList.toggle(r.toLowerCase(),!!p[r][si]);
           useCustom=true; // 次の小節から鳴り方に反映される
+          emoreUpdate();
+          if(typeof prefSave==='function') prefSave();   // マスの変更もすぐ残す
         });
         tr.appendChild(td);
       })(i,row);
@@ -1798,6 +1856,7 @@ function redg(){
     tbl.appendChild(tr);
   });
   CP[dpat]=p;
+  emoreUpdate();
 }
 function hlstep(s){ecs=s;upcur();}
 function upcur(){
@@ -1858,6 +1917,23 @@ function metView(){
   document.getElementById('apan').classList.toggle('on',!accOff);
   document.getElementById('apan-off').style.display=accOff?'block':'none';
 }
+// ほかの音（OH・RM・TH・TL）をたたむ／開く。たたんでいても、使っている数をボタンに出す
+var emoreOpen=false;
+function emoreUpdate(){
+  var b=document.getElementById('emore');if(!b)return;
+  var p=CP[dpat],n=0;
+  if(p) Object.keys(DROWS_EXTRA).forEach(function(r){(p[r]||[]).forEach(function(v){if(v)n++;});});
+  document.getElementById('epan').classList.toggle('more',emoreOpen);
+  b.textContent=emoreOpen?'− ほかの音をたたむ':'＋ ほかの音（OH・RM・TH・TL）'+(n?'・'+n+'か所で使用中':'');
+}
+document.getElementById('emore').addEventListener('click',function(){emoreOpen=!emoreOpen;emoreUpdate();});
+// ドラムの「タイト」の切り替え（文字は「タイト」のまま、ランプで状態を示す）
+function setTight(on){
+  drumTight=!!on;
+  var b=document.getElementById('dtight');if(!b)return;
+  b.classList.toggle('on',drumTight);b.setAttribute('aria-pressed',drumTight?'true':'false');
+}
+document.getElementById('dtight').addEventListener('click',function(){setTight(!drumTight);});
 // ランプ付きボタンの表示を今の状態に合わせる
 function setLamp(btn,on){
   if(!btn)return;
@@ -4221,11 +4297,7 @@ function tkDoStart(){
       var dv=p.div||1;
       for(var sb=0;sb<dv;sb++){
         var st=(k*dv+sb)%p.steps, tt=tb+sb*bi/dv;
-        if(p.HH&&p.HH[st]) mdrm(tt,'hh');
-        if(p.SN&&p.SN[st]) mdrm(tt,'sn');
-        if(p.BD&&p.BD[st]) mdrm(tt,'bd');
-        if(p.CR&&p.CR[st]) mdrm(tt,'cr');
-        if(p.RD&&p.RD[st]) mdrm(tt,'rd');
+        drumStep(tt,p,st);
       }
     }
   }
@@ -6170,7 +6242,7 @@ function prefSave(){
         ciDiv:ciDiv, ciLastOnly:ciLastOnly,
         trBpm:trBpm, trTs:trTs,
         tkSub:tkSub, tkSound:tkSound, tkClick:tkClick, tkBars:tkBars,
-        kcStyle:kcStyle,
+        kcStyle:kcStyle, drumTight:drumTight,
         skBpm:skBpm, skTs:skTs, skStar:skStar, skPrev:skPrev, skBars:skBars, skOni:skOni, skCiDiv:skCiDiv,
         rtgBpm:rtgBpm, rtgTs:rtgTs, rtgResMode:rtgResMode, rtgGridMeasures:rtgGridMeasures,
         rtgGenMeasures:rtgGenMeasures,
@@ -6189,7 +6261,7 @@ function prefWire(){
    '[data-tts]','[data-rtgts]','[data-div]','[data-measures]','[data-cid]',
    '[data-rtgcid]','[data-gmcid]','[data-genmeas]',
    '[data-tksub]','[data-tksnd]','[data-tkclk]','[data-tkbars]',
-   '[data-skts]','[data-skprev]','[data-skbars]','[data-skcid]','#sk-judge-normal','#sk-judge-oni','[data-kcstyle]'].forEach(function(sel){
+   '[data-skts]','[data-skprev]','[data-skbars]','[data-skcid]','#sk-judge-normal','#sk-judge-oni','[data-kcstyle]','#dtight'].forEach(function(sel){
     document.querySelectorAll(sel).forEach(function(b){b.addEventListener('click',prefSave);});
   });
   ['tap','tr-tap-tempo','rtg-tap-tempo','gm-tap-tempo','eapp','erst',
@@ -6236,8 +6308,10 @@ function prefRestore(){
     Object.keys(DD).forEach(function(k){
       var src=p.CP[k];if(!src)return;
       // シンバルの行が無い古い保存は、空の行を足して受け入れる
-      ['CR','RD'].forEach(function(r){if(!Array.isArray(src[r]))src[r]=DD[k][r].slice();});
+      ['CR','RD','OH','RM','TH','TL'].forEach(function(r){if(!Array.isArray(src[r]))src[r]=DD[k][r].slice();});
+      // 行（配列）だけを比べる。steps・div は数なので比べない（以前は比べてしまい、自作の形が戻らなかった）
       var ok=Object.keys(DD[k]).every(function(row){
+        if(!Array.isArray(DD[k][row])) return src[row]===DD[k][row];
         return Array.isArray(src[row])&&src[row].length===DD[k][row].length;
       });
       if(ok)CP[k]=src;
@@ -6256,6 +6330,7 @@ function prefRestore(){
   if(p.tkBars) press('[data-tkbars="'+p.tkBars+'"]');
   if(p.tkSub) press('[data-tksub="'+p.tkSub+'"]');
   if(p.kcStyle) kcSetStyle(p.kcStyle);
+  if(p.drumTight) setTight(true);
   if(p.skTs) press('[data-skts="'+p.skTs+'"]');
   if(p.skPrev) press('[data-skprev="'+p.skPrev+'"]');
   if(p.skBars) press('[data-skbars="'+p.skBars+'"]');
