@@ -1846,6 +1846,13 @@ function redg(){
         td.addEventListener('click',function(){
           p[r][si]=p[r][si]?0:1;
           td.classList.toggle(r.toLowerCase(),!!p[r][si]);
+          // オープンとクローズのハイハットは同じマスに入れない（入れた方を残し、もう片方を消す）
+          var other=(r==='OH')?'HH':(r==='HH')?'OH':null;
+          if(other&&p[r][si]&&p[other]&&p[other][si]){
+            p[other][si]=0;
+            var trs=document.querySelectorAll('#etbl tr');
+            for(var q=0;q<trs.length;q++){if(trs[q].firstChild.textContent===other){trs[q].children[si+1].classList.remove(other.toLowerCase());break;}}
+          }
           useCustom=true; // 次の小節から鳴り方に反映される
           emoreUpdate();
           if(typeof prefSave==='function') prefSave();   // マスの変更もすぐ残す
