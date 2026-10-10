@@ -200,10 +200,13 @@ body.focus-sight .kc-style,body.focus-rhythm .kc-style,body.focus-game .kc-style
 .ts-modal{background:var(--surface);border-radius:var(--r-xl);padding:20px;width:min(300px,85vw)}
 .ts-modal h3{font-size:var(--fs-lg);color:var(--ink-3);letter-spacing:.1em;margin-bottom:12px;text-align:center}
 .ts-modal-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
-.ts-modal-btn{background:var(--bg);border:1px solid var(--line);color:var(--ink-2);border-radius:var(--r);font-size:var(--fs-lg);cursor:pointer;min-height:44px;text-align:center}
-.ts-modal-btn.on{background:var(--amber-soft);border-color:var(--amber);color:var(--amber-dark);font-weight:bold}
+.ts-modal-btn,.dtype-btn{background:var(--bg);border:1px solid var(--line);color:var(--ink-2);border-radius:var(--r);font-size:var(--fs-lg);cursor:pointer;min-height:44px;text-align:center}
+.ts-modal-btn.on,.dtype-btn.on{background:var(--amber-soft);border-color:var(--amber);color:var(--amber-dark);font-weight:bold}
 .ts-sel-btn{background:var(--surface);border:1px solid var(--line);color:var(--ink-2);border-radius:var(--r);padding:0 12px;font-size:var(--fs-lg);cursor:pointer;height:44px;white-space:nowrap;min-width:70px}
 .ts-sel-btn.on{background:var(--amber-soft);border-color:var(--amber);color:var(--amber-dark);font-weight:bold}
+/* ドラムの型のボタン（拍子のボタンと同じ見た目。見出しの行に収まる高さ） */
+.dtype-sel{background:var(--amber-soft);border:1px solid var(--amber);color:var(--amber-dark);font-weight:bold;border-radius:var(--r);padding:0 10px;font-size:var(--fs-md);cursor:pointer;min-height:36px;white-space:nowrap;letter-spacing:normal}
+.dtype-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .tab-bar{display:flex;width:100%;max-width:400px;margin-bottom:16px;border-bottom:2px solid var(--surface-3)}
 .tab-btn{flex:1;background:none;border:none;padding:10px 0;font-size:var(--fs-lg);color:var(--ink-3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px}
 .tab-btn.on{color:var(--amber);border-bottom-color:var(--amber);font-weight:bold}
@@ -358,12 +361,12 @@ body.focus-game #gm-tap-btn{display:block}
   </div>
   <div class="sl" style="display:flex;align-items:center;gap:8px;">
     <span>ドラム</span>
-    <span id="dname" style="font-size:var(--fs-xs);color:var(--ink-4);font-weight:normal;"></span>
+    <button id="dtype-sel" class="dtype-sel">8ビート</button>
     <button id="dtight" class="lamp-btn" aria-pressed="false"><span class="lamp"></span><span class="lamp-t">タイト</span></button>
     <button id="dmute" class="lamp-btn on" aria-pressed="true" style="margin-left:6px;"><span class="lamp"></span><span class="lamp-t">オン</span></button>
   </div>
   <div id="epan" class="on">
-    <p class="etip">音符モードに合わせて切り替わります。マスをタップすると、その場で変えられます。</p>
+    <p class="etip">マスをタップすると、その場で変えられます。</p>
     <div class="eleg">
       <div class="eli"><div class="edot" style="background:var(--crash)"></div>CR（クラッシュ）</div>
       <div class="eli"><div class="edot" style="background:var(--ride)"></div>RD（ライド）</div>
@@ -488,12 +491,12 @@ body.focus-game #gm-tap-btn{display:block}
     <div class="tr-result-title">結果</div>
     <div style="display:flex;gap:8px;margin-bottom:4px;">
       <div style="flex:1;background:var(--bg);border-radius:var(--r);padding:8px 6px;text-align:center;">
-        <div style="font-size:var(--fs-2xs);color:var(--ink-4);margin-bottom:2px;">1拍目（飛び込み）</div>
+        <div style="font-size:var(--fs-2xs);color:var(--ink-4);margin-bottom:2px;">入り（1拍目）</div>
         <div class="tr-bpm-diff" id="tr-bpm-diff-1st" style="font-size:var(--fs-2xl);margin-bottom:0;"></div>
         <div style="font-size:var(--fs-xs);color:var(--ink-4);" id="tr-bpm-ms-1st"></div>
       </div>
       <div style="flex:1;background:var(--bg);border-radius:var(--r);padding:8px 6px;text-align:center;">
-        <div style="font-size:var(--fs-2xs);color:var(--ink-4);margin-bottom:2px;">2拍目以降（安定感）</div>
+        <div style="font-size:var(--fs-2xs);color:var(--ink-4);margin-bottom:2px;">2拍目から</div>
         <div class="tr-bpm-diff" id="tr-bpm-diff" style="font-size:var(--fs-2xl);margin-bottom:0;"></div>
         <div style="font-size:var(--fs-xs);color:var(--ink-4);" id="tr-bpm-info"></div>
       </div>
@@ -957,6 +960,19 @@ body.focus-rhythm #rtg-pulse, body.focus-game #gm-pulse{width:90px;height:90px;m
     </div>
   </div>
 </div>
+<div class="ts-modal-overlay" id="dtype-overlay">
+  <div class="ts-modal">
+    <h3>ドラムの型を選択</h3>
+    <div class="dtype-grid">
+      <button class="dtype-btn" data-dtype="beat4">4分</button>
+      <button class="dtype-btn on" data-dtype="beat8">8ビート</button>
+      <button class="dtype-btn" data-dtype="beat16">16ビート</button>
+      <button class="dtype-btn" data-dtype="triplet8">トリプレット</button>
+      <button class="dtype-btn" data-dtype="shuffle8">8シャッフル</button>
+      <button class="dtype-btn" data-dtype="shuffle16">16シャッフル</button>
+    </div>
+  </div>
+</div>
 <div class="ts-modal-overlay" id="ts-modal-overlay">
   <div class="ts-modal">
     <h3>拍子を選択</h3>
@@ -981,7 +997,7 @@ body.focus-rhythm #rtg-pulse, body.focus-game #gm-pulse{width:90px;height:90px;m
 (function(){
 var AC=window.AudioContext||window.webkitAudioContext;
 var ctx=null,playing=false,ctmr=null,dtmr=null,nct=0,ndt=0,cb=0,ds=0;
-var bpm=120,mode='q',ts='4/4',dpat='none',aopen=true,eopen=true,uacc=null,taps=[];
+var bpm=120,mode='q',ts='4/4',dpat='beat8',aopen=true,eopen=true,uacc=null,taps=[];
 var metMuted=false; // メトロノームを鳴らさない状態
 var accOff=false;   // アクセントを使わない（すべて同じ音で刻む）状態
 var useCustom=false,ecs=-1,countIn=0,countInPlaying=false,editorTs='2/4';
@@ -1002,12 +1018,35 @@ var DD={
   beat4:    {steps:4, div:1,CR:[0,0,0,0],RD:[0,0,0,0],OH:[0,0,0,0],RM:[0,0,0,0],TH:[0,0,0,0],TL:[0,0,0,0],HH:[0,0,0,0],SN:[0,0,1,0],BD:[1,0,0,0]},
   triplet8: {steps:12,div:3,CR:[0,0,0,0,0,0,0,0,0,0,0,0],RD:[0,0,0,0,0,0,0,0,0,0,0,0],OH:[0,0,0,0,0,0,0,0,0,0,0,0],RM:[0,0,0,0,0,0,0,0,0,0,0,0],TH:[0,0,0,0,0,0,0,0,0,0,0,0],TL:[0,0,0,0,0,0,0,0,0,0,0,0],HH:[1,1,1,1,1,1,1,1,1,1,1,1],SN:[0,0,0,1,0,0,0,0,0,1,0,0],BD:[1,0,0,0,0,0,1,0,0,0,0,0]}
 };
-// 音符モードに対応するドラムパターン。音符モードを押すとこちらも切り替わる。
-var MODE_DRUM={q:'beat4',e:'beat8',et:'triplet8',s:'beat16',st:'shuffle16',sh:'shuffle8'};
 var DRUM_NAME={beat4:'4分',beat8:'8ビート',beat16:'16ビート',shuffle8:'8シャッフル',shuffle16:'16シャッフル',triplet8:'トリプレット'};
 var drumMuted=false; // 「鳴らさない」を押している間だけ true
 function dc(o){return JSON.parse(JSON.stringify(o));}
-var CP={};Object.keys(DD).forEach(function(k){CP[k]=dc(DD[k]);});
+// ドラムの形は「拍子 → 型」の順に覚える（CPS['3/4'].beat8 など）。
+// 音符モードとは関係なく、ドラムの札で選んだ型が鳴る。CP は今の拍子の分を指す。
+var CPS={},CP={};
+var DROW_ALL=['CR','RD','OH','HH','RM','SN','TH','TL','BD'];
+// その拍子でのマスの数（4/4 の形を拍の数に合わせて伸び縮みさせる）
+function drumSteps(k,tsKey){return Math.round(DD[k].steps*TS[tsKey].b/4);}
+// その拍子での最初の形（足りない拍は空）
+function drumDefault(k,tsKey){
+  var n=drumSteps(k,tsKey),p={steps:n,div:DD[k].div};
+  DROW_ALL.forEach(function(r){p[r]=[];for(var i=0;i<n;i++)p[r].push((DD[k][r]&&DD[k][r][i])||0);});
+  return p;
+}
+// 型と拍子に合う形を返す（まだ無ければ最初の形を作って覚える）
+function drumPatFor(k,tsKey){
+  if(!DD[k]||!TS[tsKey]) return null;
+  if(!CPS[tsKey]) CPS[tsKey]={};
+  var p=CPS[tsKey][k];
+  if(!p||p.steps!==drumSteps(k,tsKey)) p=CPS[tsKey][k]=drumDefault(k,tsKey);
+  return p;
+}
+// CP を今の拍子の分に合わせ、今の型の形を用意する
+function drumSync(){
+  if(!DD[dpat]) dpat='beat8';
+  drumPatFor(dpat,ts);
+  CP=CPS[ts];
+}
 
 function beats(){return TS[ts].b;}
 function bint(){return (60/bpm)*(4/TS[ts].d);}
@@ -1807,33 +1846,21 @@ document.getElementById('acc-reset').addEventListener('click',function(){
 var DROWS=['CR','RD','OH','HH','RM','SN','TH','TL','BD'];
 var DROWS_EXTRA={OH:1,RM:1,TH:1,TL:1};   // たためる行
 function getEditorPattern(){
-  var tsInfo=TS[ts];
-  var b=tsInfo.b;
-  var basePat=DD[dpat];
-  var baseBeat=4;
-  var ratio=b/baseBeat;
-  var newSteps=Math.round(basePat.steps*ratio);
-  var newDiv=basePat.div;
-  var src=CP[dpat]||{};
-  var p={steps:newSteps, div:newDiv};
-  DROWS.forEach(function(r){p[r]=[];});
-  DROWS.forEach(function(row){
-    for(var i=0;i<newSteps;i++) p[row].push((src[row]&&src[row][i])||0);
-  });
-  return p;
+  drumSync();
+  return CP[dpat];   // 覚えている形そのものを触る（写しは作らない）
 }
 
 function drumApply(){
-  dpat=MODE_DRUM[mode]||'beat8';
-  if(!CP[dpat]) CP[dpat]=dc(DD[dpat]);
+  drumSync();
   var btn=document.getElementById('dmute');
   setLamp(btn,!drumMuted);
   var ep=document.getElementById('epan');if(ep)ep.classList.toggle('muted',drumMuted);
   redg();
 }
 function redg(){
-  var nameEl=document.getElementById('dname');
-  if(nameEl) nameEl.textContent=(DRUM_NAME[MODE_DRUM[mode]]||'');
+  var nameEl=document.getElementById('dtype-sel');
+  if(nameEl) nameEl.textContent=(DRUM_NAME[dpat]||'');
+  document.querySelectorAll('.dtype-btn').forEach(function(b){b.classList.toggle('on',b.dataset.dtype===dpat);});
   if(!DD[dpat]){document.getElementById('etbl').innerHTML='';return;}
   var p=getEditorPattern();
   var steps=p.steps, div=p.div;
@@ -1879,7 +1906,6 @@ function redg(){
     }
     tbl.appendChild(tr);
   });
-  CP[dpat]=p;
   emoreUpdate();
 }
 function hlstep(s){ecs=s;upcur();}
@@ -1903,9 +1929,8 @@ document.querySelectorAll('.mb[data-mode]').forEach(function(btn){
   btn.addEventListener('click',function(){
     document.querySelectorAll('.mb[data-mode]').forEach(function(b){b.classList.remove('on');});
     btn.classList.add('on');mode=btn.dataset.mode;uacc=null;racg();
+    // ドラムは音符モードとは別。刻みの細かさが変わるので、鳴らしている最中は止めて鳴らし直す
     var was=playing;if(was)stopM();
-    CP[MODE_DRUM[mode]]=dc(DD[MODE_DRUM[mode]]);useCustom=false;
-    drumApply();
     if(was)startM();
   });
 });
@@ -1919,10 +1944,28 @@ document.querySelectorAll('.ts-modal-btn').forEach(function(btn){
     var selBtn=document.getElementById('ts-sel-btn');
     selBtn.textContent=ts;selBtn.classList.add('on');
     editorTs=ts;
-    if(DD[dpat]){CP[dpat]=dc(DD[dpat]);useCustom=false;}
+    drumSync();   // その拍子で覚えている形へ（初めての拍子なら最初の形）
     redg();
     document.getElementById('ts-modal-overlay').classList.remove('on');
   });
+});
+// ドラムの型を選ぶ（形は型と拍子ごとに覚えているので、戻れば前の形が出る）
+document.getElementById('dtype-sel').addEventListener('click',function(){
+  document.getElementById('dtype-overlay').classList.add('on');
+});
+document.querySelectorAll('.dtype-btn').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    var k=btn.dataset.dtype;
+    document.getElementById('dtype-overlay').classList.remove('on');
+    if(!DD[k]||k===dpat) return;
+    var was=playing;if(was)stopM();   // 刻みの細かさが変わるので鳴らし直す
+    dpat=k;
+    drumApply();
+    if(was)startM();
+  });
+});
+document.getElementById('dtype-overlay').addEventListener('click',function(e){
+  if(e.target===this) this.classList.remove('on');
 });
 document.getElementById('ts-modal-overlay').addEventListener('click',function(e){
   if(e.target===this) this.classList.remove('on');
@@ -1978,7 +2021,7 @@ document.getElementById('amute').addEventListener('click',function(){
   metView();
 });
 document.getElementById('erst').addEventListener('click',function(){
-  if(!DD[dpat])return;CP[dpat]=dc(DD[dpat]);useCustom=false;redg();
+  if(!DD[dpat])return;drumSync();CP[dpat]=drumDefault(dpat,ts);useCustom=false;redg();
 });
 document.getElementById('pb').addEventListener('click',function(){if(playing||countInPlaying)stopM();else startM();});
 document.querySelectorAll('[data-ci]').forEach(function(btn){
@@ -3892,7 +3935,7 @@ function kcSetStyle(st){
 document.querySelectorAll('[data-kcstyle]').forEach(function(b){
   b.addEventListener('click',function(){kcSetStyle(this.dataset.kcstyle);});
 });
-drumApply(); // 起動時に音符モードに合わせたドラムとグリッドを出す
+drumApply(); // 起動時に、選んでいるドラムの型とマスを出す
 setVaImage('metro'); // 初期表示はメトロノームタブ
 
 // ═══ オープニング演出＋BGM制御 ═══
@@ -4226,7 +4269,7 @@ function trShowResult(){
 
 // ===== 体感テンポ「ロング」モード =====
 // 何小節も4分音符を叩き続け、ズレの平均・ばらつき・テンポの流れ・拍ごとの癖を出す。
-// ズレの向きは「＋＝早い（走り）・−＝遅い（もたり）」で表示する。
+// ズレの向きは「＋＝遅い（もたり）・−＝早い（走り）」で表示する（ショート・アドバンス・ゲーム・初見と同じ）。
 var tkSub='jump',tkSound='met',tkClick='alt',tkBars=8;
 var tkDiffs=[],tkTotal=0,tkBeats=4,tkBi=500;
 var TK_CLK_NOTE={
@@ -4312,7 +4355,7 @@ function tkDoStart(){
   trTapOriginMs=Date.now()+(t0-ctx.currentTime)*1000;
 
   // 叩いている間の音を、先にまとめて予約する（止めるときは ctx ごと閉じる）
-  var p=(tkSound==='drum')?CP[dpat]:null;
+  var p=(tkSound==='drum')?drumPatFor(dpat,trTs):null;
   for(var bar=0;bar<tkBars;bar++){
     if(!tkOn(bar)) continue;
     for(var k=0;k<b;k++){
@@ -4372,11 +4415,11 @@ function tkTap(){
 function tkMean(a){return a.length?a.reduce(function(x,y){return x+y;},0)/a.length:null;}
 function tkFmt(v){v=Math.round(v);return (v>0?'+':'')+v+'ms';}
 function tkAvgGrade(v){
-  var a=Math.abs(v),dir=v>0?'走り':'もたり';
+  var a=Math.abs(v),dir=v>0?'もたり':'走り';
   if(a<=10) return {g:'good',t:'ぴったり'};
   if(a<=25) return {g:'ok',t:'少し'+dir+'ぎみ'};
   if(a<=50) return {g:'fair',t:dir+'ぎみ'};
-  return {g:'bad',t:'かなり'+(v>0?'走っています':'もたっています')};
+  return {g:'bad',t:'かなり'+(v>0?'もたっています':'走っています')};
 }
 function tkSdGrade(v){
   if(v<=15) return {g:'good',t:'とても安定'};
@@ -4423,7 +4466,7 @@ function tkFlowSvg(barBpm,shade){
   });
   return s+'</svg>';
 }
-// 拍ごとの癖（＋は早い・−は遅い）
+// 拍ごとの癖（＋は遅い・−は早い）
 function tkBeatSvg(beatAvg){
   var W=340,H=88,x0=10,n=beatAvg.length,w=(W-20)/n;
   var neg=beatAvg.some(function(v){return v!=null&&v<0;}),pos=beatAvg.some(function(v){return v!=null&&v>0;});
@@ -4455,8 +4498,8 @@ function tkShowResult(){
   document.getElementById('tr-start-btn').style.display='block';
 
   var b=tkBeats,bars=tkBars,alt=(tkClick==='alt'),sw=tkSndWord();
-  // ＋＝早い になるよう向きを反転（diff は「遅れ」が＋）
-  var dev=tkDiffs.map(function(d){return d==null?null:-d;});
+  // ＋＝遅い（diff は「遅れ」が＋。そのまま使う）
+  var dev=tkDiffs.map(function(d){return d==null?null:d;});
   var vals=dev.filter(function(v){return v!=null;});
   var miss=tkTotal-vals.length;
   var head='<div class="tr-result-title">結果　<span style="color:var(--ink-4)">'+trBpm+' BPM・'+trTs+'・'+bars+'小節・'
@@ -4501,14 +4544,14 @@ function tkShowResult(){
   // 傾向のひとこと
   var title='',lines=[];
   if(aA!=null&&aB!=null&&Math.abs(aB-aA)>=12){
-    var up=(aB-aA)>0;
-    title=alt?(sw+'が消えると'+(up?'走りぎみ':'もたりぎみ')):('後半になると'+(up?'走りぎみ':'もたりぎみ'));
+    var later=(aB-aA)>0;
+    title=alt?(sw+'が消えると'+(later?'もたりぎみ':'走りぎみ')):('後半になると'+(later?'もたりぎみ':'走りぎみ'));
     lines.push(labA+'は平均 '+tkFmt(aA)+'、'+labB+'は平均 '+tkFmt(aB)+' です。');
   } else if(Math.abs(avg)<=10&&sd<=25){
     title='よく安定しています';
     lines.push('平均 '+tkFmt(avg)+'、ばらつき ±'+Math.round(sd)+'ms です。');
   } else if(Math.abs(avg)>10){
-    title='全体に'+(avg>0?'走りぎみ':'もたりぎみ');
+    title='全体に'+(avg>0?'もたりぎみ':'走りぎみ');
     lines.push('平均 '+tkFmt(avg)+' です。');
   } else {
     title='ズレの幅がやや大きめ';
@@ -4519,8 +4562,8 @@ function tkShowResult(){
     if(v!=null&&Math.abs(v)>=15&&Math.abs(v-avg)>=8&&(v-avg>0)===(v>0)) odd.push({k:k,v:v});
   });
   if(odd.length&&odd.length<b){
-    var early=odd.filter(function(o){return o.v>0;}).map(function(o){return o.k+1;});
-    var late=odd.filter(function(o){return o.v<0;}).map(function(o){return o.k+1;});
+    var early=odd.filter(function(o){return o.v<0;}).map(function(o){return o.k+1;});
+    var late=odd.filter(function(o){return o.v>0;}).map(function(o){return o.k+1;});
     if(early.length) lines.push('特に'+early.join('・')+'拍目が早くなりやすいようです。');
     if(late.length) lines.push('特に'+late.join('・')+'拍目が遅くなりやすいようです。');
   }
@@ -4537,7 +4580,7 @@ function tkShowResult(){
     +row2
     +'<div style="margin:12px 0 0;padding:9px 11px;background:var(--amber-soft);border-left:3px solid var(--amber);border-radius:var(--r-sm);font-size:var(--fs-sm);color:var(--ink-2);line-height:1.7;"><b style="color:var(--amber-dark)">'+title+'</b><br>'+lines.join('')+'</div>'
     +tkSec('テンポの流れ','小節ごとの実際のテンポ（BPM）')+tkFlowSvg(barBpm,alt)+legend
-    +tkSec('拍ごとの癖','＋は早い・−は遅い（ms）')+tkBeatSvg(beatAvg);
+    +tkSec('拍ごとの癖','＋は遅い・−は早い（ms）')+tkBeatSvg(beatAvg);
 
   // 聴き比べ用（メトロノーム音は全拍で鳴らす）
   var exp=[];for(var i=0;i<tkTotal;i++) exp.push(trTapOriginMs+i*tkBi);
@@ -6262,7 +6305,7 @@ function prefSave(){
       localStorage.setItem(PREF_KEY,JSON.stringify({
         v:1,
         bpm:bpm, clickType:clickType, mode:mode, ts:ts, countIn:countIn,
-        dpat:dpat, useCustom:useCustom, uacc:uacc, CP:CP,
+        dpat:dpat, useCustom:useCustom, uacc:uacc, CPS:CPS,
         ciDiv:ciDiv, ciLastOnly:ciLastOnly,
         trBpm:trBpm, trTs:trTs,
         tkSub:tkSub, tkSound:tkSound, tkClick:tkClick, tkBars:tkBars,
@@ -6281,7 +6324,7 @@ function prefSave(){
 
 // 保存のきっかけを配線する。ボタン群は個別に、動的生成されるマス目は親要素で受ける。
 function prefWire(){
-  ['[data-click]','.mb[data-mode]','.ts-modal-btn','.db','[data-ci]','[data-edts]',
+  ['[data-click]','.mb[data-mode]','.ts-modal-btn','.dtype-btn','[data-ci]','[data-edts]',
    '[data-tts]','[data-rtgts]','[data-div]','[data-measures]','[data-cid]',
    '[data-rtgcid]','[data-gmcid]','[data-genmeas]',
    '[data-tksub]','[data-tksnd]','[data-tkclk]','[data-tkbars]',
@@ -6317,7 +6360,6 @@ function prefRestore(){
   if(p.clickType) press('[data-click="'+p.clickType+'"]');
   if(p.mode&&M[p.mode]) press('.mb[data-mode="'+p.mode+'"]');
   if(p.ts&&TS[p.ts]) press('.ts-modal-btn[data-ts="'+p.ts+'"]');
-  if(p.dpat) press('.db[data-drum="'+p.dpat+'"]');
   if(typeof p.countIn==='number') press('[data-ci="'+p.countIn+'"]');
   if(p.ciDiv>=1&&p.ciDiv<=4) press('[data-cid="'+p.ciDiv+'"]');
   if(typeof p.ciLastOnly==='boolean'){
@@ -6327,23 +6369,32 @@ function prefRestore(){
   ciUpdateAvail();
   slide('bs',p.bpm);
 
-  // 自作ドラムパターン。既定パターンと同じ形のときだけ受け入れる。
-  if(p.CP&&typeof p.CP==='object'){
-    Object.keys(DD).forEach(function(k){
-      var src=p.CP[k];if(!src)return;
-      // シンバルの行が無い古い保存は、空の行を足して受け入れる
-      ['CR','RD','OH','RM','TH','TL'].forEach(function(r){if(!Array.isArray(src[r]))src[r]=DD[k][r].slice();});
-      // 行（配列）だけを比べる。steps・div は数なので比べない（以前は比べてしまい、自作の形が戻らなかった）
-      var ok=Object.keys(DD[k]).every(function(row){
-        if(!Array.isArray(DD[k][row])) return src[row]===DD[k][row];
-        return Array.isArray(src[row])&&src[row].length===DD[k][row].length;
-      });
-      if(ok)CP[k]=src;
-    });
-    if(p.useCustom&&p.dpat&&p.dpat!=='none')useCustom=true;
-    // 戻した形でマスを描き直す（描き直さないと、画面のマスと鳴る音が別々の物を指してしまう）
-    redg();
+  // 自作ドラムの形。型と拍子ごとに、その拍子のマスの数と合うものだけ受け入れる。
+  function drumTake(k,tsKey,src){
+    if(!DD[k]||!TS[tsKey]||!src||typeof src!=='object') return;
+    var n=drumSteps(k,tsKey);
+    // 行が無い古い保存は、空の行を足して受け入れる
+    DROW_ALL.forEach(function(r){if(!Array.isArray(src[r])){src[r]=[];for(var i=0;i<n;i++)src[r].push(0);}});
+    var ok=DROW_ALL.every(function(r){return src[r].length===n;});
+    if(!ok) return;
+    src.steps=n;src.div=DD[k].div;
+    if(!CPS[tsKey]) CPS[tsKey]={};
+    CPS[tsKey][k]=src;
   }
+  if(p.CPS&&typeof p.CPS==='object'){
+    // 新しい保存（型と拍子ごと）。型も自分で選んだものなので戻す
+    Object.keys(p.CPS).forEach(function(tsKey){
+      var o=p.CPS[tsKey];if(!o||typeof o!=='object')return;
+      Object.keys(o).forEach(function(k){drumTake(k,tsKey,o[k]);});
+    });
+    if(p.dpat&&DD[p.dpat]) dpat=p.dpat;
+  } else if(p.CP&&typeof p.CP==='object'){
+    // 以前の保存（4/4 の形だけ）。型は音符モードで決まっていたので戻さず、8ビートから始める
+    Object.keys(DD).forEach(function(k){drumTake(k,'4/4',p.CP[k]);});
+  }
+  if(p.useCustom)useCustom=true;
+  // 戻した形でマスを描き直す（描き直さないと、画面のマスと鳴る音が別々の物を指してしまう）
+  drumApply();
   // アクセント。拍子・音符モードを復元した後の粒数と一致するときだけ受け入れる。
   if(Array.isArray(p.uacc)&&p.uacc.length===tc()){uacc=p.uacc;}
   racg();
