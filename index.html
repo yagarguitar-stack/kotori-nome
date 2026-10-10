@@ -143,7 +143,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;heigh
 #pb{width:100%;padding:16px;border-radius:var(--r-lg);font-size:var(--fs-2xl);font-weight:bold;cursor:pointer;border:none;background:var(--amber);color:var(--ink);letter-spacing:.1em;margin-top:8px}
 #pb.on{background:var(--amber-deep)}
 .tr-mode-bar{display:flex;gap:6px;margin-bottom:14px}
-.tr-mode-btn{flex:1;background:var(--surface);border:1px solid var(--line);color:var(--ink-3);border-radius:var(--r);padding:8px 4px;font-size:var(--fs-sm);cursor:pointer;text-align:center;min-height:40px}
+/* モードが5つになったので、1列のまま折り返さないよう文字を一回り小さくする */
+.tr-mode-btn{flex:1;background:var(--surface);border:1px solid var(--line);color:var(--ink-3);border-radius:var(--r);padding:8px 2px;font-size:var(--fs-xs);cursor:pointer;text-align:center;min-height:40px;white-space:nowrap}
 .tr-mode-btn.on{background:var(--amber-soft);border-color:var(--amber);color:var(--amber-dark);font-weight:bold}
 .tr-panel{display:none}
 .tr-panel.on{display:block}
@@ -207,6 +208,10 @@ body.focus-sight .kc-style,body.focus-rhythm .kc-style,body.focus-game .kc-style
 /* ドラムの型のボタン（拍子のボタンと同じ見た目。見出しの行に収まる高さ） */
 .dtype-sel{background:var(--amber-soft);border:1px solid var(--amber);color:var(--amber-dark);font-weight:bold;border-radius:var(--r);padding:0 10px;font-size:var(--fs-md);cursor:pointer;min-height:36px;white-space:nowrap;letter-spacing:normal}
 .dtype-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mf-sel{background:var(--surface);border:1px solid var(--line);color:var(--ink-2);border-radius:var(--r);font-size:var(--fs-md);min-height:36px;padding:0 6px;font-family:inherit}
+.mf-song{background:var(--bg);border:1px solid var(--line);color:var(--ink-2);border-radius:var(--r);padding:10px 12px;text-align:left;cursor:pointer;font-family:inherit}
+.mf-song b{display:block;font-size:var(--fs-md)}
+.mf-song span{font-size:var(--fs-xs);color:var(--ink-4)}
 .tab-bar{display:flex;width:100%;max-width:400px;margin-bottom:16px;border-bottom:2px solid var(--surface-3)}
 .tab-btn{flex:1;background:none;border:none;padding:10px 0;font-size:var(--fs-lg);color:var(--ink-3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px}
 .tab-btn.on{color:var(--amber);border-bottom-color:var(--amber);font-weight:bold}
@@ -391,6 +396,7 @@ body.focus-game #gm-tap-btn{display:block}
     <button class="tr-mode-btn" id="tr-mode-game">ゲーム</button>
     <button class="tr-mode-btn" id="tr-mode-rhythm">アドバンス</button>
     <button class="tr-mode-btn" id="tr-mode-sight">初見</button>
+    <button class="tr-mode-btn" id="tr-mode-myscore">マイ譜面</button>
   </div>
   <div id="calib-box" style="border:1px solid var(--line-soft);border-radius:var(--r);padding:10px;margin-bottom:14px;background:var(--surface-2);">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
@@ -889,6 +895,82 @@ body.focus-game #gm-tap-btn{display:block}
     <button class="rtg-tap-btn inactive focus-keep" id="sk-tap-btn">TAP</button>
     <div class="rtg-result" id="sk-result"></div>
   </div>
+
+  <!-- マイ譜面モード -->
+  <div class="tr-panel" id="tr-panel-myscore">
+    <div style="font-size:var(--fs-xs);color:var(--ink-4);margin:-6px 0 14px;line-height:1.6;">ScoreLineTAB で作った曲のリズムを叩きます。</div>
+    <div class="sl" style="margin-bottom:4px;">曲</div>
+    <div id="mf-song-box" style="background:var(--bg);border-radius:var(--r);padding:10px 12px;margin-bottom:8px;">
+      <div id="mf-song-title" style="font-size:var(--fs-md);color:var(--ink-2);font-weight:bold;">曲が選ばれていません</div>
+      <div id="mf-song-info" style="font-size:var(--fs-xs);color:var(--ink-4);margin-top:2px;line-height:1.6;">下のボタンから曲を選んでください。</div>
+    </div>
+    <div style="display:flex;gap:6px;margin-bottom:4px;">
+      <button class="tb" id="mf-pick-slt" style="flex:1;min-height:40px;">ScoreLineTAB の曲から選ぶ</button>
+      <button class="tb" id="mf-pick-file" style="flex:1;min-height:40px;">ファイルから読み込む</button>
+    </div>
+    <input type="file" id="mf-file-in" accept=".json,application/json" style="display:none">
+    <div style="font-size:var(--fs-xs);color:var(--ink-4);margin-bottom:12px;line-height:1.6;">ファイルは ScoreLineTAB で書き出した .json を使います。</div>
+    <div class="sl" style="margin-bottom:4px;">使う範囲</div>
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:12px;font-size:var(--fs-sm);color:var(--ink-3);">
+      <select id="mf-from" class="mf-sel"></select><span>小節目から</span>
+      <select id="mf-to" class="mf-sel"></select><span>小節目まで</span>
+      <button class="tb" id="mf-all" style="margin-left:auto;min-height:36px;padding:0 12px;">全部</button>
+    </div>
+    <div class="sl" style="margin-bottom:4px;">テンポ</div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+      <span class="bdisp" id="mf-bpm-disp" style="font-size:var(--fs-5xl);font-weight:bold;color:var(--amber);min-width:60px;text-align:center;">90</span>
+      <input type="range" id="mf-bpm-slider" min="30" max="240" value="90" style="-webkit-appearance:none;flex:1;height:6px;border-radius:var(--r-sm);background:var(--line);outline:none;">
+      <button id="mf-tap-tempo" style="padding:6px 12px;border-radius:var(--r);border:1px solid var(--amber);background:var(--surface);color:var(--amber);font-size:var(--fs-sm);font-weight:bold;cursor:pointer;">TAP</button>
+    </div>
+    <div class="sl" style="margin-bottom:4px;">下見</div>
+    <div style="display:flex;gap:6px;margin-bottom:4px;">
+      <button class="tb" data-mfprev="ci" style="flex:1;min-height:40px;">カウントインの間だけ</button>
+      <button class="tb on" data-mfprev="self" style="flex:1;min-height:40px;">自分でスタート</button>
+    </div>
+    <div id="mf-prev-note" style="font-size:var(--fs-xs);color:var(--ink-4);margin-bottom:12px;line-height:1.6;"></div>
+    <div style="margin-bottom:8px;">
+      <div style="font-size:var(--fs-xs);color:var(--ink-4);margin-bottom:4px;">判定モード</div>
+      <div style="display:flex;gap:6px;">
+        <button id="mf-judge-normal" style="flex:1;padding:6px;border-radius:8px;background:#e8fff5;border:2px solid #1D9E75;color:#0F6E56;font-size:.74rem;font-weight:bold;cursor:pointer;">通常判定</button>
+        <button id="mf-judge-oni" style="flex:1;padding:6px;border-radius:8px;background:#ffffff;border:1px solid #d5d0c3;color:#8a857a;font-size:.74rem;cursor:pointer;">👹 鬼判定</button>
+      </div>
+      <div id="mf-judge-desc" style="font-size:var(--fs-xs);color:var(--ink-4);margin-top:4px;line-height:1.7;">PERFECT ±41ms　GREAT ±83ms　GOOD ±108ms</div>
+    </div>
+    <div class="sl" style="margin-bottom:4px;">カウントインの刻み</div>
+    <div class="rtg-div-row" style="margin-bottom:6px;">
+      <button class="rtg-div-btn on" data-mfcid="1">4分</button>
+      <button class="rtg-div-btn" data-mfcid="2">8分</button>
+      <button class="rtg-div-btn" data-mfcid="4">16分</button>
+      <button class="rtg-div-btn" data-mfcid="8">32分</button>
+    </div>
+    <div class="rtg-div-row" style="margin-bottom:12px;">
+      <button class="rtg-div-btn" data-mfcid="3">3連</button>
+      <button class="rtg-div-btn" data-mfcid="5">5連</button>
+      <button class="rtg-div-btn" data-mfcid="6">6連</button>
+      <div style="flex:1;visibility:hidden;"></div>
+    </div>
+    <div id="mf-qhead" class="focus-keep" style="display:flex;align-items:baseline;justify-content:space-between;margin:4px 0 6px;">
+      <span id="mf-qno" style="font-size:var(--fs-sm);color:var(--ink-3);font-weight:bold;"></span>
+      <span id="mf-qinfo" style="font-size:var(--fs-xs);color:var(--ink-4);display:none;"></span>
+      <span class="kc-style"><button class="score-toggle on" data-kcstyle="rest">休符あり</button><button class="score-toggle" data-kcstyle="tie">伸ばす</button></span>
+    </div>
+    <div id="mf-score" class="focus-keep" style="background:var(--score-bg);border-radius:var(--r);padding:6px 4px;overflow-x:auto;min-height:60px;"></div>
+    <div id="mf-next-wrap" class="focus-keep" style="display:none;">
+      <div style="font-size:var(--fs-2xs);color:var(--ink-4);font-weight:bold;margin:10px 0 4px;">次の譜面</div>
+      <div style="opacity:.5;max-height:150px;overflow:hidden;-webkit-mask-image:linear-gradient(#000 60%,transparent);mask-image:linear-gradient(#000 60%,transparent);">
+        <div id="mf-next" style="background:var(--score-bg);border-radius:var(--r);padding:6px 4px;"></div>
+      </div>
+    </div>
+    <button id="mf-demo-btn" class="demo-btn" style="margin-top:8px;">&#9655; お手本を聴く</button>
+    <div id="mf-pulse" class="focus-keep" style="width:60px;height:60px;border-radius:50%;background:var(--pulse);margin:12px auto;opacity:.3;transform:scale(.85);display:none;"></div>
+    <div class="rtg-status focus-keep" id="mf-status">曲を選んでください</div>
+    <div class="focus-keep" style="display:flex;gap:8px;">
+      <button class="rtg-start-btn" id="mf-start-btn" style="flex:1;">▶ スタート</button>
+      <button class="rtg-start-btn" id="mf-stop-btn" style="flex:1;background:var(--amber-deep);display:none;">■ ストップ</button>
+    </div>
+    <button class="rtg-tap-btn inactive focus-keep" id="mf-tap-btn">TAP</button>
+    <div class="rtg-result" id="mf-result"></div>
+  </div>
   </div>
 </div>
 <style>
@@ -924,13 +1006,19 @@ body.focus-tempo #tr-pulse{width:90px;height:90px;margin:20px auto}
 body.focus-rhythm h1, body.focus-rhythm #va, body.focus-rhythm .tab-bar, body.focus-rhythm .tr-mode-bar, body.focus-rhythm #app-credit, body.focus-rhythm #calib-box,
 body.focus-game h1, body.focus-game #va, body.focus-game .tab-bar, body.focus-game .tr-mode-bar, body.focus-game #app-credit, body.focus-game #calib-box,
 body.focus-tempo #calib-box,
-body.focus-sight h1, body.focus-sight #va, body.focus-sight .tab-bar, body.focus-sight .tr-mode-bar, body.focus-sight #app-credit, body.focus-sight #calib-box{display:none!important}
+body.focus-sight h1, body.focus-sight #va, body.focus-sight .tab-bar, body.focus-sight .tr-mode-bar, body.focus-sight #app-credit, body.focus-sight #calib-box,
+body.focus-myscore h1, body.focus-myscore #va, body.focus-myscore .tab-bar, body.focus-myscore .tr-mode-bar, body.focus-myscore #app-credit, body.focus-myscore #calib-box{display:none!important}
 /* 初見：パネル直下でfocus-keepを持たない要素（設定欄）を隠す */
 body.focus-sight #tr-panel-sight > *:not(.focus-keep){display:none!important}
 body.focus-sight #sk-status{font-size:var(--fs-2xl);color:var(--amber);font-weight:bold;height:2.2em;min-height:0;margin:8px 0 10px;overflow:hidden}
 /* 譜面を2枚出すので、TAPは他のモードより低めにする */
 body.focus-sight #sk-tap-btn{padding:44px 28px;font-size:2.2rem;border-width:4px;margin-bottom:16px;letter-spacing:.15em}
 body.focus-sight #sk-pulse{width:60px;height:60px;margin:10px auto}
+/* マイ譜面：初見と同じ演奏中の画面 */
+body.focus-myscore #tr-panel-myscore > *:not(.focus-keep){display:none!important}
+body.focus-myscore #mf-status{font-size:var(--fs-2xl);color:var(--amber);font-weight:bold;height:2.2em;min-height:0;margin:8px 0 10px;overflow:hidden}
+body.focus-myscore #mf-tap-btn{padding:44px 28px;font-size:2.2rem;border-width:4px;margin-bottom:16px;letter-spacing:.15em}
+body.focus-myscore #mf-pulse{width:60px;height:60px;margin:10px auto}
 /* リズム：パネル直下でfocus-keepを持たない要素を隠す（focus-keepは元のdisplayのまま）*/
 body.focus-rhythm #tr-panel-rhythm > *:not(.focus-keep){display:none!important}
 /* ゲーム：同上 */
@@ -971,6 +1059,12 @@ body.focus-rhythm #rtg-pulse, body.focus-game #gm-pulse{width:90px;height:90px;m
       <button class="dtype-btn" data-dtype="shuffle8">8シャッフル</button>
       <button class="dtype-btn" data-dtype="shuffle16">16シャッフル</button>
     </div>
+  </div>
+</div>
+<div class="ts-modal-overlay" id="mf-list-overlay">
+  <div class="ts-modal" style="width:min(380px,92vw);">
+    <h3 id="mf-list-title">曲を選択</h3>
+    <div id="mf-list" style="max-height:60vh;overflow-y:auto;display:flex;flex-direction:column;gap:6px;"></div>
   </div>
 </div>
 <div class="ts-modal-overlay" id="ts-modal-overlay">
@@ -3928,6 +4022,12 @@ function kcSetStyle(st){
   try{rtgRenderScore();}catch(e){}
   try{gmRenderScore();}catch(e){}
   if(skState==='idle'&&skPrev==='self'&&skQs.length) skDraw('sk','sk-score',skQs[0]);
+  if(typeof mfState!=='undefined'){
+    if(mfState==='idle'&&mfPrev==='self'&&mfPages.length&&!demoActiveBtn) mfDraw('mf','mf-score',mfPages[0]);
+    document.querySelectorAll('.mf-detail').forEach(function(d){
+      if(d.style.display!=='none'){var i=+d.id.replace('mf-detail-','');mfDraw('mfq'+i,'mf-qscore-'+i,mfPages[i]);}
+    });
+  }
   document.querySelectorAll('.sk-detail').forEach(function(d){
     if(d.style.display!=='none'){var i=+d.id.replace('sk-detail-','');skDraw('skq'+i,'sk-qscore-'+i,skQs[i]);}
   });
@@ -3935,6 +4035,633 @@ function kcSetStyle(st){
 document.querySelectorAll('[data-kcstyle]').forEach(function(b){
   b.addEventListener('click',function(){kcSetStyle(this.dataset.kcstyle);});
 });
+// ═══ マイ譜面 ═══
+// ScoreLineTAB で作った曲から「いつ鳴るか」だけを取り出し、初見と同じ流れで読んで叩く。
+// 押さえ（弦・フレット）は使わない。和音は1打、タイでつながった音は1打、装飾音符は外す。
+// くり返し記号は展開せず、書いてある順に読む。はねる曲は、譜面はそのまま・鳴らし方と判定だけはねる。
+// 同じ github.io の上で公開しているので、同じ端末の ScoreLineTAB の保存を直接読める（読むだけ。書き込まない）。
+var MF_KEY='kotori_myscore',SLT_INDEX='utadori-tab.index.v1',SLT_SONG='utadori-tab.song.';
+var MF_Q=1680,MF_PAGE=4,MF_CPB=[1,2,4,3,8,6,5,7];
+var mfSong=null,mfFrom=1,mfTo=1,mfBpm=90,mfPrev='self',mfOni=false,mfCiDiv=1;
+var mfPages=[],mfState='idle',mfToken=0,mfTaps=[],mfPlay=null,mfTapTempo=[],mfLast=null,mfCands=[];
+VA_IMAGES.myscore=VA_IMAGES.rhythm;
+function mfThresh(){return mfOni?ONI_THRESH:{p:41.7,gr:83.3,gd:108.3};}
+
+// --- ScoreLineTAB の曲 → ことりノームの形 ---
+// 返すもの：{title,bpm,swing,bars:[{ts:[n,d],len,on:[小節内のtick],ev:[はねない拍],sbt}]}
+function mfGraceSkip(n,bpm){
+  var ag=n.asGrace||'auto';
+  if(ag==='on'||ag==='long')return true;
+  if(ag==='off')return false;
+  return (n.len||0)*(60/bpm/MF_Q)*1000<85;   // ScoreLineTAB と同じ決まり（85ms より短い音は飾り）
+}
+// 前の音からタイでつながっているか（弦ごとのタイ。押さえの無い音はつながっていれば続き）
+function mfTiedFrom(prev,cur){
+  if(!prev)return false;
+  var ps=prev.stops||[],tied={},any=false;
+  ps.forEach(function(o){if(o&&o.t&&o.t.tie){tied[o.s]=1;any=true;}});
+  if(!any&&prev.tieOut){ps.forEach(function(o){if(o)tied[o.s]=1;});any=true;}
+  if(!any)return false;
+  var cs=cur.stops||[];
+  if(!cs.length)return true;
+  return cs.every(function(o){return o&&tied[o.s];});
+}
+function mfFromSlt(o){
+  if(!o||typeof o!=='object'||!Array.isArray(o.bars)||!o.bars.length)return null;
+  var v=+o.version||1,sc=v<2?35:1,ssc=v<3?35:1;   // 古い版は1拍＝48だった（ScoreLineTAB の読み込みと同じ換算）
+  var meta=o.meta||{},ts0=(meta.timeSig&&meta.timeSig.n)?meta.timeSig:{n:4,d:4};
+  var play=o.play||{},bpm=Math.max(30,Math.min(240,Math.round(+play.bpm||96)));
+  var sw=null;
+  if(play.swing&&typeof play.swing==='object'){
+    var u=Math.round((+play.swing.unit||0)*ssc),r=+play.swing.ratio;
+    if(u>0&&r>0.5&&r<0.95)sw={unit:u,ratio:r};
+  }
+  var byId={};o.bars.forEach(function(b){if(b&&b.id)byId[b.id]=b;});
+  var order=[];
+  (o.sections||[]).forEach(function(sec){((sec&&sec.items)||[]).forEach(function(it){var b=it&&byId[it.barId];if(b)order.push(b);});});
+  if(!order.length)order=o.bars.filter(Boolean);
+  var bars=[],prev=null;
+  order.forEach(function(b){
+    var ts=(b.timeSig&&b.timeSig.n)?b.timeSig:ts0;
+    var n=Math.max(1,Math.min(16,Math.round(+ts.n||4))),d=[2,4,8,16].indexOf(+ts.d)>=0?+ts.d:4;
+    var len=Math.round(n*4/d*MF_Q),sbt=(d===8&&n%3===0)?MF_Q*1.5:MF_Q*4/d;
+    var notes=(b.notes||[]).filter(function(x){return x&&typeof x.start==='number';})
+      .slice().sort(function(a,c){return a.start-c.start;});
+    var on=[];
+    notes.forEach(function(nt){
+      if(nt.kind==='rest'){prev=null;return;}
+      var st=Math.round(nt.start*sc);
+      var nn={len:Math.round((nt.len||0)*sc),asGrace:nt.asGrace};
+      if(mfGraceSkip(nn,bpm))return;
+      var cont=mfTiedFrom(prev,nt);
+      prev=nt;
+      if(cont||st<0||st>=len)return;
+      if(on.indexOf(st)<0)on.push(st);
+    });
+    on.sort(function(a,c){return a-c;});
+    // はねない拍：手で〈イーブン〉にした拍と、3連などで書いてある拍。
+    // 6/8 などの複合拍子は、もともと3つずつのまとまりなので、はねを掛けない。
+    var nb=Math.round(len/sbt),ev=[],cmp=(d===8&&n%3===0),g=cmp?sbt/12:sbt/8;
+    for(var k=0;k<nb;k++){
+      var e=cmp||!!(b.evenAt&&b.evenAt[k]===true);
+      if(!e)e=on.some(function(t){return t>=k*sbt&&t<(k+1)*sbt&&((t-k*sbt)%g)!==0;});
+      ev.push(e);
+    }
+    bars.push({ts:[n,d],len:len,on:on,ev:ev,sbt:sbt});
+  });
+  return {title:(meta.title||'無題の曲'),bpm:bpm,swing:sw,bars:bars};
+}
+// はねる曲：1組（はねる刻み2つ）の後ろ半分を遅らせる
+function mfSwing(bar,tk){
+  var sw=mfSong&&mfSong.swing;if(!sw)return tk;
+  var k=Math.floor(tk/bar.sbt);if(bar.ev[k])return tk;
+  var u=sw.unit,p=tk%(2*u),base=tk-p,f=2*u*sw.ratio;
+  return base+(p<u?p*f/u:f+(p-u)*(2*u-f)/u);
+}
+// 1小節を、拍ごとの升目に直す（拍の中で必要なだけ細かくする）
+// 返すもの：[{cells,tu,span,cpb,beat(何拍目・0起点),at(拍の中の始まり 0〜1)}]
+// 1拍を一つの細かさで書けない時（前半が16分・後半が3連など）は、半拍ずつに分けて書く。
+function mfFits(rs,len,k){return rs.every(function(r){return Math.abs(r-Math.round(r*k/len)*len/k)<=1;});}
+function mfTu(k){return (k===3||k===5||k===6||k===7)?{n:k,in:kcDefIn(k)}:null;}
+function mfCells(rs,len,k){var c=[];for(var p=0;p<k;p++)c.push(0);rs.forEach(function(r){c[Math.min(k-1,Math.round(r*k/len))]=1;});return c;}
+function mfBarBeats(bar){
+  var n=bar.ts[0],bt=MF_Q*4/bar.ts[1],per=[],beats=[],carry=[];
+  for(var j=0;j<n;j++)per.push([]);
+  bar.on.forEach(function(t){var j2=Math.min(n-1,Math.floor(t/bt));per[j2].push(t-j2*bt);});
+  for(j=0;j<n;j++){
+    var rs=per[j].concat(carry),cpb=null;carry=[];
+    for(var c=0;c<MF_CPB.length&&cpb===null;c++){if(mfFits(rs,bt,MF_CPB[c]))cpb=MF_CPB[c];}
+    if(cpb===null){
+      // 半拍ずつに分けて、それぞれ書ける細かさを探す
+      var h=bt/2,A=rs.filter(function(r){return r<h-1;}),B=rs.filter(function(r){return r>=h-1;}).map(function(r){return Math.max(0,r-h);});
+      var ka=null,kb=null;
+      [1,2,3,4].forEach(function(k){if(ka===null&&mfFits(A,h,k))ka=k;if(kb===null&&mfFits(B,h,k))kb=k;});
+      if(ka!==null&&kb!==null){
+        beats.push({cells:mfCells(A,h,ka),tu:mfTu(ka),span:0.5,cpb:ka,beat:j,at:0});
+        beats.push({cells:mfCells(B,h,kb),tu:mfTu(kb),span:0.5,cpb:kb,beat:j,at:0.5});
+        continue;
+      }
+      // それでも書けない細かさは、いちばん近い刻みに寄せる
+      var be=1e9;[4,8,6,3].forEach(function(k2){
+        var e=Math.max.apply(null,rs.map(function(r){return Math.abs(r-Math.round(r*k2/bt)*bt/k2);}));
+        if(e<be){be=e;cpb=k2;}
+      });
+    }
+    var cells=[];for(var p=0;p<cpb;p++)cells.push(0);
+    rs.forEach(function(r){var q=Math.round(r*cpb/bt);if(q>=cpb){if(j+1<n)carry.push(0);else cells[cpb-1]=1;}else cells[q]=1;});
+    beats.push({cells:cells,tu:mfTu(cpb),span:1,cpb:cpb,beat:j,at:0});
+  }
+  return beats;
+}
+// 範囲を4小節ずつに分ける（最後は4小節に満たないこともある）
+function mfMakePages(){
+  mfPages=[];if(!mfSong)return;
+  for(var i=mfFrom;i<=mfTo;i+=MF_PAGE){
+    var pg={first:i,bars:[],len:0};
+    for(var no=i;no<Math.min(i+MF_PAGE,mfTo+1);no++){
+      var src=mfSong.bars[no-1],beats=mfBarBeats(src),bt=MF_Q*4/src.ts[1],ons=[];
+      beats.forEach(function(B,bi){
+        var half=B.span<1,cnt=half?(beats[bi+(B.at?-1:1)]||{cpb:0}).cpb+B.cpb:B.cpb,base=(half&&B.at)?(beats[bi-1].cpb):0;
+        B.cells.forEach(function(c,p){
+          if(!c)return;
+          var pos=B.beat+B.at+p*B.span/B.cpb;
+          // 半拍に分けた拍は、拍の中の通し番号で呼ぶ（2-1・2-2 …）
+          ons.push({tk:Math.round(pos*bt),pos:pos,label:half?((B.beat+1)+'-'+(base+p+1)):beatPosLabel(B.beat+1,p,B.cpb)});
+        });
+      });
+      pg.bars.push({no:no,src:src,ts:src.ts,len:src.len,beats:beats,ons:ons,off:pg.len});
+      pg.len+=src.len;
+    }
+    pg.last=pg.bars[pg.bars.length-1].no;
+    mfPages.push(pg);
+  }
+}
+function mfPageLabel(pg){return pg.first===pg.last?(pg.first+'小節目'):(pg.first+'〜'+pg.last+'小節目');}
+// 譜面：同じ拍子が続く所はまとめて変換する（伸ばす書き方で小節をまたいでつなげるため）
+function mfScoreOf(pg){
+  var out=[],run=null;
+  function flush(){if(!run)return;out=out.concat(kcBeatsToScore(run.beats,run.ts).bars);run=null;}
+  pg.bars.forEach(function(b){
+    if(run&&run.ts[0]===b.ts[0]&&run.ts[1]===b.ts[1])run.beats=run.beats.concat(b.beats);
+    else{flush();run={ts:b.ts.slice(),beats:b.beats.slice()};}
+  });
+  flush();
+  return {bars:out};
+}
+function mfDraw(which,areaId,pg){
+  var area=document.getElementById(areaId);if(!area)return;
+  if(!pg){area.innerHTML='';return;}
+  if(!kcRhy()){area.innerHTML='<div style="padding:14px;font-size:var(--fs-sm);color:var(--ink-3);text-align:center;">譜面を描く部品を読み込めませんでした。通信を確かめて、開き直してください。</div>';return;}
+  area.innerHTML='';kcRender(which,areaId,mfScoreOf(pg));
+}
+function mfPlaceholder(text){
+  document.getElementById('mf-score').innerHTML='<div style="padding:22px 10px;font-size:var(--fs-sm);color:var(--ink-4);text-align:center;">'+text+'</div>';
+}
+function mfHasHits(){return mfPages.some(function(pg){return pg.bars.some(function(b){return b.ons.length;});});}
+
+// --- 設定欄 ---
+var MF_PREV_NOTE={
+  ci:'スタートを押すと譜面が出ます。カウントインの間に読んでから叩きます。',
+  self:'譜面を見て、準備ができたらスタートを押します。次の4小節からは止まらずに続きます。'
+};
+function mfSave(){
+  try{localStorage.setItem(MF_KEY,JSON.stringify({song:mfSong,from:mfFrom,to:mfTo,bpm:mfBpm,prev:mfPrev,oni:mfOni,ci:mfCiDiv}));}catch(e){}
+}
+function mfSetBpm(v){
+  mfBpm=Math.max(30,Math.min(240,Math.round(v)));
+  document.getElementById('mf-bpm-slider').value=mfBpm;document.getElementById('mf-bpm-disp').textContent=mfBpm;
+}
+function mfFillRange(){
+  var f=document.getElementById('mf-from'),t=document.getElementById('mf-to'),n=mfSong?mfSong.bars.length:0;
+  var opt=function(sel,lo,hi,val){var h='';for(var i=lo;i<=hi;i++)h+='<option value="'+i+'"'+(i===val?' selected':'')+'>'+i+'</option>';sel.innerHTML=h;sel.disabled=!n;};
+  if(!n){f.innerHTML='';t.innerHTML='';f.disabled=t.disabled=true;return;}
+  opt(f,1,n,mfFrom);opt(t,mfFrom,n,mfTo);
+}
+function mfSyncSetup(){
+  document.getElementById('mf-prev-note').textContent=MF_PREV_NOTE[mfPrev];
+  var ti=document.getElementById('mf-song-title'),inf=document.getElementById('mf-song-info');
+  if(mfSong){
+    ti.textContent=mfSong.title;
+    var tss=[];mfSong.bars.forEach(function(b){var k=b.ts[0]+'/'+b.ts[1];if(tss.indexOf(k)<0)tss.push(k);});
+    inf.textContent='全'+mfSong.bars.length+'小節・'+tss.join('・')+'・曲のテンポ '+mfSong.bpm+(mfSong.swing?'・はねる':'');
+  } else {ti.textContent='曲が選ばれていません';inf.textContent='下のボタンから曲を選んでください。';}
+  mfFillRange();
+  var ok=!!mfSong;
+  ['mf-start-btn','mf-demo-btn','mf-all'].forEach(function(id){var el=document.getElementById(id);el.disabled=!ok;el.style.opacity=ok?'':'0.4';});
+}
+function mfShowIdle(){
+  mfMakePages();
+  document.getElementById('mf-qinfo').style.display='none';
+  document.getElementById('mf-next-wrap').style.display='none';
+  var st=document.getElementById('mf-status'),qno=document.getElementById('mf-qno');
+  if(!mfSong){qno.textContent='';mfPlaceholder('曲を選ぶと、ここに譜面が出ます');st.textContent='曲を選んでください';}
+  else if(!mfHasHits()){qno.textContent=mfPages.length?mfPageLabel(mfPages[0]):'';mfDraw('mf','mf-score',mfPages[0]);st.textContent='この範囲には叩く音がありません';}
+  else if(mfPrev==='self'){qno.textContent=mfPageLabel(mfPages[0]);mfDraw('mf','mf-score',mfPages[0]);st.textContent='譜面を見て、準備ができたらスタート';}
+  else{qno.textContent=mfPageLabel(mfPages[0]);mfPlaceholder('スタートを押すと、ここに譜面が出ます');st.textContent='スタートを押すと譜面が出ます';}
+  mfSyncSetup();
+}
+function mfUseSong(sg){
+  if(!sg||!sg.bars.length){mfToast('この曲には小節がありません');return;}
+  mfSong=sg;mfFrom=1;mfTo=sg.bars.length;mfSetBpm(sg.bpm);
+  mfSave();mfShowIdle();
+}
+function mfToast(msg){document.getElementById('mf-status').textContent=msg;}
+function mfIdleOnly(){return mfState==='idle'||mfState==='done';}
+
+// --- 曲を選ぶ ---
+function mfDateStr(ms){if(!ms)return '';var d=new Date(ms);return (d.getMonth()+1)+'月'+d.getDate()+'日';}
+function mfOpenList(title,cands){
+  mfCands=cands;
+  document.getElementById('mf-list-title').textContent=title;
+  var box=document.getElementById('mf-list');box.innerHTML='';
+  cands.forEach(function(c,i){
+    var b=document.createElement('button');b.className='mf-song';
+    var bt=document.createElement('b');bt.textContent=c.title||'無題の曲';b.appendChild(bt);
+    var sp=document.createElement('span');sp.textContent=c.sub||'';b.appendChild(sp);
+    b.addEventListener('click',function(){
+      document.getElementById('mf-list-overlay').classList.remove('on');
+      var sg=mfCands[i].load();
+      if(!sg){mfToast('この曲は読み込めませんでした');return;}
+      mfUseSong(sg);
+    });
+    box.appendChild(b);
+  });
+  document.getElementById('mf-list-overlay').classList.add('on');
+}
+function mfSltCands(){
+  var idx=null;try{idx=JSON.parse(localStorage.getItem(SLT_INDEX)||'null');}catch(e){}
+  var list=(idx&&Array.isArray(idx.index))?idx.index.slice():[];
+  list.sort(function(a,b){return (b.updatedAt||0)-(a.updatedAt||0);});
+  return list.map(function(e){
+    return {title:e.title||'無題の曲',sub:(e.barCount?('全'+e.barCount+'小節'):'')+(e.updatedAt?('・'+mfDateStr(e.updatedAt)+'に保存'):''),
+      load:function(){try{return mfFromSlt(JSON.parse(localStorage.getItem(SLT_SONG+e.id)||'null'));}catch(err){return null;}}};
+  });
+}
+document.getElementById('mf-pick-slt').addEventListener('click',function(){
+  if(!mfIdleOnly())return;
+  var c=mfSltCands();
+  if(!c.length){mfToast('この端末の ScoreLineTAB に保存された曲が見つかりません。書き出したファイルから読み込んでください');return;}
+  mfOpenList('ScoreLineTAB の曲',c);
+});
+document.getElementById('mf-pick-file').addEventListener('click',function(){
+  if(!mfIdleOnly())return;
+  var fi=document.getElementById('mf-file-in');fi.value='';fi.click();
+});
+document.getElementById('mf-file-in').addEventListener('change',function(){
+  var f=this.files&&this.files[0];if(!f)return;
+  var r=new FileReader();
+  r.onload=function(){
+    var o;try{o=JSON.parse(r.result);}catch(e){mfToast('読み込めませんでした（ScoreLineTAB の .json ではないようです）');return;}
+    var raws=o&&o.songs?o.songs:(o&&o.song?[o.song]:(Array.isArray(o)?o:[o]));
+    var songs=raws.map(function(x){return mfFromSlt(x);}).filter(Boolean);
+    if(!songs.length){mfToast('読み込める曲がありませんでした');return;}
+    if(songs.length===1){mfUseSong(songs[0]);return;}
+    mfOpenList('ファイルの中の曲',songs.map(function(sg){return {title:sg.title,sub:'全'+sg.bars.length+'小節',load:function(){return sg;}};}));
+  };
+  r.onerror=function(){mfToast('ファイルを開けませんでした');};
+  r.readAsText(f);
+});
+document.getElementById('mf-list-overlay').addEventListener('click',function(e){if(e.target===this)this.classList.remove('on');});
+document.getElementById('mf-from').addEventListener('change',function(){
+  mfFrom=parseInt(this.value,10);if(mfTo<mfFrom)mfTo=mfFrom;mfSave();mfShowIdle();
+});
+document.getElementById('mf-to').addEventListener('change',function(){mfTo=parseInt(this.value,10);mfSave();mfShowIdle();});
+document.getElementById('mf-all').addEventListener('click',function(){
+  if(!mfSong||!mfIdleOnly())return;mfFrom=1;mfTo=mfSong.bars.length;mfSave();mfShowIdle();
+});
+document.querySelectorAll('[data-mfprev]').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    if(!mfIdleOnly())return;
+    document.querySelectorAll('[data-mfprev]').forEach(function(x){x.classList.toggle('on',x===btn);});
+    mfPrev=btn.dataset.mfprev;mfSave();mfShowIdle();
+  });
+});
+document.querySelectorAll('[data-mfcid]').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    if(!mfIdleOnly())return;
+    document.querySelectorAll('[data-mfcid]').forEach(function(x){x.classList.toggle('on',x===btn);});
+    mfCiDiv=parseInt(btn.dataset.mfcid,10);mfSave();
+  });
+});
+document.getElementById('mf-bpm-slider').addEventListener('input',function(){mfSetBpm(+this.value);});
+document.getElementById('mf-bpm-slider').addEventListener('change',mfSave);
+document.getElementById('mf-tap-tempo').addEventListener('click',function(){
+  var now=Date.now();
+  if(mfTapTempo.length&&now-mfTapTempo[mfTapTempo.length-1]>2000)mfTapTempo=[];
+  mfTapTempo.push(now);if(mfTapTempo.length>8)mfTapTempo.shift();
+  if(mfTapTempo.length>=2){mfSetBpm(60000/((mfTapTempo[mfTapTempo.length-1]-mfTapTempo[0])/(mfTapTempo.length-1)));mfSave();}
+});
+function mfSetJudge(oni){
+  mfOni=oni;
+  var on='flex:1;padding:6px;border-radius:8px;font-size:.74rem;font-weight:bold;cursor:pointer;',off='flex:1;padding:6px;border-radius:8px;background:#ffffff;border:1px solid #d5d0c3;color:#8a857a;font-size:.74rem;cursor:pointer;';
+  document.getElementById('mf-judge-normal').style.cssText=oni?off:on+'background:#e8fff5;border:2px solid #1D9E75;color:#0F6E56;';
+  document.getElementById('mf-judge-oni').style.cssText=oni?on+'background:#2a0000;border:2px solid #E24B4A;color:#ff6b6b;':off;
+  document.getElementById('mf-judge-desc').textContent=oni?'👹 PERFECT ±20ms　GREAT ±40ms　GOOD ±60ms':'PERFECT ±41ms　GREAT ±83ms　GOOD ±108ms';
+}
+document.getElementById('mf-judge-normal').addEventListener('click',function(){mfSetJudge(false);mfSave();});
+document.getElementById('mf-judge-oni').addEventListener('click',function(){mfSetJudge(true);mfSave();});
+
+// --- モードの切り替え（ほかの4つのボタンと並べる）---
+var MF_OTHER_IDS=['tr-mode-tempo','tr-mode-game','tr-mode-rhythm','tr-mode-sight'];
+function mfHalt(){
+  if(mfState==='countin'||mfState==='tapping'){mfState='idle';mfToken++;if(ctx){try{ctx.close();}catch(e){}ctx=null;}mfBackToIdle();}
+}
+MF_OTHER_IDS.forEach(function(id){
+  document.getElementById(id).addEventListener('click',function(){
+    mfHalt();
+    document.getElementById('tr-mode-myscore').classList.remove('on');
+    document.getElementById('tr-panel-myscore').classList.remove('on');
+    document.body.classList.remove('focus-myscore');
+  });
+});
+document.getElementById('tr-mode-myscore').addEventListener('click',function(){
+  document.body.classList.remove('focus-tempo','focus-rhythm','focus-game','focus-sight','focus-myscore');
+  MF_OTHER_IDS.forEach(function(id){document.getElementById(id).classList.remove('on');});
+  ['tr-panel-tempo','tr-panel-rhythm','tr-panel-game','tr-panel-sight'].forEach(function(id){document.getElementById(id).classList.remove('on');});
+  this.classList.add('on');document.getElementById('tr-panel-myscore').classList.add('on');
+  demoStop();
+  trCurrentMode='myscore';setVaImage('myscore');
+  if(mfIdleOnly()&&mfState!=='done') mfShowIdle();   // 見えてから描くと、譜面の幅が画面に合う
+});
+
+// --- 時刻の組み立て（本番とお手本で共通）---
+// playStart から、小節の頭・拍・叩く音の時刻（秒）を並べる
+function mfTimeline(playStart){
+  var spt=60/mfBpm/MF_Q,acc=0,out=[];
+  mfPages.forEach(function(pg,pi){
+    var o={start:playStart+acc*spt,dur:pg.len*spt,beats:[],hits:[],barStarts:[]};
+    pg.bars.forEach(function(b,bi){
+      var bs=playStart+(acc+b.off)*spt,bt=MF_Q*4/b.ts[1];
+      o.barStarts.push({no:b.no,t:bs});
+      for(var k=0;k<b.ts[0];k++)o.beats.push({t:bs+k*bt*spt,head:k===0});
+      b.ons.forEach(function(on){o.hits.push({t:bs+mfSwing(b.src,on.tk)*spt,bar:bi,pos:on.pos,label:on.label});});
+    });
+    acc+=pg.len;out.push(o);
+  });
+  return {pages:out,end:playStart+acc*spt,spt:spt};
+}
+function mfShowPage(i){
+  var n=mfPages.length;
+  document.getElementById('mf-qno').textContent=mfPageLabel(mfPages[i])+' / 全'+(mfTo-mfFrom+1)+'小節';
+  mfDraw('mf','mf-score',mfPages[i]);
+  var nw=document.getElementById('mf-next-wrap');
+  if(i+1<n){nw.style.display='block';mfDraw('mfn','mf-next',mfPages[i+1]);}else nw.style.display='none';
+}
+
+// --- 演奏 ---
+function mfStart(){
+  if(!mfSong)return;
+  stopBgm();demoStop();stopReplay();resetReplayBtns();
+  if(calibBlockIfNeeded())return;
+  mfMakePages();
+  if(!mfHasHits()){mfToast('この範囲には叩く音がありません');return;}
+  if(!kcRhy()){mfShowIdle();return;}
+  mfState='idle';
+  if(!ctx)ctx=new(window.AudioContext||window.webkitAudioContext)();
+  if(ctx.state==='suspended')ctx.resume();
+  document.body.classList.add('focus-myscore');
+  if(clickType==='cowbell'&&!cowbellReady()){
+    document.getElementById('mf-status').textContent='♪ 準備中...';
+    loadCowbell(function(){if(ctx)mfDoStart();});
+  } else mfDoStart();
+}
+function mfDoStart(){
+  var tok=++mfToken;mfState='countin';mfTaps=[];
+  document.getElementById('mf-result').classList.remove('on');
+  document.getElementById('mf-tap-btn').classList.add('inactive');
+  document.getElementById('mf-start-btn').style.display='none';
+  document.getElementById('mf-stop-btn').style.display='block';
+  var qi=document.getElementById('mf-qinfo');qi.textContent=mfBpm+' BPM';qi.style.display='';
+  mfShowPage(0);
+  var pulse=document.getElementById('mf-pulse');
+  if(pulse){pulse.style.display='block';pulse.style.visibility='visible';pulse.style.transform='scale(.85)';pulse.style.opacity='.3';pulse.style.background='#8aa0b5';}
+  // カウントイン：最初の小節の拍子で2小節
+  var ts0=mfPages[0].bars[0].ts,b=ts0[0],bi=(60/mfBpm)*(4/ts0[1]),t=ctx.currentTime+0.1;
+  var steps=trainerCountInSteps(bi,b,mfCiDiv,false),lastIdx=b*2-1;
+  steps.forEach(function(st){
+    if(st.beat)rtgMakeClick(t,st.barHead);else rtgMakeSubClick(t);
+    if(st.beat){
+      (function(delay,isLast,idx2){
+        setTimeout(function(){
+          if(tok!==mfToken||mfState!=='countin')return;
+          pulseCircle('mf-pulse',isLast);
+          document.getElementById('mf-status').textContent=idx2<b?'譜面を読んでください':String(b-(idx2-b));
+        },Math.max(0,delay));
+      })((t-ctx.currentTime)*1000,st.idx===lastIdx,st.idx);
+    }
+    t+=st.dt;
+  });
+  var playStart=t,TL=mfTimeline(playStart);
+  var comp=inputLatencyComp(),calibDelay=calibGetDelay(),dateOff=Date.now()-ctx.currentTime*1000;
+  mfPlay={playStart:playStart,items:[],tl:TL};
+  TL.pages.forEach(function(P,pi){
+    P.beats.forEach(function(bt){rtgMakeClick(bt.t,bt.head);});
+    P.hits.forEach(function(h){mfPlay.items.push({q:pi,ac:h.t*1000+comp,date:dateOff+h.t*1000+calibDelay,label:h.label,pos:h.pos,bar:h.bar});});
+    mfPages[pi].metDate=P.beats.map(function(bt){return dateOff+bt.t*1000+calibDelay;});
+  });
+  var alive=function(){return tok===mfToken&&(mfState==='countin'||mfState==='tapping');};
+  TL.pages.forEach(function(P,i){
+    setTimeout(function(){
+      if(!alive())return;
+      if(i>0)mfShowPage(i);
+      kcCursorStart('mf',P.start,TL.spt,P.dur,alive);
+    },Math.max(0,(P.start-ctx.currentTime)*1000-(i>0?20:0)));
+    P.barStarts.forEach(function(bs){
+      setTimeout(function(){if(alive()&&mfState==='tapping')document.getElementById('mf-status').textContent=bs.no+'小節目';},Math.max(0,(bs.t-ctx.currentTime)*1000));
+    });
+  });
+  setTimeout(function(){
+    if(tok!==mfToken||mfState!=='countin')return;
+    mfState='tapping';
+    var p=document.getElementById('mf-pulse');if(p)p.style.visibility='hidden';
+    document.getElementById('mf-tap-btn').classList.remove('inactive');
+    document.getElementById('mf-status').textContent=mfPages[0].first+'小節目';
+  },Math.max(0,(playStart-ctx.currentTime)*1000-30));
+  var endMs=(TL.end-ctx.currentTime)*1000+mfThresh().gd+150;
+  setTimeout(function(){if(tok===mfToken&&mfState==='tapping')mfShowResult();},Math.max(0,endMs));
+}
+function mfTap(){
+  if(!ctx||!mfPlay)return;
+  if(mfState==='countin'&&mfPlay.items.length&&(ctx.currentTime*1000)>=(mfPlay.items[0].ac-EARLY_TAP_MS)){
+    mfState='tapping';
+    var p=document.getElementById('mf-pulse');if(p)p.style.visibility='hidden';
+    document.getElementById('mf-tap-btn').classList.remove('inactive');
+  }
+  if(mfState!=='tapping')return;
+  var btn=document.getElementById('mf-tap-btn');
+  btn.classList.add('tap-flash');setTimeout(function(){btn.classList.remove('tap-flash');},120);
+  mfTaps.push(tapAcMsNow());
+}
+document.getElementById('mf-tap-btn').addEventListener('pointerdown',function(e){markTap(e);e.preventDefault();mfTap();});
+document.getElementById('mf-start-btn').addEventListener('click',mfStart);
+function mfBackToIdle(){
+  document.body.classList.remove('focus-myscore');
+  var p=document.getElementById('mf-pulse');if(p){p.style.display='none';p.style.visibility='';}
+  document.getElementById('mf-tap-btn').classList.add('inactive');
+  document.getElementById('mf-stop-btn').style.display='none';
+  document.getElementById('mf-start-btn').style.display='block';
+}
+document.getElementById('mf-stop-btn').addEventListener('click',function(){
+  mfState='idle';mfToken++;
+  if(ctx){try{ctx.close();}catch(e){}ctx=null;}
+  mfBackToIdle();mfShowIdle();
+  scrollToStartBtn('mf-start-btn');
+});
+
+// --- お手本（叩く前に聴く。譜面がめくれ、縦の線が流れる）---
+function mfDemoBuild(){
+  if(!mfSong)return null;
+  mfMakePages();
+  if(!mfHasHits()){mfToast('この範囲には叩く音がありません');return null;}
+  var TL=mfTimeline(0),events=[];
+  TL.pages.forEach(function(P){
+    P.beats.forEach(function(bt){events.push({t:bt.t,met:true,tap:false,accent:bt.head});});
+    P.hits.forEach(function(h){events.push({t:h.t,met:false,tap:true});});
+  });
+  return {statusId:'mf-status',pulseId:'mf-pulse',tableId:null,events:events,totalDurSec:TL.end,
+    endStatus:'譜面を見て、準備ができたらスタート',
+    onStart:function(playStart,alive){
+      var TL2=mfTimeline(playStart);
+      TL2.pages.forEach(function(P,i){
+        demoLater(function(){
+          if(!alive())return;
+          mfShowPage(i);document.getElementById('mf-next-wrap').style.display='none';
+          kcCursorStart('mf',P.start,TL2.spt,P.dur,alive);
+        },Math.max(0,(P.start-ctx.currentTime)*1000-20));
+      });
+      demoLater(function(){mfShowIdle();document.getElementById('mf-status').textContent='譜面を見て、準備ができたらスタート';},(TL2.end-ctx.currentTime)*1000+450);
+    }};
+}
+(function(){
+  var el=document.getElementById('mf-demo-btn');
+  el.addEventListener('click',function(){
+    if(!mfIdleOnly())return;
+    if(demoActiveBtn===el){demoStop();mfShowIdle();return;}
+    stopReplay();resetReplayBtns();stopBgm();
+    var cfg=mfDemoBuild();if(!cfg)return;
+    if(mfState==='done'){document.getElementById('mf-result').classList.remove('on');document.getElementById('mf-score').style.display='';document.getElementById('mf-qhead').style.display='';mfState='idle';}
+    demoPlay(cfg);
+    el.innerHTML='\u25A0 停止';el.style.background='#0F6E56';el.style.color='#ffffff';
+    demoActiveBtn=el;
+  });
+})();
+
+// --- 結果（初見と同じ作り）---
+function mfJudge(){
+  var it=mfPlay.items,used=new Array(mfTaps.length).fill(false),res=[],th=mfThresh();
+  for(var j=0;j<it.length;j++){
+    var gap=500;
+    if(j>0)gap=Math.min(gap,(it[j].ac-it[j-1].ac)/2);
+    if(j+1<it.length)gap=Math.min(gap,(it[j+1].ac-it[j].ac)/2);
+    gap=Math.max(gap,th.gd);
+    var best=-1,bd=1e9;
+    for(var i=0;i<mfTaps.length;i++){
+      if(used[i])continue;var dd=Math.abs(mfTaps[i]-it[j].ac);
+      if(dd<=gap&&dd<bd){bd=dd;best=i;}
+    }
+    if(best>=0){used[best]=true;var df=mfTaps[best]-it[j].ac;res.push({miss:false,diff:df,diffAdj:df});}
+    else res.push({miss:true,diff:null});
+  }
+  return res;
+}
+function mfShowResult(){
+  mfState='done';mfBackToIdle();
+  document.getElementById('mf-status').textContent='完了';
+  document.getElementById('mf-next-wrap').style.display='none';
+  var th=mfThresh(),res=mfJudge(),it=mfPlay.items,n=mfPages.length;
+  var cnt={p:0,gr:0,gd:0,bad:0,miss:0},sum=0;
+  res.forEach(function(r){
+    sum+=skPts(r,th);
+    if(r.miss){cnt.miss++;return;}
+    var a=Math.abs(r.diffAdj);
+    if(a<=th.p)cnt.p++;else if(a<=th.gr)cnt.gr++;else if(a<=th.gd)cnt.gd++;else cnt.bad++;
+  });
+  var pct=res.length?Math.round(sum/res.length):0,gr=skGrade(pct),perQ=[];
+  for(var q=0;q<n;q++)perQ.push({sum:0,cnt:0,miss:0,idx:[]});
+  res.forEach(function(r,i){
+    var Q=perQ[it[i].q];Q.sum+=skPts(r,th);Q.cnt++;Q.idx.push(i);
+    if(r.miss||Math.abs(r.diffAdj)>th.gd)Q.miss++;
+  });
+  // ミスなしの小節：その小節の音を、GOOD以内ですべて叩けた小節（叩く音の無い小節は数えない）
+  var barMiss={};res.forEach(function(r,i){var key=it[i].q+'-'+it[i].bar;if(!(key in barMiss))barMiss[key]=0;if(r.miss||Math.abs(r.diffAdj)>th.gd)barMiss[key]++;});
+  var keys=Object.keys(barMiss),clean=keys.filter(function(k){return !barMiss[k];}).length;
+  function card(t,big,sub,cls){return '<div style="flex:1;background:var(--bg);border-radius:var(--r);padding:9px 6px;text-align:center;"><div style="font-size:var(--fs-2xs);color:var(--ink-4);margin-bottom:2px;">'+t+'</div><div class="tr-bpm-diff '+cls+'" style="font-size:var(--fs-2xl);margin-bottom:0;">'+big+'</div><div style="font-size:var(--fs-xs);color:var(--ink-3);">'+sub+'</div></div>';}
+  var counts=[['PERFECT',cnt.p,'var(--green)'],['GREAT',cnt.gr,'var(--blue)'],['GOOD',cnt.gd,'var(--amber)'],['BAD',cnt.bad,'var(--red)'],['ミス',cnt.miss,'var(--red)']].map(function(c){
+    return '<div style="flex:1;text-align:center;"><div style="font-size:var(--fs-2xs);color:'+c[2]+';font-weight:bold">'+c[0]+'</div><div style="font-size:var(--fs-lg);font-weight:bold;color:var(--ink-2)">'+c[1]+'</div></div>';}).join('');
+  var rows='';
+  perQ.forEach(function(Q,i){
+    var pg=mfPages[i],lb=pg.first===pg.last?(pg.first+'小節'):(pg.first+'〜'+pg.last+'小節');
+    var qp=Q.cnt?Math.round(Q.sum/Q.cnt):0,cls=!Q.cnt?'ok':qp>=90?'good':qp>=75?'ok':qp>=55?'fair':'bad';
+    rows+='<div style="display:flex;align-items:center;gap:10px;padding:9px 10px;background:var(--bg);border-radius:var(--r);margin-bottom:6px;">'
+      +'<span style="font-size:var(--fs-sm);color:var(--ink-3);min-width:64px;">'+lb+'</span>'
+      +'<span class="tr-bpm-diff '+cls+'" style="font-size:var(--fs-xl);margin:0;">'+(Q.cnt?qp+'%':'—')+'</span>'
+      +'<span style="font-size:var(--fs-xs);color:var(--ink-4);flex:1;">'+(!Q.cnt?'叩く音なし':Q.miss?'ミス'+Q.miss+'回':'ミスなし')+'</span>'
+      +(Q.cnt?'<button class="mf-open" data-q="'+i+'" style="font-size:var(--fs-xs);color:var(--blue);background:var(--surface);border:1px solid var(--blue);border-radius:var(--r-sm);padding:4px 10px;font-weight:bold;cursor:pointer;">答え合わせ</button>':'')+'</div>'
+      +'<div class="mf-detail" id="mf-detail-'+i+'" style="display:none;border:1px solid var(--line-soft);border-radius:var(--r);padding:8px;margin:-2px 0 8px;background:var(--surface);">'
+      +'<div id="mf-qscore-'+i+'" style="background:var(--score-bg);border-radius:var(--r);padding:6px 4px;overflow-x:auto;"></div>'
+      +'<div style="font-size:var(--fs-xs);color:var(--ink-3);font-weight:bold;margin:10px 0 2px;">ズレ</div>'
+      +'<div id="mf-qgraph-'+i+'"></div>'
+      +'<div style="font-size:var(--fs-2xs);color:var(--ink-4);margin:6px 0 2px;">上段＝MET（表拍）／下段＝自分。○正解・●自分、緑帯＝ジャスト範囲、横＝時間</div>'
+      +'<div id="mf-qscatter-'+i+'"></div>'
+      +'<div style="font-size:var(--fs-2xs);color:var(--ink-4);margin:6px 0;">お手本を聴いたり、自分の叩き方と聴き比べたりして確かめられます。</div>'
+      +'<div style="display:flex;gap:6px;"><button class="demo-btn mf-demo" data-q="'+i+'" style="flex:1">▷ お手本を聴く</button>'
+      +'<button class="mf-cmp" data-q="'+i+'" style="flex:1;padding:8px;border-radius:var(--r);border:1px solid var(--blue);background:var(--surface);color:var(--blue);font-size:var(--fs-sm);font-weight:bold;cursor:pointer;">♪ 聴き比べる</button></div>'
+      +'<div style="font-size:var(--fs-2xs);color:var(--ink-4);text-align:center;margin-top:3px;">左メトロノーム音　右あなた</div></div>';
+  });
+  var nBars=mfTo-mfFrom+1,el=document.getElementById('mf-result');
+  el.innerHTML='<div class="tr-result-title" style="font-size:var(--fs-sm);color:var(--ink-3);margin-bottom:8px;">結果　<span style="color:var(--ink-4)">'+mfSong.title+'・'+mfBpm+' BPM・'+mfFrom+'〜'+mfTo+'小節目</span></div>'
+    +'<div style="display:flex;gap:8px;margin-bottom:8px;">'+card('正確さ',pct+'%',gr.t,gr.g)+card('ミスなしの小節',clean+'小節',keys.length+'小節中','ok')+'</div>'
+    +'<div style="display:flex;background:var(--bg);border-radius:var(--r);padding:8px 4px;margin-bottom:12px;">'+counts+'</div>'
+    +'<div id="mf-tendency" style="display:none;margin:0 0 12px;padding:9px 11px;background:var(--amber-soft);border-left:3px solid var(--amber);border-radius:var(--r-sm);"></div>'
+    +'<div style="font-size:var(--fs-xs);color:var(--ink-3);font-weight:bold;margin:4px 0 6px;">4小節ごとの結果</div>'+rows
+    +'<div style="display:flex;flex-direction:column;gap:6px;margin-top:10px;">'
+    +'<button id="mf-again" style="width:100%;padding:8px;border-radius:var(--r);border:1px solid var(--amber);background:var(--surface);color:var(--amber);font-size:var(--fs-sm);font-weight:bold;cursor:pointer;">もう一度</button></div>';
+  renderTendency('mf-tendency',analyzeTendency(res,it.map(function(o){return {label:o.label,pos:o.pos};}),th));
+  el.classList.add('on');
+  mfLast={res:res,perQ:perQ};
+  el.querySelectorAll('.mf-open').forEach(function(b){
+    b.addEventListener('click',function(){
+      var i=+this.dataset.q,dt=document.getElementById('mf-detail-'+i),open=dt.style.display==='none';
+      dt.style.display=open?'block':'none';this.textContent=open?'閉じる':'答え合わせ';
+      if(open){mfDraw('mfq'+i,'mf-qscore-'+i,mfPages[i]);mfDetailCharts(i);}
+    });
+  });
+  el.querySelectorAll('.mf-demo').forEach(function(b){b.addEventListener('click',function(){mfListen(+this.dataset.q,false);});});
+  el.querySelectorAll('.mf-cmp').forEach(function(b){b.addEventListener('click',function(){mfListen(+this.dataset.q,true);});});
+  document.getElementById('mf-again').addEventListener('click',mfAgain);
+  document.getElementById('mf-qno').textContent='結果';
+  document.getElementById('mf-qinfo').style.display='none';
+  mfDraw('mf','mf-score',null);document.getElementById('mf-score').style.display='none';document.getElementById('mf-qhead').style.display='none';
+  setTimeout(function(){el.scrollIntoView({behavior:'smooth',block:'start'});},80);
+}
+function mfDetailCharts(i){
+  if(!mfLast)return;
+  var it=mfPlay.items,idx=mfLast.perQ[i].idx,th=mfThresh(),box=document.getElementById('mf-qgraph-'+i),pg=mfPages[i];
+  box.innerHTML='';
+  pg.bars.forEach(function(b,bar){
+    var ks=idx.filter(function(k){return it[k].bar===bar;});
+    if(!ks.length)return;
+    var h=document.createElement('div');
+    h.style.cssText='font-size:.68rem;color:#aaa49a;padding:8px 4px 4px;font-weight:bold;letter-spacing:.05em;'+(box.children.length?'border-top:1px solid #ebe9e2;margin-top:4px;':'');
+    h.textContent=b.no+'小節目';box.appendChild(h);
+    var g=document.createElement('div');g.id='mf-qgraph-'+i+'-'+bar;box.appendChild(g);
+    renderResultGraph(g.id,ks.map(function(k){return mfLast.res[k];}),1,ks.length,'拍',false,th,ks.map(function(k){return it[k].label;}));
+  });
+  renderScatter('mf-qscatter-'+i,idx.map(function(k){return mfLast.res[k];}),idx.map(function(k){return it[k].date;}),pg.metDate,th);
+}
+function mfListen(i,mine){
+  if(!mfLast)return;
+  var it=mfPlay.items,idx=mfLast.perQ[i].idx,pg=mfPages[i],exp=idx.map(function(k){return it[k].date;});
+  replayData={bpm:mfBpm,metExpectedMs:pg.metDate,expectedMs:exp,
+    diffAdjs:idx.map(function(k){var r=mfLast.res[k];return r.miss?null:r.diffAdj;}),
+    misses:idx.map(function(k){return mfLast.res[k].miss;}),
+    tapSiArr:exp.map(function(ms){return {ms:ms};})};
+  if(mine)replayPlay(true);else replayPlayMetOnTap();
+}
+function mfAgain(){
+  stopReplay();
+  document.getElementById('mf-result').classList.remove('on');
+  document.getElementById('mf-score').style.display='';document.getElementById('mf-qhead').style.display='';
+  mfState='idle';
+  if(mfPrev==='self'){mfShowIdle();scrollToStartBtn('mf-start-btn');}
+  else mfStart();
+}
+// 前回の曲と設定を戻す
+(function(){
+  var p=null;try{p=JSON.parse(localStorage.getItem(MF_KEY)||'null');}catch(e){}
+  if(p&&typeof p==='object'){
+    if(p.song&&Array.isArray(p.song.bars)&&p.song.bars.length)mfSong=p.song;
+    if(mfSong){var n=mfSong.bars.length;mfFrom=Math.max(1,Math.min(n,p.from|0||1));mfTo=Math.max(mfFrom,Math.min(n,p.to|0||n));}
+    if(p.bpm)mfSetBpm(p.bpm);else if(mfSong)mfSetBpm(mfSong.bpm);
+    if(p.prev==='ci'||p.prev==='self')mfPrev=p.prev;
+    if(p.ci)mfCiDiv=p.ci|0||1;
+    mfSetJudge(!!p.oni);
+    document.querySelectorAll('[data-mfprev]').forEach(function(x){x.classList.toggle('on',x.dataset.mfprev===mfPrev);});
+    document.querySelectorAll('[data-mfcid]').forEach(function(x){x.classList.toggle('on',+x.dataset.mfcid===mfCiDiv);});
+  }
+  mfSyncSetup();
+})();
+
 drumApply(); // 起動時に、選んでいるドラムの型とマスを出す
 setVaImage('metro'); // 初期表示はメトロノームタブ
 
@@ -5362,7 +6089,7 @@ REPLAY_BTNS.forEach(function(b){
 // カウントインは付けず、押したらすぐメトロノーム音とお手本のタップ音を鳴らす。
 // 判定は行わず、最後まで鳴ったら自動で終わる。もう一度押すと途中で止まる。
 var demoToken=0, demoTimers=[], demoActiveBtn=null, demoPulseId=null;
-var DEMO_BTNS=['rtg-demo-btn','gm-demo-btn'];
+var DEMO_BTNS=['rtg-demo-btn','gm-demo-btn','mf-demo-btn'];
 
 function demoClearTimers(){
   for(var i=0;i<demoTimers.length;i++) clearTimeout(demoTimers[i]);
@@ -5417,6 +6144,7 @@ function demoPlay(cfg){
   // 譜面の上を縦の線が流れる（お手本を止めたら消える）
   var kcAlive=function(){return demoActiveBtn!==null;};
   if(cfg.tableId==='rtg-table')kcRtgCursor(playStart,kcAlive);else if(cfg.tableId==='gm-table')kcGmCursor(playStart,cfg.totalDurSec,kcAlive);
+  if(cfg.onStart)cfg.onStart(playStart,kcAlive);   // マイ譜面：譜面をめくり、縦の線を流す
   demoLater(function(){
     var p=document.getElementById(cfg.pulseId); if(p) p.style.visibility='hidden';
     var el=document.getElementById(cfg.statusId); if(el) el.textContent='お手本を再生中';
@@ -6145,6 +6873,7 @@ document.addEventListener('keydown',function(e){
   rtgTap();
   trTap();
   skTap();
+  if(typeof mfTap==='function') mfTap();
 });
 
 // ═══ 段階5b: ゲームのランダム出題（既存Lv1-25は温存・星記録対象外）═══
