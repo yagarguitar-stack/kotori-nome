@@ -1251,12 +1251,22 @@ function smpCredits(){
   if(el&&smpOk()&&DS.sound.creditsHtml) el.innerHTML=DS.sound.creditsHtml(['drums']);
 }
 // 録音のドラムで鳴らせたら true
+// オープンハイハットだけ、高い音を持ち上げて明るくし、少し大きくして通す（録音が控えめなため）
+var ohChainCtx=null,ohChainIn=null;
+function ohChain(bus){
+  if(ohChainCtx===ctx&&ohChainIn) return ohChainIn;
+  var shelf=ctx.createBiquadFilter(),g=ctx.createGain();
+  shelf.type='highshelf';shelf.frequency.value=6000;shelf.gain.value=6;   // 6000Hzより上を +6dB
+  g.gain.value=Math.pow(10,3/20);                                         // 全体を +3dB
+  shelf.connect(g);g.connect(bus);
+  ohChainCtx=ctx;ohChainIn=shelf;return shelf;
+}
 function smpDrum(t,type){
   if(!smpDrumOn||!smpOk()||!ctx) return false;
   var bus=getClickBus();
   if(smpCtx!==ctx||!DS.sound.isReady('drums')) return false;
   var d=SMP_DRUM[type]; if(!d) return false;
-  var o={time:t,vel:d.vel,dest:bus};
+  var o={time:t,vel:d.vel,dest:(type==='oh')?ohChain(bus):bus};
   if(drumTight&&SMP_TIGHT[d.name]){o.dur=SMP_TIGHT[d.name].dur;o.release=SMP_TIGHT[d.name].release;}
   try{ var v=DS.sound.drum(d.name,o); if(type==='oh') drumOpenHat=v; return true; }catch(e){ return false; }
 }
