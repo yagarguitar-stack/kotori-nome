@@ -1227,13 +1227,19 @@ function clkCowbell(t,hi){
 var smpCtx=null, smpLoading=false, smpDrumOn=true;
 // 合成ドラムと同じ大きさになるよう、種類ごとに測って合わせた強さ
 // （hh＝拍の頭の刻み、hhs＝細かい刻み。今の強弱をそのまま録音に当てる）
-var SMP_DRUM={ bd:{name:'kick',vel:0.956}, sn:{name:'snare',vel:1.016}, hh:{name:'hihat',vel:1.081}, hhs:{name:'hihat',vel:0.630},
-               cr:{name:'crash',vel:0.85}, rd:{name:'ride',vel:0.90},
-               oh:{name:'hihat-open',vel:0.85}, rm:{name:'rim',vel:0.90}, th:{name:'tom-high',vel:0.95}, tl:{name:'tom-low',vel:0.95} };
+// 強さは、録音ごとの聞こえ方の大きさを測ってそろえた値（2026-10 見直し）。
+// スネアを基準に、キックはやや上、ハイハットは一歩下、タムはスネアに近く、シンバルは前に出すぎない程度
+var SMP_DRUM={ bd:{name:'kick',vel:0.833}, sn:{name:'snare',vel:1.016}, hh:{name:'hihat',vel:1.020}, hhs:{name:'hihat',vel:0.595},
+               cr:{name:'crash',vel:1.040}, rd:{name:'ride',vel:1.082},
+               oh:{name:'hihat-open',vel:0.802}, rm:{name:'rim',vel:1.088}, th:{name:'tom-high',vel:1.196}, tl:{name:'tom-low',vel:0.995} };
 // 電子音の強さ。木製のクリックと同じ大きさ・同じ強弱の差（強拍／弱拍）に合わせた
 var SMP_BEEP={hi:1.079,lo:0.818};
 // 「タイト」：ドラムの響きを短く止める（dur＝そのまま鳴らす長さ、release＝消えるまでの長さ。秒）
 var drumTight=false;
+// ふだんの鳴り方も、録音の響きをほんの少し短く止める（録音のままだと少し緩いため）
+var SMP_NORMAL={ kick:{dur:0.32,release:0.12}, snare:{dur:0.35,release:0.12}, hihat:{dur:0.16,release:0.08},
+                 crash:{dur:1.6,release:0.6}, ride:{dur:0.8,release:0.3},
+                 'hihat-open':{dur:0.8,release:0.25}, rim:{dur:0.16,release:0.08}, 'tom-high':{dur:0.4,release:0.15}, 'tom-low':{dur:0.45,release:0.15} };
 var SMP_TIGHT={ kick:{dur:0.15,release:0.05}, snare:{dur:0.12,release:0.05}, hihat:{dur:0.045,release:0.035},
                 crash:{dur:0.35,release:0.15}, ride:{dur:0.25,release:0.10},
                 'hihat-open':{dur:0.18,release:0.08}, rim:{dur:0.06,release:0.04}, 'tom-high':{dur:0.15,release:0.06}, 'tom-low':{dur:0.18,release:0.07} };
@@ -1267,7 +1273,8 @@ function smpDrum(t,type){
   if(smpCtx!==ctx||!DS.sound.isReady('drums')) return false;
   var d=SMP_DRUM[type]; if(!d) return false;
   var o={time:t,vel:d.vel,dest:(type==='oh')?ohChain(bus):bus};
-  if(drumTight&&SMP_TIGHT[d.name]){o.dur=SMP_TIGHT[d.name].dur;o.release=SMP_TIGHT[d.name].release;}
+  var len=(drumTight?SMP_TIGHT:SMP_NORMAL)[d.name];
+  if(len){o.dur=len.dur;o.release=len.release;}
   try{ var v=DS.sound.drum(d.name,o); if(type==='oh') drumOpenHat=v; return true; }catch(e){ return false; }
 }
 // 電子音のクリック。共通の音（sound.js）と同じ作り。読み込めない時もここで同じ音を作る
