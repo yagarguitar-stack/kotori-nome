@@ -4066,6 +4066,17 @@ function mfTiedFrom(prev,cur){
   if(!cs.length)return true;
   return cs.every(function(o){return o&&tied[o.s];});
 }
+// ScoreLineTAB は tab-6.2x から、音を「パートごと」に持つ（小節の np[パート]、はねない拍などの印は pm[パート]）。
+// 使うのは、ScoreLineTAB で最後に表に出していたパート。古い形（小節の notes・evenAt）もそのまま読む。
+function mfPartIdx(o){var n=(Array.isArray(o.parts)&&o.parts.length)||1;return Math.min(Math.max(0,(+o.part)|0),n-1);}
+function mfBarNotes(o,b){
+  if(Array.isArray(b.np)&&b.np.length){var a=b.np[Math.min(mfPartIdx(o),b.np.length-1)];return Array.isArray(a)?a:[];}
+  return Array.isArray(b.notes)?b.notes:[];
+}
+function mfBarEven(o,b){
+  if(Array.isArray(b.pm)&&b.pm.length){var m=b.pm[Math.min(mfPartIdx(o),b.pm.length-1)];if(m&&m.evenAt)return m.evenAt;}
+  return b.evenAt||null;
+}
 function mfFromSlt(o){
   if(!o||typeof o!=='object'||!Array.isArray(o.bars)||!o.bars.length)return null;
   var v=+o.version||1,sc=v<2?35:1,ssc=v<3?35:1;   // 古い版は1拍＝48だった（ScoreLineTAB の読み込みと同じ換算）
@@ -4085,7 +4096,7 @@ function mfFromSlt(o){
     var ts=(b.timeSig&&b.timeSig.n)?b.timeSig:ts0;
     var n=Math.max(1,Math.min(16,Math.round(+ts.n||4))),d=[2,4,8,16].indexOf(+ts.d)>=0?+ts.d:4;
     var len=Math.round(n*4/d*MF_Q),sbt=(d===8&&n%3===0)?MF_Q*1.5:MF_Q*4/d;
-    var notes=(b.notes||[]).filter(function(x){return x&&typeof x.start==='number';})
+    var notes=mfBarNotes(o,b).filter(function(x){return x&&typeof x.start==='number';})
       .slice().sort(function(a,c){return a.start-c.start;});
     var on=[];
     notes.forEach(function(nt){
@@ -4103,7 +4114,7 @@ function mfFromSlt(o){
     // 6/8 などの複合拍子は、もともと3つずつのまとまりなので、はねを掛けない。
     var nb=Math.round(len/sbt),ev=[],cmp=(d===8&&n%3===0),g=cmp?sbt/12:sbt/8;
     for(var k=0;k<nb;k++){
-      var e=cmp||!!(b.evenAt&&b.evenAt[k]===true);
+      var eva=mfBarEven(o,b),e=cmp||!!(eva&&eva[k]===true);
       if(!e)e=on.some(function(t){return t>=k*sbt&&t<(k+1)*sbt&&((t-k*sbt)%g)!==0;});
       ev.push(e);
     }
