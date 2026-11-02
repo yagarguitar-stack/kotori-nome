@@ -898,18 +898,19 @@ body.focus-game #gm-tap-btn{display:block}
 
   <!-- マイ譜面モード -->
   <div class="tr-panel" id="tr-panel-myscore">
-    <div style="font-size:var(--fs-xs);color:var(--ink-4);margin:-6px 0 14px;line-height:1.6;">ScoreLineTAB で作った曲のリズムを叩きます。</div>
+    <div style="font-size:var(--fs-xs);color:var(--ink-4);margin:-6px 0 14px;line-height:1.6;">ScoreLine TAB・Lead で作った曲のリズムを叩きます。</div>
     <div class="sl" style="margin-bottom:4px;">曲</div>
     <div id="mf-song-box" style="background:var(--bg);border-radius:var(--r);padding:10px 12px;margin-bottom:8px;">
       <div id="mf-song-title" style="font-size:var(--fs-md);color:var(--ink-2);font-weight:bold;">曲が選ばれていません</div>
       <div id="mf-song-info" style="font-size:var(--fs-xs);color:var(--ink-4);margin-top:2px;line-height:1.6;">下のボタンから曲を選んでください。</div>
     </div>
+    <button class="tb" id="mf-back" style="display:none;width:100%;min-height:40px;margin-bottom:6px;"></button>
     <div style="display:flex;gap:6px;margin-bottom:4px;">
-      <button class="tb" id="mf-pick-slt" style="flex:1;min-height:40px;">ScoreLineTAB の曲から選ぶ</button>
+      <button class="tb" id="mf-pick-slt" style="flex:1;min-height:40px;">ScoreLine の曲から選ぶ</button>
       <button class="tb" id="mf-pick-file" style="flex:1;min-height:40px;">ファイルから読み込む</button>
     </div>
     <input type="file" id="mf-file-in" accept=".json,application/json" style="display:none">
-    <div style="font-size:var(--fs-xs);color:var(--ink-4);margin-bottom:12px;line-height:1.6;">ファイルは ScoreLineTAB で書き出した .json を使います。</div>
+    <div style="font-size:var(--fs-xs);color:var(--ink-4);margin-bottom:12px;line-height:1.6;">ファイルは ScoreLine TAB・Lead で書き出した .json を使います。</div>
     <div class="sl" style="margin-bottom:4px;">使う範囲</div>
     <div style="display:flex;align-items:center;gap:6px;margin-bottom:12px;font-size:var(--fs-sm);color:var(--ink-3);">
       <select id="mf-from" class="mf-sel"></select><span>小節目から</span>
@@ -4077,9 +4078,11 @@ function mfBarEven(o,b){
   if(Array.isArray(b.pm)&&b.pm.length){var m=b.pm[Math.min(mfPartIdx(o),b.pm.length-1)];if(m&&m.evenAt)return m.evenAt;}
   return b.evenAt||null;
 }
-function mfFromSlt(o){
+function mfFromSlt(o,src){
   if(!o||typeof o!=='object'||!Array.isArray(o.bars)||!o.bars.length)return null;
-  var v=+o.version||1,sc=v<2?35:1,ssc=v<3?35:1;   // 古い版は1拍＝48だった（ScoreLineTAB の読み込みと同じ換算）
+  // ScoreLine Lead の曲も同じ形で読める（小節の notes・evenAt）。Lead は版2で、はねの単位も直してある
+  if(!src&&('pats' in o)&&!('parts' in o))src='lead';   // Lead の曲だけが持つ欄で見分ける
+  var v=+o.version||1,sc=v<2?35:1,ssc=(src==='lead')?sc:(v<3?35:1);   // 古い版は1拍＝48だった（ScoreLineTAB の読み込みと同じ換算）
   var meta=o.meta||{},ts0=(meta.timeSig&&meta.timeSig.n)?meta.timeSig:{n:4,d:4};
   var play=o.play||{},bpm=Math.max(30,Math.min(240,Math.round(+play.bpm||96)));
   var sw=null;
@@ -4279,20 +4282,25 @@ function mfOpenList(title,cands){
   });
   document.getElementById('mf-list-overlay').classList.add('on');
 }
+// ScoreLine TAB と Lead の曲をまとめて一つの一覧にする（新しく保存した順）。Compass の曲は入れない
+var SL_SRC=[{src:'tab',label:'TAB',index:SLT_INDEX,song:SLT_SONG},{src:'lead',label:'Lead',index:'utadori.index.v1',song:'utadori.song.'}];
 function mfSltCands(){
-  var idx=null;try{idx=JSON.parse(localStorage.getItem(SLT_INDEX)||'null');}catch(e){}
-  var list=(idx&&Array.isArray(idx.index))?idx.index.slice():[];
-  list.sort(function(a,b){return (b.updatedAt||0)-(a.updatedAt||0);});
-  return list.map(function(e){
-    return {title:e.title||'無題の曲',sub:(e.barCount?('全'+e.barCount+'小節'):'')+(e.updatedAt?('・'+mfDateStr(e.updatedAt)+'に保存'):''),
-      load:function(){try{return mfFromSlt(JSON.parse(localStorage.getItem(SLT_SONG+e.id)||'null'));}catch(err){return null;}}};
+  var all=[];
+  SL_SRC.forEach(function(S){
+    var idx=null;try{idx=JSON.parse(localStorage.getItem(S.index)||'null');}catch(e){}
+    ((idx&&Array.isArray(idx.index))?idx.index:[]).forEach(function(e){all.push({S:S,e:e});});
+  });
+  all.sort(function(a,b){return (b.e.updatedAt||0)-(a.e.updatedAt||0);});
+  return all.map(function(x){var S=x.S,e=x.e;
+    return {title:e.title||'無題の曲',sub:S.label+(e.barCount?('・全'+e.barCount+'小節'):'')+(e.updatedAt?('・'+mfDateStr(e.updatedAt)+'に保存'):''),
+      load:function(){try{return mfFromSlt(JSON.parse(localStorage.getItem(S.song+e.id)||'null'),S.src);}catch(err){return null;}}};
   });
 }
 document.getElementById('mf-pick-slt').addEventListener('click',function(){
   if(!mfIdleOnly())return;
   var c=mfSltCands();
-  if(!c.length){mfToast('この端末の ScoreLineTAB に保存された曲が見つかりません。書き出したファイルから読み込んでください');return;}
-  mfOpenList('ScoreLineTAB の曲',c);
+  if(!c.length){mfToast('この端末の ScoreLine TAB・Lead に保存された曲が見つかりません。書き出したファイルから読み込んでください');return;}
+  mfOpenList('ScoreLine の曲',c);
 });
 document.getElementById('mf-pick-file').addEventListener('click',function(){
   if(!mfIdleOnly())return;
@@ -4302,7 +4310,7 @@ document.getElementById('mf-file-in').addEventListener('change',function(){
   var f=this.files&&this.files[0];if(!f)return;
   var r=new FileReader();
   r.onload=function(){
-    var o;try{o=JSON.parse(r.result);}catch(e){mfToast('読み込めませんでした（ScoreLineTAB の .json ではないようです）');return;}
+    var o;try{o=JSON.parse(r.result);}catch(e){mfToast('読み込めませんでした（ScoreLine の .json ではないようです）');return;}
     var raws=o&&o.songs?o.songs:(o&&o.song?[o.song]:(Array.isArray(o)?o:[o]));
     var songs=raws.map(function(x){return mfFromSlt(x);}).filter(Boolean);
     if(!songs.length){mfToast('読み込める曲がありませんでした');return;}
@@ -4672,6 +4680,43 @@ function mfAgain(){
   }
   mfSyncSetup();
 })();
+// ═══ ScoreLine の道具の板から渡された曲を開く ═══
+// ScoreLine TAB・Lead の〈ことりノーム〉を押すと、どの曲か（保存の鍵）とループの範囲を預けてここへ来る。
+// 曲は ScoreLine の保存から読む（読むだけ。書き込まない）。マイ譜面で開き、スタートを押すのを待つ。
+var KN_CARRY='kotori.carry.v1',KN_BACK='kotori.back.v1';
+var KN_TOOLS={tab:{name:'ScoreLine TAB',url:'https://yagarguitar-stack.github.io/ScoreLineTab/'},
+              lead:{name:'ScoreLine Lead',url:'https://yagarguitar-stack.github.io/ScoreLineLead/'}};
+function knShowBack(){
+  var from=null;try{from=sessionStorage.getItem(KN_BACK);}catch(e){}
+  var t=KN_TOOLS[from],b=document.getElementById('mf-back');
+  if(!b)return;
+  if(!t){b.style.display='none';return;}
+  b.textContent=t.name+' に戻る';b.style.display='';
+  b.onclick=function(){location.href=t.url;};
+}
+// 画面のほかの部分（お手本の再生など）がすべて整ってから動かす——ここは本体の途中なので、
+// その場で画面を切り替えると、後ろで用意される物がまだ無く、誤りが出ていた
+setTimeout(function(){
+  if(location.hash!=='#from-scoreline'){knShowBack();return;}
+  try{history.replaceState(null,'',location.pathname+location.search);}catch(e){}
+  var o=null;try{o=JSON.parse(localStorage.getItem(KN_CARRY)||'null');}catch(e){}
+  try{localStorage.removeItem(KN_CARRY);}catch(e){}
+  if(!o||!KN_TOOLS[o.from]||Date.now()-(o.at||0)>10*60*1000){knShowBack();return;}
+  try{sessionStorage.setItem(KN_BACK,o.from);}catch(e){}
+  document.getElementById('tab-trainer').click();
+  document.getElementById('tr-mode-myscore').click();
+  knShowBack();
+  var raw=null;try{raw=JSON.parse(localStorage.getItem(o.key)||'null');}catch(e){}
+  var sg=raw?mfFromSlt(raw,o.from):null;
+  if(!sg){mfToast('曲を読み込めませんでした');return;}
+  mfSong=sg;
+  var n=sg.bars.length,r=o.range;
+  mfFrom=(r&&r.from>=1&&r.from<=n)?r.from:1;
+  mfTo=(r&&r.to>=mfFrom&&r.to<=n)?r.to:n;
+  mfSetBpm(sg.bpm);
+  try{mfFillRange();}catch(e){}
+  mfSave();mfShowIdle();
+},0);
 
 drumApply(); // 起動時に、選んでいるドラムの型とマスを出す
 setVaImage('metro'); // 初期表示はメトロノームタブ
